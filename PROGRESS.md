@@ -25,7 +25,7 @@
 | Project scaffold | ✅ Done | FastAPI skeleton in `codebase/backend/` |
 | Database models | ✅ Done | Business, EventType, Session, Package, Booking, Payment, Customer + `booking_sessions`/`package_session_pool` association tables |
 | Alembic migrations | ✅ Done | Initial schema migration applied to local DB |
-| Admin auth (JWT) | ⬜ Pending | Login, token refresh |
+| Admin auth (JWT) | ✅ Done | `POST /api/auth/register`, `/login`, `/refresh`, `GET /me` — access + refresh tokens, one login per Business |
 | Business CRUD API | ⬜ Pending | |
 | Event type CRUD API | ⬜ Pending | one-time / recurring / package |
 | Session generation logic | ⬜ Pending | Auto-generate sessions from recurring patterns |

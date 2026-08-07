@@ -5,7 +5,22 @@
       "Bash(/root/buhata-booking/venv/bin/python -c \"import sqlalchemy, alembic; print\\('ok'\\)\")",
       "Bash(/root/buhata-booking/venv/bin/alembic revision *)",
       "Bash(/root/buhata-booking/venv/bin/alembic upgrade *)",
-      "Bash(/root/buhata-booking/venv/bin/python -c ' *)"
+      "Bash(/root/buhata-booking/venv/bin/python -c ' *)",
+      "Bash(/root/buhata-booking/venv/bin/pip install *)",
+      "Bash(/root/buhata-booking/venv/bin/python -c \"import fastapi; print\\(fastapi.__file__\\); print\\(fastapi.__version__\\)\")",
+      "Bash(/root/buhata-booking/venv/bin/python -c \"import fastapi.routing as r; import inspect; print\\(inspect.getsource\\(r.APIRouter.include_router\\)\\)\")",
+      "Bash(/root/buhata-booking/venv/bin/uvicorn app.main:app --port 8000)",
+      "Bash(echo \"PID: $!\")",
+      "Read(//tmp/**)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(tail -60 /tmp/uvicorn.log)",
+      "Bash(/root/buhata-booking/venv/bin/pip show *)",
+      "Bash(/root/buhata-booking/venv/bin/pip uninstall *)",
+      "Bash(kill %1)",
+      "Bash(pkill -f \"uvicorn app.main:app\")",
+      "Bash(curl -s -m 3 http://localhost:8000/health)",
+      "Bash(nohup /root/buhata-booking/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000)",
+      "Bash(disown)"
     ],
     "additionalDirectories": [
       "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory"

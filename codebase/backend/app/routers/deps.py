@@ -1,0 +1,48 @@
+from datetime import timedelta
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError
+from sqlalchemy.orm import Session as DBSession
+
+from app.config import settings
+from app.database import get_db
+from app.models import Business
+from app.services.security import create_token, decode_token
+
+bearer_scheme = HTTPBearer()
+
+
+def create_access_token(business_id: int) -> str:
+    expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
+    return create_token(str(business_id), expires_delta, "access")
+
+
+def create_refresh_token(business_id: int) -> str:
+    expires_delta = timedelta(days=settings.refresh_token_expire_days)
+    return create_token(str(business_id), expires_delta, "refresh")
+
+
+def get_current_business(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    db: DBSession = Depends(get_db),
+) -> Business:
+    unauthorized = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise unauthorized
+
+    if payload.get("type") != "access":
+        raise unauthorized
+
+    business_id = payload.get("sub")
+    if business_id is None:
+        raise unauthorized
+
+    business = db.get(Business, int(business_id))
+    if business is None or not business.is_active:
+        raise unauthorized
+
+    return business
