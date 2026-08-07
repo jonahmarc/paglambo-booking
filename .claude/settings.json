@@ -1,5 +1,12 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import sqlalchemy\")",
+      "Bash(/root/buhata-booking/venv/bin/python -c \"import sqlalchemy, alembic; print\\('ok'\\)\")",
+      "Bash(/root/buhata-booking/venv/bin/alembic revision *)",
+      "Bash(/root/buhata-booking/venv/bin/alembic upgrade *)",
+      "Bash(/root/buhata-booking/venv/bin/python -c ' *)"
+    ],
     "additionalDirectories": [
       "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory"
     ]

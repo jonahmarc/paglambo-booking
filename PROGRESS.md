@@ -23,8 +23,8 @@
 | Task | Status | Notes |
 |---|---|---|
 | Project scaffold | ✅ Done | FastAPI skeleton in `codebase/backend/` |
-| Database models | ⬜ Pending | businesses, event_types, sessions, packages, bookings, payments, customers |
-| Alembic migrations | ⬜ Pending | |
+| Database models | ✅ Done | Business, EventType, Session, Package, Booking, Payment, Customer + `booking_sessions`/`package_session_pool` association tables |
+| Alembic migrations | ✅ Done | Initial schema migration applied to local DB |
 | Admin auth (JWT) | ⬜ Pending | Login, token refresh |
 | Business CRUD API | ⬜ Pending | |
 | Event type CRUD API | ⬜ Pending | one-time / recurring / package |
