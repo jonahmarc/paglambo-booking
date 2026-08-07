@@ -83,6 +83,44 @@ backend/
 | `Payment` | Proof of payment — receipt upload, then admin approve/reject |
 | `Customer` | Contact details, scoped per business |
 
+## Connecting to the VPS database
+
+To inspect or query the production PostgreSQL database from your local machine, open an SSH tunnel — this forwards a local port through SSH to the VPS's Postgres port without exposing 5432 publicly.
+
+### 1. Open the tunnel
+
+```bash
+ssh -L 5433:localhost:5432 root@<your-vps-ip> -N
+```
+
+- `-L 5433:localhost:5432` — local port 5433 maps to port 5432 on the VPS
+- `-N` — no shell, just the tunnel
+- Leave this terminal open while you need the connection
+
+### 2. Connect with a DB client
+
+Point any Postgres client (DBeaver, TablePlus, pgAdmin, psql) at:
+
+| Setting | Value |
+|---|---|
+| Host | `localhost` |
+| Port | `5433` |
+| Database | `buhata_booking` |
+| User | `buhata` |
+| Password | *(from VPS `.env`)* |
+
+### 3. Run Alembic migrations against the VPS
+
+With the tunnel open, override `DATABASE_URL` to use the tunnel port:
+
+```bash
+DATABASE_URL=postgresql://buhata:<password>@localhost:5433/buhata_booking alembic upgrade head
+```
+
+### Close the tunnel
+
+`Ctrl+C` in the terminal running the `ssh -N` command.
+
 ## Running tests
 
 ```bash

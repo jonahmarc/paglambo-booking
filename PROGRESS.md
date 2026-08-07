@@ -7,11 +7,11 @@
 | Task | Status | Notes |
 |---|---|---|
 | DigitalOcean VPS | ✅ Have it | Upgrade to 2GB RAM when bookings go live |
-| SSH key pair for GitHub Actions | ⬜ Pending | Generate and add to VPS `authorized_keys` + GitHub secrets |
-| PostgreSQL on VPS | ⬜ Pending | Install, create `buhata_booking` DB and user |
-| GitHub repo | ⬜ Pending | User to `git init` locally, push to GitHub |
-| GitHub Actions deploy pipeline | ⬜ Pending | SSH deploy on push to `main` |
-| `.env` on VPS | ⬜ Pending | Copy `.env.example`, fill in production values |
+| SSH key pair for GitHub Actions | ✅ Done | Public key on VPS, private key in GitHub Secrets |
+| PostgreSQL on VPS | ✅ Done | `buhata_booking` DB and user created |
+| GitHub repo | ✅ Done | Pushed to GitHub |
+| GitHub Actions deploy pipeline | ⬜ Pending | SSH deploy on push to `main` — defer until domain/production ready |
+| `.env` on VPS | ⬜ Pending | Fill in production values — defer until domain/production ready |
 | Nightly DB backup to DO Spaces | ⬜ Pending | Cron job on VPS |
 
 ---
