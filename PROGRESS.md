@@ -26,7 +26,7 @@
 | Database models | ✅ Done | Business, EventType, Session, Package, Booking, Payment, Customer + `booking_sessions`/`package_session_pool` association tables |
 | Alembic migrations | ✅ Done | Initial schema migration applied to local DB |
 | Admin auth (JWT) | ✅ Done | `POST /api/auth/register`, `/login`, `/refresh`, `GET /me` — access + refresh tokens, one login per Business |
-| Business CRUD API | ⬜ Pending | |
+| Business CRUD API | ✅ Done | `GET /api/business`, `PATCH /api/business` — auth-gated, returns full business detail incl. payment usernames |
 | Event type CRUD API | ⬜ Pending | one-time / recurring / package |
 | Session generation logic | ⬜ Pending | Auto-generate sessions from recurring patterns |
 | Package + date pool logic | ⬜ Pending | Fixed-date and customer-picks variants |
