@@ -27,7 +27,7 @@
 | Alembic migrations | ✅ Done | Initial schema migration applied to local DB |
 | Admin auth (JWT) | ✅ Done | `POST /api/auth/register`, `/login`, `/refresh`, `GET /me` — access + refresh tokens, one login per Business |
 | Business CRUD API | ✅ Done | `GET /api/business`, `PATCH /api/business` — auth-gated, returns full business detail incl. payment usernames |
-| Event type CRUD API | ⬜ Pending | one-time / recurring / package |
+| Event type CRUD API | ✅ Done | `POST/GET /api/event-types`, `GET/PATCH/DELETE /api/event-types/{id}` — soft-delete, scoped to business |
 | Session generation logic | ⬜ Pending | Auto-generate sessions from recurring patterns |
 | Package + date pool logic | ⬜ Pending | Fixed-date and customer-picks variants |
 | Add-on + live estimate logic | ⬜ Pending | Price calculation for configurable packages |
