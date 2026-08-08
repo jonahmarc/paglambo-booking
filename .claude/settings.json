@@ -22,7 +22,8 @@
       "Bash(nohup /root/buhata-booking/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000)",
       "Bash(disown)",
       "Bash(venv\\\\Scripts\\\\python.exe -c \"from app.main import app; print\\('OK'\\)\")",
-      "PowerShell(& \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\venv\\\\Scripts\\\\pip.exe\" install tzdata --quiet)"
+      "PowerShell(& \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\venv\\\\Scripts\\\\pip.exe\" install tzdata --quiet)",
+      "Bash(python -c \"from app.main import app; print\\('OK'\\)\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory"
