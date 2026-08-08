@@ -34,10 +34,10 @@
 | Booking state machine | ✅ Done | Public `POST /api/public/{booking_key}/bookings`; admin `GET /api/bookings`; transition fns ready for receipt/review steps |
 | Receipt upload endpoint | ✅ Done | `POST /api/public/{booking_key}/bookings/{id}/receipt` — multipart; saves to `UPLOAD_DIR/receipts/`; creates Payment; transitions booking to `awaiting_payment` |
 | Admin payment review API | ✅ Done | `POST /api/bookings/{id}/approve`, `/reject`, `GET /api/bookings/{id}/receipt` |
-| Email — booking confirmation | ⬜ Pending | Resend, triggered on confirmed booking |
-| Email — receipt received | ⬜ Pending | Notify admin when receipt is uploaded |
-| Email — payment approved | ⬜ Pending | Notify customer when admin approves |
-| Email — payment rejected | ⬜ Pending | Notify customer when admin rejects |
+| Email — booking confirmation | ✅ Done | Sent to customer on approve; via `send_booking_confirmed` |
+| Email — receipt received | ✅ Done | Sent to admin on receipt upload; via `send_receipt_received` |
+| Email — payment approved | ✅ Done | Combined with booking confirmation email |
+| Email — payment rejected | ✅ Done | Sent to customer on reject; via `send_payment_rejected` |
 | Public session listing API | ⬜ Pending | What the booking widget calls |
 | API tests | ⬜ Pending | pytest |
 

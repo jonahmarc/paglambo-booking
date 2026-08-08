@@ -19,6 +19,7 @@ from app.services.booking import (
     transition_to_confirmed,
     transition_to_rejected,
 )
+from app.services.email import send_booking_confirmed, send_payment_rejected, send_receipt_received
 from app.services.payment import approve_payment, create_payment, reject_payment, save_receipt_file
 
 router = APIRouter(tags=["bookings"])
@@ -105,6 +106,7 @@ async def upload_receipt(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     booking = transition_to_awaiting_payment(db, booking)
+    send_receipt_received(booking, business)
 
     return ReceiptUploadOut(
         booking_id=booking.id,
@@ -166,6 +168,7 @@ def approve(
     approve_payment(db, booking.payment, payload.note)
     transition_to_confirmed(db, booking)
     db.refresh(booking)
+    send_booking_confirmed(booking)
     return booking
 
 
@@ -187,4 +190,5 @@ def reject(
     reject_payment(db, booking.payment, payload.note)
     transition_to_rejected(db, booking)
     db.refresh(booking)
+    send_payment_rejected(booking)
     return booking

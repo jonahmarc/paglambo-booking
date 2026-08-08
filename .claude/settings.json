@@ -24,7 +24,10 @@
       "Bash(venv\\\\Scripts\\\\python.exe -c \"from app.main import app; print\\('OK'\\)\")",
       "PowerShell(& \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\venv\\\\Scripts\\\\pip.exe\" install tzdata --quiet)",
       "Bash(python -c \"from app.main import app; print\\('OK'\\)\")",
-      "Bash(python -m alembic revision --autogenerate -m \"add_addons\")"
+      "Bash(python -m alembic revision --autogenerate -m \"add_addons\")",
+      "Bash(python -c \"import resend; help\\(resend.Emails.send\\)\")",
+      "Bash(python -c \"import resend; import inspect; print\\(inspect.getsource\\(resend.Emails.send\\)\\)\")",
+      "Bash(python -c \"import resend; import inspect; print\\(inspect.getsource\\(resend.emails._emails.Emails.SendParams\\)\\)\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory"
