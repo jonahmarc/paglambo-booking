@@ -45,13 +45,13 @@
 
 | Task | Status | Notes |
 |---|---|---|
-| React + Vite + Tailwind setup | ⬜ Pending | |
-| Login page | ⬜ Pending | |
-| Business settings page | ⬜ Pending | PayPal/Wise payment details, branding |
-| Create / edit event types | ⬜ Pending | |
-| Sessions list / calendar | ⬜ Pending | Capacity at a glance |
-| Bookings list + detail view | ⬜ Pending | |
-| Receipt review (approve/reject) | ⬜ Pending | View uploaded image, one-click action |
+| React + Vite + Tailwind setup | ✅ Done | Vite 6, React 19, Tailwind v4, react-router-dom v7, react-hook-form |
+| Login page | ✅ Done | Email + password, JWT stored in localStorage, auto-refresh |
+| Business settings page | ✅ Done | Name, PayPal/Wise usernames, booking key (read-only) |
+| Create / edit event types | ✅ Done | List, create modal, edit modal, activate/deactivate, link to sessions |
+| Sessions list / calendar | ✅ Done | Manual add + bulk generate; cancel; linked from event types |
+| Bookings list + detail view | ✅ Done | Status filter tabs; detail shows customer, sessions, add-ons, payment |
+| Receipt review (approve/reject) | ✅ Done | Receipt image preview inline; approve/reject with optional note |
 
 ### Step 3: Public Booking Widget
 
