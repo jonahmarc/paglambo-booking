@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, EmailStr
 
 from app.models.booking import BookingStatus
+from app.schemas.payment import PaymentOut
 
 
 class CustomerIn(BaseModel):
@@ -54,6 +55,7 @@ class BookingOut(BaseModel):
     customer: BookingCustomerOut
     sessions: list[BookingSessionOut]
     add_ons: list[BookingAddonOut]
+    payment: PaymentOut | None
     created_at: datetime
     updated_at: datetime
 

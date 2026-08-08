@@ -1,6 +1,8 @@
 from decimal import Decimal
+from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
@@ -8,9 +10,16 @@ from app.models import Business, BookingStatus
 from app.models.payment import PaymentMethod
 from app.routers.deps import get_current_business
 from app.schemas.booking import BookingCreate, BookingOut, BookingPublicOut
-from app.schemas.payment import PaymentOut, ReceiptUploadOut
-from app.services.booking import create_booking, get_booking, list_bookings, transition_to_awaiting_payment
-from app.services.payment import create_payment, save_receipt_file
+from app.schemas.payment import PaymentOut, PaymentReviewIn, ReceiptUploadOut
+from app.services.booking import (
+    create_booking,
+    get_booking,
+    list_bookings,
+    transition_to_awaiting_payment,
+    transition_to_confirmed,
+    transition_to_rejected,
+)
+from app.services.payment import approve_payment, create_payment, reject_payment, save_receipt_file
 
 router = APIRouter(tags=["bookings"])
 
@@ -122,3 +131,60 @@ def get_one(
     current_business: Business = Depends(get_current_business),
 ):
     return _get_or_404(db, current_business.id, booking_id)
+
+
+@router.get("/api/bookings/{booking_id}/receipt")
+def view_receipt(
+    booking_id: int,
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    booking = _get_or_404(db, current_business.id, booking_id)
+    if booking.payment is None or not booking.payment.receipt_file_path:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No receipt on file for this booking")
+    path = Path(booking.payment.receipt_file_path)
+    if not path.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt file not found on disk")
+    return FileResponse(path)
+
+
+@router.post("/api/bookings/{booking_id}/approve", response_model=BookingOut)
+def approve(
+    booking_id: int,
+    payload: PaymentReviewIn = Body(default=PaymentReviewIn()),
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    booking = _get_or_404(db, current_business.id, booking_id)
+    if booking.status != BookingStatus.AWAITING_PAYMENT:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Booking must be in awaiting_payment status to approve",
+        )
+    if booking.payment is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No receipt on file for this booking")
+    approve_payment(db, booking.payment, payload.note)
+    transition_to_confirmed(db, booking)
+    db.refresh(booking)
+    return booking
+
+
+@router.post("/api/bookings/{booking_id}/reject", response_model=BookingOut)
+def reject(
+    booking_id: int,
+    payload: PaymentReviewIn = Body(default=PaymentReviewIn()),
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    booking = _get_or_404(db, current_business.id, booking_id)
+    if booking.status != BookingStatus.AWAITING_PAYMENT:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Booking must be in awaiting_payment status to reject",
+        )
+    if booking.payment is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No receipt on file for this booking")
+    reject_payment(db, booking.payment, payload.note)
+    transition_to_rejected(db, booking)
+    db.refresh(booking)
+    return booking

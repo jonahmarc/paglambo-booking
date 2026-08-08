@@ -19,6 +19,10 @@ class PaymentOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PaymentReviewIn(BaseModel):
+    note: str | None = None
+
+
 class ReceiptUploadOut(BaseModel):
     booking_id: int
     booking_status: str

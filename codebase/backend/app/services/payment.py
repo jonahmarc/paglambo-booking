@@ -1,15 +1,14 @@
-import shutil
 import uuid
+from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
 from fastapi import UploadFile
-
-from app.config import settings
-from app.models.payment import Payment, PaymentMethod, PaymentStatus
 from sqlalchemy.orm import Session as DBSession
 
+from app.config import settings
 from app.models import Booking
+from app.models.payment import Payment, PaymentMethod, PaymentStatus
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "application/pdf"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
@@ -62,3 +61,21 @@ def create_payment(
 
 def get_payment_by_booking(db: DBSession, booking_id: int) -> Payment | None:
     return db.query(Payment).filter(Payment.booking_id == booking_id).first()
+
+
+def approve_payment(db: DBSession, payment: Payment, note: str | None) -> Payment:
+    payment.status = PaymentStatus.CONFIRMED
+    payment.review_note = note
+    payment.reviewed_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(payment)
+    return payment
+
+
+def reject_payment(db: DBSession, payment: Payment, note: str | None) -> Payment:
+    payment.status = PaymentStatus.REJECTED
+    payment.review_note = note
+    payment.reviewed_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(payment)
+    return payment
