@@ -1,11 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from decimal import Decimal
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
 from app.models import Business, BookingStatus
+from app.models.payment import PaymentMethod
 from app.routers.deps import get_current_business
 from app.schemas.booking import BookingCreate, BookingOut, BookingPublicOut
-from app.services.booking import create_booking, get_booking, list_bookings
+from app.schemas.payment import PaymentOut, ReceiptUploadOut
+from app.services.booking import create_booking, get_booking, list_bookings, transition_to_awaiting_payment
+from app.services.payment import create_payment, save_receipt_file
 
 router = APIRouter(tags=["bookings"])
 
@@ -56,6 +61,46 @@ def create_public_booking(
         sessions=booking.sessions,
         add_ons=booking.add_ons,
         created_at=booking.created_at,
+    )
+
+
+@router.post(
+    "/api/public/{booking_key}/bookings/{booking_id}/receipt",
+    response_model=ReceiptUploadOut,
+)
+async def upload_receipt(
+    booking_key: str,
+    booking_id: int,
+    method: PaymentMethod = Form(...),
+    amount: Decimal = Form(...),
+    file: UploadFile = File(...),
+    db: DBSession = Depends(get_db),
+):
+    business = _get_business_by_key(db, booking_key)
+    booking = _get_or_404(db, business.id, booking_id)
+
+    if booking.status != BookingStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Receipt can only be uploaded for bookings in PENDING status",
+        )
+
+    try:
+        file_path = await save_receipt_file(booking_id, file)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    try:
+        payment = create_payment(db, booking, method, amount, file_path)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    booking = transition_to_awaiting_payment(db, booking)
+
+    return ReceiptUploadOut(
+        booking_id=booking.id,
+        booking_status=booking.status,
+        payment=PaymentOut.model_validate(payment),
     )
 
 

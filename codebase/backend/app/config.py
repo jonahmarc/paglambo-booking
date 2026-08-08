@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     resend_from_email: str = ""
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 30
+    upload_dir: str = "uploads"
 
 
 settings = Settings()

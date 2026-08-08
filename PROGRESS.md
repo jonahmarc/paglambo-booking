@@ -32,7 +32,7 @@
 | Package + date pool logic | ✅ Done | `/api/packages` CRUD + pool management (`POST/DELETE /api/packages/{id}/pool`) |
 | Add-on + live estimate logic | ✅ Done | Admin CRUD (`/api/add-ons`); public estimate endpoint (`POST /api/estimate`) |
 | Booking state machine | ✅ Done | Public `POST /api/public/{booking_key}/bookings`; admin `GET /api/bookings`; transition fns ready for receipt/review steps |
-| Receipt upload endpoint | ⬜ Pending | Customer uploads screenshot/photo as payment proof |
+| Receipt upload endpoint | ✅ Done | `POST /api/public/{booking_key}/bookings/{id}/receipt` — multipart; saves to `UPLOAD_DIR/receipts/`; creates Payment; transitions booking to `awaiting_payment` |
 | Admin payment review API | ⬜ Pending | Approve or reject uploaded receipt |
 | Email — booking confirmation | ⬜ Pending | Resend, triggered on confirmed booking |
 | Email — receipt received | ⬜ Pending | Notify admin when receipt is uploaded |
