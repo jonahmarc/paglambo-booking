@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session as DBSession
 from app.database import get_db
 from app.models import Business, BookingStatus
 from app.models.payment import PaymentMethod
-from app.routers.deps import get_current_business
+from app.routers.deps import get_business_or_404, get_current_business
 from app.schemas.booking import BookingCreate, BookingOut, BookingPublicOut
 from app.schemas.payment import PaymentOut, PaymentReviewIn, ReceiptUploadOut
 from app.services.booking import (
@@ -26,14 +26,7 @@ router = APIRouter(tags=["bookings"])
 
 
 def _get_business_by_key(db: DBSession, booking_key: str) -> Business:
-    business = (
-        db.query(Business)
-        .filter(Business.booking_key == booking_key, Business.is_active == True)  # noqa: E712
-        .first()
-    )
-    if business is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
-    return business
+    return get_business_or_404(db, booking_key)
 
 
 def _get_or_404(db: DBSession, business_id: int, booking_id: int):

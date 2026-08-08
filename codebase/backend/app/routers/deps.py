@@ -10,6 +10,17 @@ from app.database import get_db
 from app.models import Business
 from app.services.security import create_token, decode_token
 
+
+def get_business_or_404(db: DBSession, booking_key: str) -> Business:
+    business = (
+        db.query(Business)
+        .filter(Business.booking_key == booking_key, Business.is_active == True)  # noqa: E712
+        .first()
+    )
+    if business is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+    return business
+
 bearer_scheme = HTTPBearer()
 
 

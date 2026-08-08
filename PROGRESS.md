@@ -38,7 +38,7 @@
 | Email — receipt received | ✅ Done | Sent to admin on receipt upload; via `send_receipt_received` |
 | Email — payment approved | ✅ Done | Combined with booking confirmation email |
 | Email — payment rejected | ✅ Done | Sent to customer on reject; via `send_payment_rejected` |
-| Public session listing API | ⬜ Pending | What the booking widget calls |
+| Public session listing API | ✅ Done | `GET /api/public/{key}/event-types` (incl. add-ons + package pool); `GET /api/public/{key}/event-types/{id}/sessions` |
 | API tests | ⬜ Pending | pytest |
 
 ### Step 2: Admin Dashboard
