@@ -31,7 +31,7 @@
 | Session generation logic | ✅ Done | `POST /sessions` (manual), `POST /sessions/generate` (bulk from pattern), `GET/PATCH/DELETE /sessions/{id}` — timezone-aware, cancel = soft-delete |
 | Package + date pool logic | ✅ Done | `/api/packages` CRUD + pool management (`POST/DELETE /api/packages/{id}/pool`) |
 | Add-on + live estimate logic | ✅ Done | Admin CRUD (`/api/add-ons`); public estimate endpoint (`POST /api/estimate`) |
-| Booking state machine | ⬜ Pending | `pending → awaiting_payment → confirmed / rejected` |
+| Booking state machine | ✅ Done | Public `POST /api/public/{booking_key}/bookings`; admin `GET /api/bookings`; transition fns ready for receipt/review steps |
 | Receipt upload endpoint | ⬜ Pending | Customer uploads screenshot/photo as payment proof |
 | Admin payment review API | ⬜ Pending | Approve or reject uploaded receipt |
 | Email — booking confirmation | ⬜ Pending | Resend, triggered on confirmed booking |
