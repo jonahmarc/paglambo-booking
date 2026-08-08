@@ -23,7 +23,8 @@
       "Bash(disown)",
       "Bash(venv\\\\Scripts\\\\python.exe -c \"from app.main import app; print\\('OK'\\)\")",
       "PowerShell(& \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\venv\\\\Scripts\\\\pip.exe\" install tzdata --quiet)",
-      "Bash(python -c \"from app.main import app; print\\('OK'\\)\")"
+      "Bash(python -c \"from app.main import app; print\\('OK'\\)\")",
+      "Bash(python -m alembic revision --autogenerate -m \"add_addons\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory"

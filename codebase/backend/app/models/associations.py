@@ -15,3 +15,10 @@ booking_sessions = Table(
     Column("booking_id", ForeignKey("bookings.id"), primary_key=True),
     Column("session_id", ForeignKey("sessions.id"), primary_key=True),
 )
+
+booking_addons = Table(
+    "booking_addons",
+    Base.metadata,
+    Column("booking_id", ForeignKey("bookings.id"), primary_key=True),
+    Column("addon_id", ForeignKey("add_ons.id"), primary_key=True),
+)

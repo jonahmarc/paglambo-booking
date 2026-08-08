@@ -1,4 +1,5 @@
-from app.models.associations import booking_sessions, package_session_pool
+from app.models.addon import AddOn
+from app.models.associations import booking_addons, booking_sessions, package_session_pool
 from app.models.booking import Booking, BookingStatus
 from app.models.business import Business
 from app.models.customer import Customer
@@ -15,12 +16,14 @@ __all__ = [
     "SessionStatus",
     "Package",
     "PackageDateMode",
+    "AddOn",
     "Booking",
     "BookingStatus",
     "Payment",
     "PaymentMethod",
     "PaymentStatus",
     "Customer",
+    "booking_addons",
     "booking_sessions",
     "package_session_pool",
 ]

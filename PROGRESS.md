@@ -29,8 +29,8 @@
 | Business CRUD API | ✅ Done | `GET /api/business`, `PATCH /api/business` — auth-gated, returns full business detail incl. payment usernames |
 | Event type CRUD API | ✅ Done | `POST/GET /api/event-types`, `GET/PATCH/DELETE /api/event-types/{id}` — soft-delete, scoped to business |
 | Session generation logic | ✅ Done | `POST /sessions` (manual), `POST /sessions/generate` (bulk from pattern), `GET/PATCH/DELETE /sessions/{id}` — timezone-aware, cancel = soft-delete |
-| Package + date pool logic | ⬜ Pending | Fixed-date and customer-picks variants |
-| Add-on + live estimate logic | ⬜ Pending | Price calculation for configurable packages |
+| Package + date pool logic | ✅ Done | `/api/packages` CRUD + pool management (`POST/DELETE /api/packages/{id}/pool`) |
+| Add-on + live estimate logic | ✅ Done | Admin CRUD (`/api/add-ons`); public estimate endpoint (`POST /api/estimate`) |
 | Booking state machine | ⬜ Pending | `pending → awaiting_payment → confirmed / rejected` |
 | Receipt upload endpoint | ⬜ Pending | Customer uploads screenshot/photo as payment proof |
 | Admin payment review API | ⬜ Pending | Approve or reject uploaded receipt |

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, business, event_type, package, session
+from app.routers import addon, auth, business, event_type, package, session
 
 app = FastAPI(
     title="Buhata Booking API",
@@ -25,6 +25,7 @@ app.include_router(business.router)
 app.include_router(event_type.router)
 app.include_router(session.router)
 app.include_router(package.router)
+app.include_router(addon.router)
 
 
 @app.get("/health")

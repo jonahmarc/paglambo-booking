@@ -8,7 +8,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-from app.models.associations import booking_sessions
+from app.models.associations import booking_addons, booking_sessions
 
 
 class BookingStatus(str, enum.Enum):
@@ -39,4 +39,5 @@ class Booking(Base):
     event_type: Mapped["EventType"] = relationship(back_populates="bookings")
     customer: Mapped["Customer"] = relationship(back_populates="bookings")
     sessions: Mapped[list["Session"]] = relationship(secondary=booking_sessions, back_populates="bookings")
+    add_ons: Mapped[list["AddOn"]] = relationship(secondary=booking_addons, back_populates="bookings")
     payment: Mapped["Payment | None"] = relationship(back_populates="booking", uselist=False)

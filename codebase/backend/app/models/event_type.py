@@ -35,4 +35,5 @@ class EventType(Base):
     business: Mapped["Business"] = relationship(back_populates="event_types")
     sessions: Mapped[list["Session"]] = relationship(back_populates="event_type")
     package: Mapped["Package | None"] = relationship(back_populates="event_type", uselist=False)
+    add_ons: Mapped[list["AddOn"]] = relationship(back_populates="event_type")
     bookings: Mapped[list["Booking"]] = relationship(back_populates="event_type")
