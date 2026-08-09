@@ -17,8 +17,6 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = useCallback(async (email, password) => {
-    // Use raw fetch so a 401 (wrong credentials) doesn't trigger the
-    // retry-on-401 refresh flow and show a misleading "Session expired".
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -35,13 +33,30 @@ export function AuthProvider({ children }) {
     return me
   }, [])
 
+  const register = useCallback(async (name, email, password, plan = 'standard') => {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, plan }),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.detail || 'Registration failed')
+    }
+    const data = await res.json()
+    setTokens(data.access_token, data.refresh_token)
+    const me = await api.get('/api/auth/me')
+    setBusiness(me)
+    return me
+  }, [])
+
   const logout = useCallback(() => {
     clearTokens()
     setBusiness(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ business, loading, login, logout, isAuthenticated: !!business }}>
+    <AuthContext.Provider value={{ business, loading, login, register, logout, isAuthenticated: !!business }}>
       {children}
     </AuthContext.Provider>
   )

@@ -9,7 +9,11 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import SuperAdminLogin from './pages/SuperAdminLogin'
 import SuperAdminDashboard from './pages/SuperAdminDashboard'
+import SuperAdminApprovals from './pages/SuperAdminApprovals'
+import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions'
+import SuperAdminSettings from './pages/SuperAdminSettings'
 import Settings from './pages/Settings'
+import Subscription from './pages/Subscription'
 import EventTypes from './pages/EventTypes'
 import Sessions from './pages/Sessions'
 import Bookings from './pages/Bookings'
@@ -21,11 +25,12 @@ function AdminRoutes() {
       <Layout>
         <Routes>
           <Route index element={<Navigate to="/bookings" replace />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="event-types" element={<EventTypes />} />
-          <Route path="event-types/:id/sessions" element={<Sessions />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="bookings/:id" element={<BookingDetail />} />
+          <Route path="event-types" element={<EventTypes />} />
+          <Route path="event-types/:id/sessions" element={<Sessions />} />
+          <Route path="subscription" element={<Subscription />} />
+          <Route path="settings" element={<Settings />} />
         </Routes>
       </Layout>
     </ProtectedRoute>
@@ -39,6 +44,9 @@ function SuperAdminRoutes() {
         <Routes>
           <Route index element={<Navigate to="/superadmin/businesses" replace />} />
           <Route path="businesses" element={<SuperAdminDashboard />} />
+          <Route path="approvals" element={<SuperAdminApprovals />} />
+          <Route path="subscriptions" element={<SuperAdminSubscriptions />} />
+          <Route path="settings" element={<SuperAdminSettings />} />
         </Routes>
       </SuperAdminLayout>
     </SuperAdminRoute>

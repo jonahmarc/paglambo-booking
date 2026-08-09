@@ -86,11 +86,13 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 | Sessions list / calendar | ✅ Done | Manual add + bulk generate; cancel; linked from event types |
 | Bookings list + detail view | ✅ Done | Status filter tabs; detail shows customer, sessions, add-ons, payment |
 | Receipt review (approve/reject) | ✅ Done | Receipt image preview inline; approve/reject with optional note |
-| Superadmin — approval queue | ⬜ Pending | Pending registrations tab; approve/reject with note; toggle to disable approval requirement globally |
-| Superadmin — subscription payment review | ⬜ Pending | Incoming platform receipts tab; approve/reject to activate business subscription |
-| Superadmin — business detail | ⬜ Pending | Plan, status, trial end date, payment history per business |
-| Business — subscription status page | ⬜ Pending | Shows current plan, trial/expiry status, upload receipt for subscription payment |
-| Business — plan selector | ⬜ Pending | Choose Standard or Pro at registration; upgradeable from settings |
+| Superadmin — approval queue | ✅ Done | `/superadmin/approvals` — pending registrations with approve/reject + note |
+| Superadmin — subscription payment review | ✅ Done | `/superadmin/subscriptions` — receipt review with view/approve/reject; receipt served via `GET /api/superadmin/subscription-payments/{id}/receipt` |
+| Superadmin — business detail | ✅ Done | Businesses list shows plan badge, status badge, trial end date, enable/disable toggle |
+| Superadmin — settings | ✅ Done | `/superadmin/settings` — toggle require_approval, set trial_duration_days |
+| Business — subscription status page | ✅ Done | `/subscription` — status card, receipt upload form, payment history |
+| Business — plan selector | ✅ Done | Standard/Pro cards on `/register`; status-aware redirect after registration |
+| Business — status banner | ✅ Done | Layout banner for pending/expired/rejected with link to subscription page |
 | Discount codes UI (Standard + Pro) | ⬜ Pending | Create/manage codes (flat or %) from business dashboard |
 
 ### Step 3: Public Booking Widget

@@ -2,7 +2,10 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useSuperAdminAuth } from '../context/SuperAdminAuthContext'
 
 const NAV = [
-  { to: '/superadmin/businesses', label: 'Businesses' },
+  { to: '/superadmin/businesses',    label: 'Businesses' },
+  { to: '/superadmin/approvals',     label: 'Approvals' },
+  { to: '/superadmin/subscriptions', label: 'Subscriptions' },
+  { to: '/superadmin/settings',      label: 'Settings' },
 ]
 
 export default function SuperAdminLayout({ children }) {

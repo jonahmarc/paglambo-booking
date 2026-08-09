@@ -1,6 +1,9 @@
 from datetime import datetime, timezone
 
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
 from jose import JWTError
 from sqlalchemy.orm import Session as DBSession
 
@@ -256,6 +259,19 @@ def _get_business_or_404(db: DBSession, business_id: int) -> Business:
     if business is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
     return business
+
+
+@router.get("/subscription-payments/{payment_id}/receipt")
+def get_subscription_receipt(
+    payment_id: int,
+    db: DBSession = Depends(get_db),
+    _: SuperAdmin = Depends(get_current_superadmin),
+):
+    payment = _get_subscription_payment_or_404(db, payment_id)
+    path = Path(payment.receipt_path)
+    if not path.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt file not found")
+    return FileResponse(str(path))
 
 
 def _get_subscription_payment_or_404(db: DBSession, payment_id: int) -> SubscriptionPayment:

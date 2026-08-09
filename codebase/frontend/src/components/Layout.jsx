@@ -1,11 +1,28 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const NAV = [
-  { to: '/bookings',    label: 'Bookings' },
-  { to: '/event-types', label: 'Event Types' },
-  { to: '/settings',    label: 'Settings' },
+  { to: '/bookings',     label: 'Bookings' },
+  { to: '/event-types',  label: 'Event Types' },
+  { to: '/subscription', label: 'Subscription' },
+  { to: '/settings',     label: 'Settings' },
 ]
+
+const STATUS_BANNERS = {
+  pending_approval: {
+    cls: 'bg-amber-50 border-amber-200 text-amber-800',
+    msg: 'Your account is pending approval. You\'ll receive an email once approved.',
+  },
+  expired: {
+    cls: 'bg-red-50 border-red-200 text-red-800',
+    msg: 'Your subscription has expired. Your booking page is currently offline.',
+    link: { to: '/subscription', label: 'Reactivate' },
+  },
+  rejected: {
+    cls: 'bg-red-50 border-red-200 text-red-800',
+    msg: 'Your registration was not approved. Please contact support.',
+  },
+}
 
 export default function Layout({ children }) {
   const { business, logout } = useAuth()
@@ -15,6 +32,8 @@ export default function Layout({ children }) {
     logout()
     navigate('/login')
   }
+
+  const banner = business ? STATUS_BANNERS[business.status] : null
 
   return (
     <div className="min-h-screen flex bg-gray-50">
@@ -50,6 +69,16 @@ export default function Layout({ children }) {
         </div>
       </aside>
       <main className="flex-1 overflow-auto">
+        {banner && (
+          <div className={`border-b px-6 py-3 text-sm flex items-center gap-3 ${banner.cls}`}>
+            <span>{banner.msg}</span>
+            {banner.link && (
+              <Link to={banner.link.to} className="font-semibold underline underline-offset-2">
+                {banner.link.label}
+              </Link>
+            )}
+          </div>
+        )}
         <div className="max-w-5xl mx-auto px-6 py-8">{children}</div>
       </main>
     </div>
