@@ -80,7 +80,17 @@ export function SuperAdminAuthProvider({ children }) {
     }
     const data = await res.json()
     setSATokens(data.access_token, data.refresh_token)
-    const me = await saFetch('/api/superadmin/auth/me', { method: 'GET' })
+    // Use the token directly from the login response to avoid triggering
+    // saFetch's refresh/redirect flow before the session is established.
+    const meRes = await fetch(`${BASE}/api/superadmin/auth/me`, {
+      headers: { 'Authorization': `Bearer ${data.access_token}` },
+    })
+    if (!meRes.ok) {
+      clearSATokens()
+      const err = await meRes.json().catch(() => ({}))
+      throw new Error(err.detail || 'Could not load account — check server logs')
+    }
+    const me = await meRes.json()
     setSuperAdmin(me)
     return me
   }, [])
