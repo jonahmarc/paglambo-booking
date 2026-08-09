@@ -11,6 +11,10 @@ class BusinessDetail(BaseModel):
     paypal_username: str | None
     wise_username: str | None
     is_active: bool
+    plan: str
+    status: str
+    trial_ends_at: datetime | None
+    approved_at: datetime | None
     created_at: datetime
     updated_at: datetime
 

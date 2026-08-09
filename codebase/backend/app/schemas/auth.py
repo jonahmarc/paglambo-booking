@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -5,6 +7,7 @@ class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
     password: str = Field(min_length=8)
+    plan: str = Field("standard", pattern="^(standard|pro)$")
 
 
 class LoginRequest(BaseModel):
@@ -28,5 +31,8 @@ class BusinessOut(BaseModel):
     email: EmailStr
     booking_key: str
     is_active: bool
+    plan: str
+    status: str
+    trial_ends_at: datetime | None
 
     model_config = {"from_attributes": True}

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import addon, auth, booking, business, event_type, package, public, session, superadmin
+from app.routers import addon, auth, booking, business, event_type, package, public, session, subscription, superadmin
 
 app = FastAPI(
     title="Buhata Booking API",
@@ -28,6 +28,7 @@ app.include_router(package.router)
 app.include_router(addon.router)
 app.include_router(booking.router)
 app.include_router(public.router)
+app.include_router(subscription.router)
 app.include_router(superadmin.router)
 
 

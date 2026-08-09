@@ -58,16 +58,18 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 
 | Task | Status | Notes |
 |---|---|---|
-| Business model — subscription fields | ⬜ Pending | Add `plan` (standard/pro), `status` (pending_approval/trial/active/expired/suspended), `trial_ends_at`, `approved_at` to Business; migration |
-| Approval toggle setting | ⬜ Pending | `PlatformSetting` table with key-value pairs; `require_approval` boolean; superadmin can flip it |
-| Superadmin approval API | ⬜ Pending | `POST /api/superadmin/businesses/{id}/approve`, `/reject`; sets status to `trial` + sets `trial_ends_at` |
-| Trial period logic | ⬜ Pending | Pre-launch: 2 months. Post-launch: 1 month. Controlled by platform setting. Access locked immediately on expiry. |
-| Trial expiry reminders | ⬜ Pending | Email at 7 days, 3 days, 1 day before expiry; locked email on day of expiry |
-| Plan feature gate middleware | ⬜ Pending | FastAPI dependency that checks `business.status == active/trial` and `business.plan` before allowing plan-gated endpoints |
-| Platform subscription receipt upload | ⬜ Pending | `POST /api/subscriptions/receipt` — business uploads payment proof to Buhata Booking; creates SubscriptionPayment record |
-| Superadmin subscription review API | ⬜ Pending | `GET /api/superadmin/subscription-payments`, `POST .../approve`, `.../reject`; approve sets status to `active` |
-| Email — subscription payment received | ⬜ Pending | Notify superadmin when a business uploads receipt |
-| Email — subscription approved/rejected | ⬜ Pending | Notify business of outcome |
+| Business model — subscription fields | ✅ Done | `plan`, `status`, `trial_ends_at`, `approved_at` added to Business; migration `b2c3d4e5f6a7` |
+| Approval toggle setting | ✅ Done | `platform_settings` table; `require_approval` + `trial_duration_days` seeded; `GET/PATCH /api/superadmin/settings` |
+| Superadmin approval API | ✅ Done | `POST /api/superadmin/businesses/{id}/approve`, `/reject`; trial started on approve |
+| Trial period logic | ✅ Done | Lazy-expire on every request (no background job needed yet); public widget blocked when expired |
+| Trial expiry reminders | ⬜ Pending | Email functions written; sending requires a cron/background job (Phase 5) |
+| Plan feature gate middleware | ✅ Done | `get_business_or_404` blocks widget if `status not in (trial, active)`; `get_current_business` allows login for expired/pending so they can upload receipt |
+| Platform subscription receipt upload | ✅ Done | `POST /api/subscriptions/receipt`; `GET /api/subscriptions/my-payments` |
+| Superadmin subscription review API | ✅ Done | `GET /api/superadmin/subscription-payments`, `POST .../approve`, `.../reject` |
+| Email — new registration | ✅ Done | Superadmin notified on new registration; business notified if auto-approved |
+| Email — registration approved/rejected | ✅ Done | Business emailed on approve/reject |
+| Email — subscription payment received | ✅ Done | Superadmin notified when receipt uploaded |
+| Email — subscription approved/rejected | ✅ Done | Business notified of outcome |
 
 ### Step 2: Admin Dashboard
 

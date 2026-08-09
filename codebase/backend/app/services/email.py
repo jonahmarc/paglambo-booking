@@ -88,6 +88,103 @@ def send_payment_approved(booking) -> None:
     send_booking_confirmed(booking)
 
 
+def send_new_registration(business, superadmin_email: str) -> None:
+    """Notify superadmin that a new business has registered and is awaiting approval."""
+    html = f"""
+    <p>Hi,</p>
+    <p>A new business has registered on Buhata Booking and is awaiting your approval.</p>
+    <table cellpadding="6" cellspacing="0">
+      <tr><td><strong>Business</strong></td><td>{business.name}</td></tr>
+      <tr><td><strong>Email</strong></td><td>{business.email}</td></tr>
+      <tr><td><strong>Plan</strong></td><td>{business.plan.title()}</td></tr>
+    </table>
+    <p>Log in to the superadmin dashboard to approve or reject this registration.</p>
+    """
+    _send(superadmin_email, f"New registration — {business.name}", html)
+
+
+def send_registration_approved(business) -> None:
+    """Notify business their registration was approved and trial has started."""
+    end_date = business.trial_ends_at.strftime("%d %b %Y") if business.trial_ends_at else "—"
+    html = f"""
+    <p>Hi {business.name},</p>
+    <p>Your Buhata Booking registration has been approved!</p>
+    <p>Your <strong>{business.plan.title()}</strong> plan trial is active until <strong>{end_date}</strong>.</p>
+    <p>Log in to your dashboard to set up your booking page.</p>
+    """
+    _send(business.email, "Registration approved — Buhata Booking", html)
+
+
+def send_registration_rejected(business, note: str | None = None) -> None:
+    """Notify business their registration was rejected."""
+    note_row = f"<p><strong>Reason:</strong> {note}</p>" if note else ""
+    html = f"""
+    <p>Hi {business.name},</p>
+    <p>Unfortunately we were unable to approve your Buhata Booking registration at this time.</p>
+    {note_row}
+    <p>Please contact us if you have any questions.</p>
+    """
+    _send(business.email, "Registration not approved — Buhata Booking", html)
+
+
+def send_subscription_receipt_received(business, superadmin_email: str) -> None:
+    """Notify superadmin that a business uploaded a subscription payment receipt."""
+    html = f"""
+    <p>Hi,</p>
+    <p>A subscription payment receipt has been submitted and is waiting for your review.</p>
+    <table cellpadding="6" cellspacing="0">
+      <tr><td><strong>Business</strong></td><td>{business.name} ({business.email})</td></tr>
+      <tr><td><strong>Plan</strong></td><td>{business.plan.title()}</td></tr>
+    </table>
+    <p>Log in to the superadmin dashboard to approve or reject the payment.</p>
+    """
+    _send(superadmin_email, f"Subscription receipt — {business.name}", html)
+
+
+def send_subscription_approved(business) -> None:
+    """Notify business that their subscription payment was approved."""
+    html = f"""
+    <p>Hi {business.name},</p>
+    <p>Your subscription payment has been verified. Your Buhata Booking
+    <strong>{business.plan.title()}</strong> plan is now active.</p>
+    <p>Log in to your dashboard to continue using the platform.</p>
+    """
+    _send(business.email, "Subscription activated — Buhata Booking", html)
+
+
+def send_subscription_rejected(business, note: str | None = None) -> None:
+    """Notify business that their subscription payment was rejected."""
+    note_row = f"<p><strong>Reason:</strong> {note}</p>" if note else ""
+    html = f"""
+    <p>Hi {business.name},</p>
+    <p>Unfortunately we could not verify your subscription payment for Buhata Booking.</p>
+    {note_row}
+    <p>Please upload a new receipt from your dashboard or contact us if you believe this is an error.</p>
+    """
+    _send(business.email, "Subscription payment not verified — Buhata Booking", html)
+
+
+def send_trial_expiry_reminder(business, days_left: int) -> None:
+    """Remind a business their trial is expiring soon."""
+    plural = "s" if days_left != 1 else ""
+    html = f"""
+    <p>Hi {business.name},</p>
+    <p>Your Buhata Booking trial expires in <strong>{days_left} day{plural}</strong>.</p>
+    <p>To keep your booking page active, log in and upload a subscription payment receipt.</p>
+    """
+    _send(business.email, f"Your trial expires in {days_left} day{plural} — Buhata Booking", html)
+
+
+def send_trial_expired(business) -> None:
+    """Notify a business their trial has expired and their booking page is inactive."""
+    html = f"""
+    <p>Hi {business.name},</p>
+    <p>Your Buhata Booking trial has expired. Your booking page is currently inactive.</p>
+    <p>To reactivate, log in to your dashboard and upload a subscription payment receipt.</p>
+    """
+    _send(business.email, "Trial expired — Buhata Booking", html)
+
+
 def send_payment_rejected(booking) -> None:
     """Notify the customer that their payment could not be verified."""
     note_row = ""

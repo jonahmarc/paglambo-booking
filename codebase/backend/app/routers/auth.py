@@ -3,10 +3,11 @@ from jose import JWTError
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
-from app.models import Business
+from app.models import Business, SuperAdmin
 from app.routers.deps import create_access_token, create_refresh_token, get_current_business
 from app.schemas.auth import BusinessOut, LoginRequest, RefreshRequest, RegisterRequest, TokenResponse
 from app.services.auth import authenticate_business, create_business
+from app.services.email import send_new_registration, send_registration_approved
 from app.services.security import decode_token
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -17,7 +18,15 @@ def register(payload: RegisterRequest, db: DBSession = Depends(get_db)):
     if db.query(Business).filter_by(email=payload.email).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
-    business = create_business(db, name=payload.name, email=payload.email, password=payload.password)
+    business = create_business(db, name=payload.name, email=payload.email, password=payload.password, plan=payload.plan)
+
+    if business.status == "pending_approval":
+        superadmin = db.query(SuperAdmin).first()
+        if superadmin:
+            send_new_registration(business, superadmin.email)
+    else:
+        send_registration_approved(business)
+
     return TokenResponse(
         access_token=create_access_token(business.id),
         refresh_token=create_refresh_token(business.id),

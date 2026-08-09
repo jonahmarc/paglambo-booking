@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session as DBSession
 
 from app.config import settings
 from app.database import get_db
-from app.models import Business, SuperAdmin
+from app.models import Business, PlatformSetting, SuperAdmin
 from app.services.security import create_token, decode_token
 
 
@@ -19,7 +19,30 @@ def get_business_or_404(db: DBSession, booking_key: str) -> Business:
     )
     if business is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+
+    # Lazy-expire trial on request so we don't need a background job
+    if (
+        business.status == "trial"
+        and business.trial_ends_at
+        and business.trial_ends_at < datetime.now(timezone.utc)
+    ):
+        business.status = "expired"
+        db.commit()
+
+    if business.status not in ("trial", "active"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+
     return business
+
+
+def get_platform_settings(db: DBSession):
+    require = db.get(PlatformSetting, "require_approval")
+    trial = db.get(PlatformSetting, "trial_duration_days")
+    return {
+        "require_approval": require is None or require.value == "true",
+        "trial_duration_days": int(trial.value) if trial else 60,
+    }
+
 
 bearer_scheme = HTTPBearer()
 
@@ -65,6 +88,16 @@ def get_current_business(
     business = db.get(Business, int(business_id))
     if business is None or not business.is_active:
         raise unauthorized
+
+    # Lazy-expire trial — allow the business to still log in so they can upload a receipt
+    if (
+        business.status == "trial"
+        and business.trial_ends_at
+        and business.trial_ends_at < datetime.now(timezone.utc)
+    ):
+        business.status = "expired"
+        db.commit()
+        db.refresh(business)
 
     return business
 
