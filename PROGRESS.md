@@ -43,7 +43,31 @@
 | Email — payment approved | ✅ Done | Combined with booking confirmation email |
 | Email — payment rejected | ✅ Done | Sent to customer on reject; via `send_payment_rejected` |
 | Public session listing API | ✅ Done | `GET /api/public/{key}/event-types` (incl. add-ons + package pool); `GET /api/public/{key}/event-types/{id}/sessions` |
+| Group booking support | ⬜ Pending | Add `party_size` field to Booking; public widget lets customers book for multiple people; price = per-person rate × party_size |
+| Discount codes API | ⬜ Pending | Standard + Pro feature; admin CRUD for codes (flat / percentage); public validate endpoint; applied at estimate + booking |
 | API tests | ⬜ Pending | pytest |
+
+### Step 1b: Platform Subscription Model
+
+Business clients pay Buhata Booking a monthly subscription fee. Plans gate features. New registrations require superadmin approval before trial starts.
+
+**Plans:** Standard $49/mo · Pro $89/mo (both manual receipt upload to platform)
+**Standard includes:** All core booking features + discount codes
+**Pro includes:** Standard + Stripe Connect (Phase 3) + Invoices · Future: Calendar sync, Deposits
+**Booking key:** Unlimited WordPress installs on both plans
+
+| Task | Status | Notes |
+|---|---|---|
+| Business model — subscription fields | ⬜ Pending | Add `plan` (standard/pro), `status` (pending_approval/trial/active/expired/suspended), `trial_ends_at`, `approved_at` to Business; migration |
+| Approval toggle setting | ⬜ Pending | `PlatformSetting` table with key-value pairs; `require_approval` boolean; superadmin can flip it |
+| Superadmin approval API | ⬜ Pending | `POST /api/superadmin/businesses/{id}/approve`, `/reject`; sets status to `trial` + sets `trial_ends_at` |
+| Trial period logic | ⬜ Pending | Pre-launch: 2 months. Post-launch: 1 month. Controlled by platform setting. Access locked immediately on expiry. |
+| Trial expiry reminders | ⬜ Pending | Email at 7 days, 3 days, 1 day before expiry; locked email on day of expiry |
+| Plan feature gate middleware | ⬜ Pending | FastAPI dependency that checks `business.status == active/trial` and `business.plan` before allowing plan-gated endpoints |
+| Platform subscription receipt upload | ⬜ Pending | `POST /api/subscriptions/receipt` — business uploads payment proof to Buhata Booking; creates SubscriptionPayment record |
+| Superadmin subscription review API | ⬜ Pending | `GET /api/superadmin/subscription-payments`, `POST .../approve`, `.../reject`; approve sets status to `active` |
+| Email — subscription payment received | ⬜ Pending | Notify superadmin when a business uploads receipt |
+| Email — subscription approved/rejected | ⬜ Pending | Notify business of outcome |
 
 ### Step 2: Admin Dashboard
 
@@ -60,6 +84,12 @@
 | Sessions list / calendar | ✅ Done | Manual add + bulk generate; cancel; linked from event types |
 | Bookings list + detail view | ✅ Done | Status filter tabs; detail shows customer, sessions, add-ons, payment |
 | Receipt review (approve/reject) | ✅ Done | Receipt image preview inline; approve/reject with optional note |
+| Superadmin — approval queue | ⬜ Pending | Pending registrations tab; approve/reject with note; toggle to disable approval requirement globally |
+| Superadmin — subscription payment review | ⬜ Pending | Incoming platform receipts tab; approve/reject to activate business subscription |
+| Superadmin — business detail | ⬜ Pending | Plan, status, trial end date, payment history per business |
+| Business — subscription status page | ⬜ Pending | Shows current plan, trial/expiry status, upload receipt for subscription payment |
+| Business — plan selector | ⬜ Pending | Choose Standard or Pro at registration; upgradeable from settings |
+| Discount codes UI (Standard + Pro) | ⬜ Pending | Create/manage codes (flat or %) from business dashboard |
 
 ### Step 3: Public Booking Widget
 
@@ -94,11 +124,17 @@
 
 ## Phase 3 — Strengthen Payments
 
+Pro plan features that require Stripe and more complex payment flows.
+
 | Task | Status | Notes |
 |---|---|---|
+| Stripe Connect — business onboarding | ⬜ Not started | Pro only; business connects their own Stripe account via OAuth; stored per Business |
+| Stripe Connect — booking payments | ⬜ Not started | Pro only; customers pay via Stripe on the booking widget as an alternative to manual receipt upload |
+| Invoicing (Pro) | ⬜ Not started | Auto-generate invoices for confirmed bookings; PDF download |
 | Partial / installment payments | ⬜ Not started | |
-| Invoicing | ⬜ Not started | |
 | Refund handling | ⬜ Not started | |
+| Calendar sync (Pro — future) | ⬜ Not started | Sync sessions to Google Calendar / iCal |
+| Deposits (Pro — future) | ⬜ Not started | Require a deposit at booking, remainder on arrival |
 
 ---
 
