@@ -2,7 +2,7 @@ import secrets
 
 from sqlalchemy.orm import Session as DBSession
 
-from app.models import Business
+from app.models import Business, SuperAdmin
 from app.services.security import hash_password, verify_password
 
 
@@ -32,3 +32,18 @@ def authenticate_business(db: DBSession, *, email: str, password: str) -> Busine
     if business is None or not verify_password(password, business.password_hash):
         return None
     return business
+
+
+def create_superadmin(db: DBSession, *, email: str, password: str) -> SuperAdmin:
+    superadmin = SuperAdmin(email=email, password_hash=hash_password(password))
+    db.add(superadmin)
+    db.commit()
+    db.refresh(superadmin)
+    return superadmin
+
+
+def authenticate_superadmin(db: DBSession, *, email: str, password: str) -> SuperAdmin | None:
+    superadmin = db.query(SuperAdmin).filter_by(email=email).first()
+    if superadmin is None or not verify_password(password, superadmin.password_hash):
+        return None
+    return superadmin

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session as DBSession
 
 from app.config import settings
 from app.database import get_db
-from app.models import Business
+from app.models import Business, SuperAdmin
 from app.services.security import create_token, decode_token
 
 
@@ -26,12 +26,22 @@ bearer_scheme = HTTPBearer()
 
 def create_access_token(business_id: int) -> str:
     expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
-    return create_token(str(business_id), expires_delta, "access")
+    return create_token(str(business_id), expires_delta, "access", role="business")
 
 
 def create_refresh_token(business_id: int) -> str:
     expires_delta = timedelta(days=settings.refresh_token_expire_days)
-    return create_token(str(business_id), expires_delta, "refresh")
+    return create_token(str(business_id), expires_delta, "refresh", role="business")
+
+
+def create_superadmin_access_token(superadmin_id: int) -> str:
+    expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
+    return create_token(str(superadmin_id), expires_delta, "access", role="superadmin")
+
+
+def create_superadmin_refresh_token(superadmin_id: int) -> str:
+    expires_delta = timedelta(days=settings.refresh_token_expire_days)
+    return create_token(str(superadmin_id), expires_delta, "refresh", role="superadmin")
 
 
 def get_current_business(
@@ -45,7 +55,7 @@ def get_current_business(
     except JWTError:
         raise unauthorized
 
-    if payload.get("type") != "access":
+    if payload.get("type") != "access" or payload.get("role") not in (None, "business"):
         raise unauthorized
 
     business_id = payload.get("sub")
@@ -57,3 +67,28 @@ def get_current_business(
         raise unauthorized
 
     return business
+
+
+def get_current_superadmin(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    db: DBSession = Depends(get_db),
+) -> SuperAdmin:
+    unauthorized = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
+    try:
+        payload = decode_token(credentials.credentials)
+    except JWTError:
+        raise unauthorized
+
+    if payload.get("type") != "access" or payload.get("role") != "superadmin":
+        raise unauthorized
+
+    superadmin_id = payload.get("sub")
+    if superadmin_id is None:
+        raise unauthorized
+
+    superadmin = db.get(SuperAdmin, int(superadmin_id))
+    if superadmin is None:
+        raise unauthorized
+
+    return superadmin

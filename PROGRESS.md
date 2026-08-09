@@ -26,6 +26,10 @@
 | Database models | ✅ Done | Business, EventType, Session, Package, Booking, Payment, Customer + `booking_sessions`/`package_session_pool` association tables |
 | Alembic migrations | ✅ Done | Initial schema migration applied to local DB |
 | Admin auth (JWT) | ✅ Done | `POST /api/auth/register`, `/login`, `/refresh`, `GET /me` — access + refresh tokens, one login per Business |
+| Superadmin model + migration | ✅ Done | Separate `super_admins` table — platform operator account, not mixed with Business |
+| Superadmin auth endpoints | ✅ Done | `POST /api/superadmin/auth/login`, `GET /api/superadmin/auth/me`; JWT carries `role: superadmin` |
+| Superadmin business management API | ✅ Done | `GET /api/superadmin/businesses`, `PATCH .../activate`, `.../deactivate` |
+| Superadmin seed script | ✅ Done | `scripts/create_superadmin.py` — run once from `codebase/backend/` after migrations |
 | Business CRUD API | ✅ Done | `GET /api/business`, `PATCH /api/business` — auth-gated, returns full business detail incl. payment usernames |
 | Event type CRUD API | ✅ Done | `POST/GET /api/event-types`, `GET/PATCH/DELETE /api/event-types/{id}` — soft-delete, scoped to business |
 | Session generation logic | ✅ Done | `POST /sessions` (manual), `POST /sessions/generate` (bulk from pattern), `GET/PATCH/DELETE /sessions/{id}` — timezone-aware, cancel = soft-delete |
@@ -47,6 +51,10 @@
 |---|---|---|
 | React + Vite + Tailwind setup | ✅ Done | Vite 6, React 19, Tailwind v4, react-router-dom v7, react-hook-form |
 | Login page | ✅ Done | Email + password, JWT stored in localStorage, auto-refresh |
+| Business registration page | ✅ Done | `/register` route — name, email, password; calls existing `POST /api/auth/register` |
+| Superadmin login page | ✅ Done | `/superadmin/login` — separate login page; calls superadmin auth endpoint |
+| Superadmin dashboard | ✅ Done | Protected `/superadmin/*` area with its own layout; business list with activate/deactivate |
+| UI branding — "Buhata Booking" | ✅ Done | Renamed in `index.html`, `Login.jsx`, `Layout.jsx`, and new pages |
 | Business settings page | ✅ Done | Name, PayPal/Wise usernames, booking key (read-only) |
 | Create / edit event types | ✅ Done | List, create modal, edit modal, activate/deactivate, link to sessions |
 | Sessions list / calendar | ✅ Done | Manual add + bulk generate; cancel; linked from event types |

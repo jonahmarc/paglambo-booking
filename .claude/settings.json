@@ -33,7 +33,12 @@
       "Bash(npm --version)",
       "Bash(npm create *)",
       "Bash(npm install *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\codebase\\\\\" -Directory | Select-Object Name)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\codebase\\\\\" -Force | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\codebase\\\\backend\" -Recurse | Select-Object FullName, PSIsContainer | ForEach-Object { if \\($_.PSIsContainer\\) { $_.FullName } } | Sort-Object)",
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\olymp\\\\OneDrive\\\\Documents\\\\joyang\\\\Buhata Booking\\\\codebase\\\\frontend\" -Recurse | Select-Object FullName, PSIsContainer | ForEach-Object { if \\($_.PSIsContainer\\) { $_.FullName } } | Sort-Object)",
+      "Bash(python -m alembic upgrade head)"
     ],
     "additionalDirectories": [
       "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory"

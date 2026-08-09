@@ -20,7 +20,7 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex bg-gray-50">
       <aside className="w-56 bg-white border-r border-gray-200 flex flex-col">
         <div className="px-5 py-5 border-b border-gray-200">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Buhata Admin</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Buhata Booking</p>
           <p className="mt-1 text-sm font-medium text-gray-900 truncate">{business?.name}</p>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
