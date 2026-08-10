@@ -8,6 +8,7 @@ from app.schemas.event_type import EventTypeCreate, EventTypeOut, EventTypeUpdat
 from app.services.event_type import (
     create_event_type,
     deactivate_event_type,
+    delete_event_type_hard,
     get_event_type,
     list_event_types,
     update_event_type,
@@ -61,11 +62,14 @@ def patch(
     return update_event_type(db, et, payload)
 
 
-@router.delete("/{event_type_id}", response_model=EventTypeOut)
-def deactivate(
+@router.delete("/{event_type_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete(
     event_type_id: int,
     db: DBSession = Depends(get_db),
     current_business: Business = Depends(get_current_business),
 ):
     et = _get_or_404(db, current_business.id, event_type_id)
-    return deactivate_event_type(db, et)
+    try:
+        delete_event_type_hard(db, et)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

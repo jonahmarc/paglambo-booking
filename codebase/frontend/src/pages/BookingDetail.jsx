@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import Badge from '../components/Badge'
+import Spinner from '../components/Spinner'
 
 function fmt(dt) {
   return new Date(dt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
@@ -42,9 +43,9 @@ export default function BookingDetail() {
     }
   }
 
-  if (!booking) return (
-    <div className="text-sm text-gray-400">{error || 'Loading…'}</div>
-  )
+  if (!booking) return error
+    ? <p className="text-sm text-red-600">{error}</p>
+    : <Spinner />
 
   const canReview = booking.status === 'awaiting_payment' && booking.payment
 

@@ -17,8 +17,20 @@ def _from_address() -> str:
 
 def _send(to: str, subject: str, html: str) -> None:
     if not settings.resend_api_key:
-        logger.warning("RESEND_API_KEY not configured — skipping email '%s' to %s", subject, to)
+        logger.info("No RESEND_API_KEY — skipping email '%s' to %s", subject, to)
         return
+
+    # Without a verified sending domain we are in Resend sandbox mode.
+    # Sandbox only allows delivery to the account's own email address.
+    # Redirect to RESEND_TEST_TO if set; otherwise skip rather than error.
+    if not settings.resend_from_email:
+        if settings.resend_test_to:
+            logger.info("Sandbox mode — redirecting email '%s' from %s to %s", subject, to, settings.resend_test_to)
+            to = settings.resend_test_to
+        else:
+            logger.info("No RESEND_FROM_EMAIL or RESEND_TEST_TO — skipping email '%s' to %s", subject, to)
+            return
+
     resend.api_key = settings.resend_api_key
     try:
         resend.Emails.send({

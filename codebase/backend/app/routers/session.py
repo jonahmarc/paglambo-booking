@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
-from app.models import Business
+from app.models import Business, SessionStatus
 from app.routers.deps import get_current_business
 from app.schemas.session import SessionCreate, SessionGenerateRequest, SessionOut, SessionUpdate
 from app.services.event_type import get_event_type
@@ -12,6 +12,7 @@ from app.services.session import (
     generate_sessions,
     get_session,
     list_sessions,
+    reactivate_session,
     update_session,
 )
 
@@ -101,3 +102,17 @@ def cancel(
     _get_event_type_or_404(db, current_business.id, event_type_id)
     s = _get_session_or_404(db, event_type_id, session_id)
     return cancel_session(db, s)
+
+
+@router.post("/{session_id}/reactivate", response_model=SessionOut)
+def reactivate(
+    event_type_id: int,
+    session_id: int,
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    _get_event_type_or_404(db, current_business.id, event_type_id)
+    s = _get_session_or_404(db, event_type_id, session_id)
+    if s.status != SessionStatus.CANCELLED:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Session is not cancelled")
+    return reactivate_session(db, s)

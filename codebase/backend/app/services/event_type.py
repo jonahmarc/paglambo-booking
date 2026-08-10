@@ -1,6 +1,8 @@
+from sqlalchemy import delete as sa_delete
 from sqlalchemy.orm import Session as DBSession
 
-from app.models import EventType
+from app.models import AddOn, Booking, EventType, package_session_pool
+from app.models.session import Session as SessionModel, SessionStatus
 from app.schemas.event_type import EventTypeCreate, EventTypeUpdate
 
 
@@ -28,8 +30,15 @@ def get_event_type(db: DBSession, business_id: int, event_type_id: int) -> Event
 
 
 def update_event_type(db: DBSession, event_type: EventType, data: EventTypeUpdate) -> EventType:
-    for field, value in data.model_dump(exclude_unset=True).items():
+    updates = data.model_dump(exclude_unset=True)
+    new_capacity = updates.get("default_capacity")
+    for field, value in updates.items():
         setattr(event_type, field, value)
+    if new_capacity is not None:
+        db.query(SessionModel).filter(
+            SessionModel.event_type_id == event_type.id,
+            SessionModel.status == SessionStatus.SCHEDULED,
+        ).update({"capacity": new_capacity})
     db.commit()
     db.refresh(event_type)
     return event_type
@@ -40,3 +49,31 @@ def deactivate_event_type(db: DBSession, event_type: EventType) -> EventType:
     db.commit()
     db.refresh(event_type)
     return event_type
+
+
+def delete_event_type_hard(db: DBSession, event_type: EventType) -> None:
+    if db.query(Booking).filter(Booking.event_type_id == event_type.id).count() > 0:
+        raise ValueError("Cannot delete: existing bookings are linked to this event type")
+
+    session_ids = [s.id for s in event_type.sessions]
+    if session_ids:
+        db.execute(
+            sa_delete(package_session_pool).where(
+                package_session_pool.c.session_id.in_(session_ids)
+            )
+        )
+        db.flush()
+        db.query(SessionModel).filter(
+            SessionModel.event_type_id == event_type.id
+        ).delete(synchronize_session="fetch")
+        db.flush()
+
+    db.query(AddOn).filter(AddOn.event_type_id == event_type.id).delete(synchronize_session="fetch")
+    db.flush()
+
+    if event_type.package:
+        db.delete(event_type.package)
+        db.flush()
+
+    db.delete(event_type)
+    db.commit()

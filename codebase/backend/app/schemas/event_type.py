@@ -4,6 +4,15 @@ from decimal import Decimal
 from pydantic import BaseModel, Field
 
 from app.models.event_type import EventTypeKind
+from app.models.package import PackageDateMode
+
+
+class PackageBrief(BaseModel):
+    id: int
+    required_session_count: int
+    date_mode: PackageDateMode
+
+    model_config = {"from_attributes": True}
 
 
 class EventTypeCreate(BaseModel):
@@ -33,5 +42,6 @@ class EventTypeOut(BaseModel):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    package: PackageBrief | None = None
 
     model_config = {"from_attributes": True}

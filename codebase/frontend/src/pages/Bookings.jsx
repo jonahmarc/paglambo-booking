@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import Badge from '../components/Badge'
+import Spinner from '../components/Spinner'
 
 const STATUSES = ['all', 'pending', 'awaiting_payment', 'confirmed', 'rejected']
 
@@ -12,11 +13,16 @@ function fmt(dt) {
 export default function Bookings() {
   const [bookings, setBookings] = useState([])
   const [filter, setFilter] = useState('all')
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    setLoading(true)
     const q = filter === 'all' ? '' : `?status=${filter}`
-    api.get(`/api/bookings${q}`).then(setBookings).catch(() => setError('Failed to load bookings'))
+    api.get(`/api/bookings${q}`)
+      .then(setBookings)
+      .catch(() => setError('Failed to load bookings'))
+      .finally(() => setLoading(false))
   }, [filter])
 
   return (
@@ -40,7 +46,8 @@ export default function Bookings() {
       {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
-        {bookings.length === 0 && (
+        {loading && <Spinner />}
+        {!loading && bookings.length === 0 && (
           <p className="px-6 py-8 text-sm text-gray-400 text-center">No bookings found.</p>
         )}
         {bookings.map(b => (

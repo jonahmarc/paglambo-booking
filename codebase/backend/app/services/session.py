@@ -87,3 +87,10 @@ def cancel_session(db: DBSession, session: SessionModel) -> SessionModel:
     db.commit()
     db.refresh(session)
     return session
+
+
+def reactivate_session(db: DBSession, session: SessionModel) -> SessionModel:
+    session.status = SessionStatus.SCHEDULED
+    db.commit()
+    db.refresh(session)
+    return session
