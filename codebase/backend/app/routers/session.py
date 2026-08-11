@@ -10,6 +10,7 @@ from app.services.session import (
     cancel_session,
     create_session,
     generate_sessions,
+    get_booked_counts,
     get_session,
     list_sessions,
     reactivate_session,
@@ -65,7 +66,12 @@ def list_all(
     current_business: Business = Depends(get_current_business),
 ):
     _get_event_type_or_404(db, current_business.id, event_type_id)
-    return list_sessions(db, event_type_id)
+    sessions = list_sessions(db, event_type_id)
+    booked = get_booked_counts(db, [s.id for s in sessions])
+    return [
+        SessionOut.model_validate(s).model_copy(update={"booked_count": booked.get(s.id, 0)})
+        for s in sessions
+    ]
 
 
 @router.get("/{session_id}", response_model=SessionOut)

@@ -49,6 +49,7 @@ class BookingCustomerOut(BaseModel):
 class BookingOut(BaseModel):
     id: int
     event_type_id: int
+    event_type_name: str
     status: BookingStatus
     total_price: Decimal
     notes: str | None

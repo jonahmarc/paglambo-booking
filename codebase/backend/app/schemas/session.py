@@ -36,6 +36,7 @@ class SessionOut(BaseModel):
     start_time: datetime
     end_time: datetime | None
     capacity: int
+    booked_count: int = 0
     status: SessionStatus
     created_at: datetime
 

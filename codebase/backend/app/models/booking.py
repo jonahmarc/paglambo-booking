@@ -37,6 +37,10 @@ class Booking(Base):
 
     business: Mapped["Business"] = relationship(back_populates="bookings")
     event_type: Mapped["EventType"] = relationship(back_populates="bookings")
+
+    @property
+    def event_type_name(self) -> str:
+        return self.event_type.name
     customer: Mapped["Customer"] = relationship(back_populates="bookings")
     sessions: Mapped[list["Session"]] = relationship(secondary=booking_sessions, back_populates="bookings")
     add_ons: Mapped[list["AddOn"]] = relationship(secondary=booking_addons, back_populates="bookings")

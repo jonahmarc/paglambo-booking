@@ -57,7 +57,7 @@ export default function Bookings() {
               <p className="text-sm font-medium text-gray-900">{b.customer?.name ?? '—'}</p>
               <p className="text-xs text-gray-400 mt-0.5">{b.customer?.email}</p>
             </div>
-            <p className="text-sm text-gray-600 truncate max-w-[180px]">Event #{b.event_type_id}</p>
+            <p className="text-sm text-gray-600 truncate max-w-[180px]">{b.event_type_name}</p>
             <p className="text-sm font-semibold text-gray-700 w-20 text-right">${Number(b.total_price).toFixed(2)}</p>
             <Badge value={b.status} />
             <p className="text-xs text-gray-400 w-24 text-right">{fmt(b.created_at)}</p>

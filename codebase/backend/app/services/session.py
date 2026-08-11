@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session as DBSession
 
+from app.models import Booking, BookingStatus
+from app.models.associations import booking_sessions as booking_sessions_table
 from app.models.session import Session as SessionModel, SessionStatus
 from app.schemas.session import SessionCreate, SessionGenerateRequest, SessionUpdate
 
@@ -55,6 +58,22 @@ def generate_sessions(db: DBSession, event_type_id: int, data: SessionGenerateRe
     for s in created:
         db.refresh(s)
     return created
+
+
+def get_booked_counts(db: DBSession, session_ids: list[int]) -> dict[int, int]:
+    if not session_ids:
+        return {}
+    rows = (
+        db.query(booking_sessions_table.c.session_id, func.count().label("count"))
+        .join(Booking, Booking.id == booking_sessions_table.c.booking_id)
+        .filter(
+            booking_sessions_table.c.session_id.in_(session_ids),
+            Booking.status != BookingStatus.REJECTED,
+        )
+        .group_by(booking_sessions_table.c.session_id)
+        .all()
+    )
+    return {row.session_id: row.count for row in rows}
 
 
 def list_sessions(db: DBSession, event_type_id: int) -> list[SessionModel]:

@@ -47,7 +47,14 @@ export default function BookingDetail() {
     ? <p className="text-sm text-red-600">{error}</p>
     : <Spinner />
 
-  const canReview = booking.status === 'awaiting_payment' && booking.payment
+  const reviewDisabledReason =
+    booking.status === 'pending' ? "Customer hasn't uploaded a payment receipt yet" :
+    booking.status === 'confirmed' ? "This booking has already been approved" :
+    booking.status === 'rejected' ? "This booking has already been rejected" :
+    !booking.payment ? "No receipt on file" :
+    null
+
+  const canReview = reviewDisabledReason === null
 
   return (
     <div>
@@ -74,7 +81,7 @@ export default function BookingDetail() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Booking</h2>
           <dl>
-            <InfoRow label="Event type" value={`#${booking.event_type_id}`} />
+            <InfoRow label="Event type" value={booking.event_type_name} />
             <InfoRow label="Total" value={`$${Number(booking.total_price).toFixed(2)}`} />
             <InfoRow label="Notes" value={booking.notes} />
             <InfoRow label="Created" value={fmt(booking.created_at)} />
@@ -121,7 +128,7 @@ export default function BookingDetail() {
             </dl>
 
             {/* Receipt image */}
-            <div className="mb-4">
+            <div>
               <p className="text-sm font-medium text-gray-700 mb-2">Receipt</p>
               <a
                 href={`/api/bookings/${booking.id}/receipt`}
@@ -144,33 +151,40 @@ export default function BookingDetail() {
                 </span>
               </a>
             </div>
-
-            {/* Approve / Reject */}
-            {canReview && (
-              <div className="border-t border-gray-100 pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Review note (optional)</p>
-                <textarea
-                  value={note}
-                  onChange={e => setNote(e.target.value)}
-                  rows={2}
-                  placeholder="Add a note visible to the customer on rejection…"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
-                <div className="flex gap-3">
-                  <button onClick={() => handleReview('approve')} disabled={working}
-                    className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors">
-                    {working ? '…' : 'Approve'}
-                  </button>
-                  <button onClick={() => handleReview('reject')} disabled={working}
-                    className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors">
-                    {working ? '…' : 'Reject'}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         )}
+
+        {/* Review actions — always visible */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 lg:col-span-2">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Review</h2>
+          <p className="text-sm font-medium text-gray-700 mb-2">Note (optional)</p>
+          <textarea
+            value={note}
+            onChange={e => setNote(e.target.value)}
+            rows={2}
+            disabled={!canReview}
+            placeholder="Add a note visible to the customer on rejection…"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
+          />
+          {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+          <div className="flex items-center gap-3">
+            <span title={reviewDisabledReason ?? undefined} className="inline-flex">
+              <button onClick={() => handleReview('approve')} disabled={!canReview || working}
+                className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors">
+                {working ? '…' : 'Approve'}
+              </button>
+            </span>
+            <span title={reviewDisabledReason ?? undefined} className="inline-flex">
+              <button onClick={() => handleReview('reject')} disabled={!canReview || working}
+                className="bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors">
+                {working ? '…' : 'Reject'}
+              </button>
+            </span>
+            {reviewDisabledReason && (
+              <p className="text-xs text-gray-400 italic">{reviewDisabledReason}</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

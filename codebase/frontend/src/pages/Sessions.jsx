@@ -295,7 +295,7 @@ export default function Sessions() {
               <p className="text-sm font-medium text-gray-900">{fmt(s.start_time)}</p>
               {s.end_time && <p className="text-xs text-gray-400">ends {fmt(s.end_time)}</p>}
             </div>
-            <p className="text-sm text-gray-600 w-24 text-center">Cap: {s.capacity}</p>
+            <p className="text-sm text-gray-600 w-28 text-center">{s.booked_count}/{s.capacity} booked</p>
             <Badge value={s.status} />
             {s.status === 'scheduled' && (
               <>
