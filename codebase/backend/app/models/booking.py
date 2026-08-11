@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Numeric, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, Text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -28,6 +28,7 @@ class Booking(Base):
     status: Mapped[BookingStatus] = mapped_column(
         SAEnum(BookingStatus, name="booking_status"), default=BookingStatus.PENDING
     )
+    party_size: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     total_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -37,11 +38,16 @@ class Booking(Base):
 
     business: Mapped["Business"] = relationship(back_populates="bookings")
     event_type: Mapped["EventType"] = relationship(back_populates="bookings")
-
-    @property
-    def event_type_name(self) -> str:
-        return self.event_type.name
     customer: Mapped["Customer"] = relationship(back_populates="bookings")
     sessions: Mapped[list["Session"]] = relationship(secondary=booking_sessions, back_populates="bookings")
     add_ons: Mapped[list["AddOn"]] = relationship(secondary=booking_addons, back_populates="bookings")
     payment: Mapped["Payment | None"] = relationship(back_populates="booking", uselist=False)
+    attendees: Mapped[list["Attendee"]] = relationship(back_populates="booking", cascade="all, delete-orphan")
+
+    @property
+    def event_type_name(self) -> str:
+        return self.event_type.name
+
+    @property
+    def booking_ref(self) -> str:
+        return str(self.id).zfill(6)

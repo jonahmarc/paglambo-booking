@@ -1,4 +1,5 @@
 from app.models.addon import AddOn
+from app.models.attendee import Attendee
 from app.models.associations import booking_addons, booking_sessions, package_session_pool
 from app.models.booking import Booking, BookingStatus
 from app.models.business import Business
@@ -12,6 +13,7 @@ from app.models.subscription import SubscriptionPayment
 from app.models.superadmin import SuperAdmin
 
 __all__ = [
+    "Attendee",
     "Business",
     "SuperAdmin",
     "EventType",

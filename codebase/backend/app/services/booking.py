@@ -3,7 +3,7 @@ from decimal import Decimal
 from sqlalchemy import func
 from sqlalchemy.orm import Session as DBSession
 
-from app.models import AddOn, Booking, BookingStatus, Customer, EventType, EventTypeKind, Session
+from app.models import AddOn, Attendee, Booking, BookingStatus, Customer, EventType, EventTypeKind, Session
 from app.models import booking_sessions as booking_sessions_table
 from app.models.package import PackageDateMode
 from app.models.session import SessionStatus
@@ -125,6 +125,7 @@ def create_booking(db: DBSession, business_id: int, data: BookingCreate) -> Book
         event_type_id=event_type.id,
         customer_id=customer.id,
         status=BookingStatus.PENDING,
+        party_size=max(1, data.party_size),
         total_price=total_price,
         notes=data.notes,
     )
@@ -133,6 +134,14 @@ def create_booking(db: DBSession, business_id: int, data: BookingCreate) -> Book
 
     booking.sessions = sessions
     booking.add_ons = addons
+
+    for att in data.attendees:
+        db.add(Attendee(
+            booking_id=booking.id,
+            name=att.name,
+            email=att.email,
+            phone=att.phone,
+        ))
 
     db.commit()
     db.refresh(booking)

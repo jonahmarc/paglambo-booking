@@ -11,6 +11,7 @@ class Business(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
+    slug: Mapped[str | None] = mapped_column(String(100), unique=True, index=True, nullable=True)
     booking_key: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255))

@@ -55,6 +55,43 @@ def _session_list_html(sessions) -> str:
 
 # --- Outbound notifications ---
 
+def send_booking_created(booking, business) -> None:
+    """Notify customer of their new booking and what to do next (upload receipt)."""
+    payment_rows = ""
+    if business.paypal_username:
+        payment_rows += f"<tr><td><strong>PayPal</strong></td><td>{business.paypal_username}</td></tr>"
+    if business.wise_username:
+        payment_rows += f"<tr><td><strong>Wise</strong></td><td>{business.wise_username}</td></tr>"
+
+    if payment_rows:
+        payment_section = f"""
+        <p><strong>How to pay:</strong> send <strong>{booking.total_price}</strong> to one of the accounts below,
+        then return to the booking page to upload your receipt.</p>
+        <table cellpadding="6" cellspacing="0">{payment_rows}</table>
+        """
+    else:
+        payment_section = "<p>Our team will contact you shortly with payment instructions.</p>"
+
+    html = f"""
+    <p>Hi {booking.customer.name},</p>
+    <p>Thank you! We have received your booking request.</p>
+    <table cellpadding="6" cellspacing="0">
+      <tr><td><strong>Booking&nbsp;ref</strong></td><td>{booking.booking_ref}</td></tr>
+      <tr><td><strong>Event</strong></td><td>{booking.event_type.name}</td></tr>
+      <tr><td><strong>People</strong></td><td>{booking.party_size}</td></tr>
+      <tr><td><strong>Total</strong></td><td>{booking.total_price}</td></tr>
+    </table>
+    {_session_list_html(booking.sessions)}
+    {payment_section}
+    <p>Questions? Contact us at {business.email}.</p>
+    """
+    _send(
+        booking.customer.email,
+        f"Booking received — {booking.event_type.name}",
+        html,
+    )
+
+
 def send_receipt_received(booking, business) -> None:
     """Notify the admin that a customer has uploaded a payment receipt."""
     method = booking.payment.method.value if booking.payment else "—"

@@ -2,13 +2,36 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
-from app.models import EventType
+from app.models import Business, EventType
 from app.models.event_type import EventTypeKind
 from app.routers.deps import get_business_or_404
-from app.schemas.public import PublicEventTypeOut, PublicSessionOut
+from app.schemas.public import PublicBusinessOut, PublicEventTypeOut, PublicSessionOut
 from app.services.public import list_available_sessions, list_public_event_types
 
+# Slug-based lookup — must be registered in main.py BEFORE the booking_key router
+# so the literal path segment "by-slug" isn't captured by {booking_key}.
+meta_router = APIRouter(prefix="/api/public", tags=["public"])
+
 router = APIRouter(prefix="/api/public/{booking_key}", tags=["public"])
+
+
+@meta_router.get("/by-slug/{slug}", response_model=PublicBusinessOut)
+def get_by_slug(slug: str, db: DBSession = Depends(get_db)):
+    business = (
+        db.query(Business)
+        .filter(Business.slug == slug, Business.is_active == True)  # noqa: E712
+        .first()
+    )
+    if business is None or business.status not in ("trial", "active"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found")
+    return PublicBusinessOut(
+        name=business.name,
+        slug=business.slug,
+        booking_key=business.booking_key,
+        email=business.email,
+        paypal_username=business.paypal_username,
+        wise_username=business.wise_username,
+    )
 
 
 @router.get("/event-types", response_model=list[PublicEventTypeOut])

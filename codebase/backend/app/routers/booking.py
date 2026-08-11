@@ -19,7 +19,7 @@ from app.services.booking import (
     transition_to_confirmed,
     transition_to_rejected,
 )
-from app.services.email import send_booking_confirmed, send_payment_rejected, send_receipt_received
+from app.services.email import send_booking_confirmed, send_booking_created, send_payment_rejected, send_receipt_received
 from app.services.payment import approve_payment, create_payment, reject_payment, save_receipt_file
 
 router = APIRouter(tags=["bookings"])
@@ -54,11 +54,17 @@ def create_public_booking(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
+    send_booking_created(booking, business)
+
     return BookingPublicOut(
         id=booking.id,
+        booking_ref=booking.booking_ref,
         status=booking.status,
+        party_size=booking.party_size,
         total_price=booking.total_price,
         notes=booking.notes,
+        business_name=business.name,
+        business_email=business.email,
         paypal_username=business.paypal_username,
         wise_username=business.wise_username,
         sessions=booking.sessions,

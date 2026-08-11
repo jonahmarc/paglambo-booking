@@ -7,6 +7,15 @@ from app.models.event_type import EventTypeKind
 from app.models.package import PackageDateMode
 
 
+class PublicBusinessOut(BaseModel):
+    name: str
+    slug: str
+    booking_key: str
+    email: str
+    paypal_username: str | None
+    wise_username: str | None
+
+
 class PublicAddOnOut(BaseModel):
     id: int
     name: str

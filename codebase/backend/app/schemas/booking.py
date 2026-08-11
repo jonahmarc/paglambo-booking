@@ -13,11 +13,28 @@ class CustomerIn(BaseModel):
     phone: str | None = None
 
 
+class AttendeeIn(BaseModel):
+    name: str
+    email: str | None = None
+    phone: str | None = None
+
+
+class AttendeeOut(BaseModel):
+    id: int
+    name: str
+    email: str | None
+    phone: str | None
+
+    model_config = {"from_attributes": True}
+
+
 class BookingCreate(BaseModel):
     event_type_id: int
     customer: CustomerIn
+    party_size: int = 1
     session_ids: list[int] = []
     addon_ids: list[int] = []
+    attendees: list[AttendeeIn] = []
     notes: str | None = None
 
 
@@ -48,14 +65,17 @@ class BookingCustomerOut(BaseModel):
 
 class BookingOut(BaseModel):
     id: int
+    booking_ref: str
     event_type_id: int
     event_type_name: str
     status: BookingStatus
+    party_size: int
     total_price: Decimal
     notes: str | None
     customer: BookingCustomerOut
     sessions: list[BookingSessionOut]
     add_ons: list[BookingAddonOut]
+    attendees: list[AttendeeOut]
     payment: PaymentOut | None
     created_at: datetime
     updated_at: datetime
@@ -65,9 +85,13 @@ class BookingOut(BaseModel):
 
 class BookingPublicOut(BaseModel):
     id: int
+    booking_ref: str
     status: BookingStatus
+    party_size: int
     total_price: Decimal
     notes: str | None
+    business_name: str
+    business_email: str
     paypal_username: str | None
     wise_username: str | None
     sessions: list[BookingSessionOut]
