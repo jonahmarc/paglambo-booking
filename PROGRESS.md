@@ -118,20 +118,62 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 
 **The primary customer-facing booking experience.** Accessible at `app.buhatabooking.com/book/bamboo-cooking-school` — no WordPress, no embed complexity. Business owners share the URL directly (WhatsApp, email, Instagram bio). Uses the existing React + Tailwind stack so it shares components with the admin dashboard and is easy to maintain. WordPress plugin iframes this page.
 
+---
+
+#### UX Reference: Courtogo, Eventbrite, Events Calendar, Amelia
+
+These are studied as references for the booking page UX. Not copying — adapting what makes sense for our use cases (cooking classes + event/travel packages).
+
+**Courtogo (courtogo.com)** — Philippine sports venue booking platform. Closest reference for the payment + receipt flow.
+- No login required to browse or book. Customer stays anonymous until checkout.
+- Venue detail page has a **time-slot grid**: rows = hourly slots, columns = courts/resources. Cells are color-coded — Free (white), Your selection (green), Taken (grey), Awaiting payment (amber). Tap to select; drag down to grab consecutive slots. Very visual availability at a glance.
+- Booking summary appears below the grid while selecting, showing selected slot(s), total, "Proceed to Booking."
+- **Checkout is ONE page** — not split into payment instructions then receipt upload. Left column: booking summary + promo code + total. Right column: customer info (name, email, phone) → payment section (GCash account name partially masked, mobile number, QR code with Save button, "Send ₱300.00 to this account") → drag-and-drop receipt upload area → single "Upload Payment to Continue" CTA. This is cleaner than our current two-step approach.
+- QR code shown inline. Account details partially masked for privacy.
+
+**Eventbrite** — event ticketing platform. Reference for event browsing + ticket quantity flow.
+- Browse events by category, date, location. Event cards with featured image, title, date, price.
+- Event detail page: large hero, date/time/location prominently shown, ticket type selector, quantity picker (= our party size), order summary with itemized breakdown.
+- Checkout: customer info, order summary always visible on the right. Clean and linear.
+
+**The Events Calendar / WooCommerce Tickets** — WordPress event plugin. Reference for event listing UX on a business's own site.
+- Calendar view of upcoming events — month/week/list toggle.
+- Event detail with "Get Tickets" CTA, capacity display ("X of Y tickets remaining").
+- Useful framing: show remaining capacity prominently, not hidden.
+
+**Amelia (booking plugin)** — appointment/service booking. Reference for class and recurring session booking.
+- Service selection → visual calendar (available dates highlighted, past/full dates greyed out) → time slot list for selected date → customer info → confirmation.
+- Key idea: the calendar makes it obvious which dates are bookable before the customer clicks into them. Not a flat list.
+- Staff/resource assignment per booking — not applicable to us now but relevant if we add instructor assignment later.
+
+**What we take from these for the booking page:**
+
+| Pattern | Source | Apply to our page |
+|---|---|---|
+| No login to book | All | ✅ Already planned |
+| Visual calendar / grid session picker | Courtogo, Amelia | For recurring CLASS events: calendar view showing available dates. Greyed-out = full or past. For packages: list with spots remaining. |
+| Slot availability states shown visually | Courtogo | Show remaining spots per session prominently. Consider colour: available (green) / almost full (amber, e.g. ≤3 spots) / full (grey, hidden or disabled). |
+| Checkout on ONE page | Courtogo | Combine customer info + payment instructions + QR + receipt upload on a single checkout page. Booking is created on submit, not before. Payment instructions and receipt upload are not separate page steps — they're sections on the same page. |
+| Always-visible booking summary | Courtogo, Eventbrite | Sticky right-column summary on desktop, sticky bottom bar on mobile. Shows event name, session date(s), add-ons, total. Updates live as selections change. |
+| Ticket quantity / party size | Eventbrite | "How many people?" shown early — affects capacity check and price, and determines number of attendee forms. |
+| Remaining capacity shown | Events Calendar | e.g. "4 spots left" badge on session cards. Amber warning when low. |
+| Promo code on checkout | Courtogo, Eventbrite | Input field in the booking summary section. |
+| QR code inline | Courtogo | Business uploads QR for PayPal/Wise; shown on checkout next to account details. Save/download button. Amount to send shown dynamically from booking total. |
+
+---
+
 | Task | Status | Notes |
 |---|---|---|
 | Business slug field — backend | ⬜ Pending | Add `slug` (unique, URL-safe) to Business model + migration. Auto-generated from business name on registration (e.g. "Bamboo Cooking School" → "bamboo-cooking-school"). Admin can edit from Settings. |
 | Slug resolver endpoint | ⬜ Pending | `GET /api/public/by-slug/{slug}` — returns `booking_key` + business name + contact info. Used by the booking page on load. |
 | Booking page — React route | ⬜ Pending | New route `/book/:slug` in `App.jsx`, no auth required. Resolves slug → business, then renders the full booking flow. |
 | Booking page — browse event types | ⬜ Pending | Cards showing event type name, description, kind (class/package), base price, available spots summary. Must not show past-only events. |
-| Booking page — session picker | ⬜ Pending | CLASS: list future sessions with date, time, and remaining spots per session. PACKAGE FIXED: show committed sessions read-only. PACKAGE CUSTOMER_PICKS: multi-select up to required count, each session shows remaining spots. Pool sessions with past dates are silently filtered — add a clear "no upcoming sessions" message if the list is empty. |
-| Booking page — party size | ⬜ Pending | "How many people?" step before session picker. Capacity check must use `available_spots >= party_size`. Price = base_price × party_size + add-ons. |
-| Booking page — add-on selector | ⬜ Pending | Toggle cards per add-on, live total updates as selections change. |
-| Booking page — attendee details | ⬜ Pending | When `party_size > 1`, collect details per person (name, ID/passport, nationality, DOB, special requirements). One form block per attendee. |
-| Booking page — customer info | ⬜ Pending | Primary booker: name, email, phone (optional), notes (optional). |
-| Booking page — payment instructions | ⬜ Pending | After booking is created: show amount due, PayPal username + QR (if set), Wise username + QR (if set). If neither is set, show business contact email/phone. |
-| Booking page — receipt upload | ⬜ Pending | Method selector (only if both PayPal and Wise are configured), file upload, submit. Method auto-selected when only one exists; no method guard error if neither exists (falls back to contact info flow). |
-| Booking page — confirmation screen | ⬜ Pending | "Booking received!" with 6-digit booking number, event name, session date(s), and what happens next. Email also sent at this point (see Step 1 — email on booking created). |
+| Booking page — session picker | ⬜ Pending | Visual calendar/grid for CLASS (recurring) events: available dates highlighted, full/past dates greyed out. Clicking a date shows time slots for that day. Each session shows remaining spots; amber when ≤3 left, grey/disabled when full. PACKAGE FIXED: committed sessions shown read-only. PACKAGE CUSTOMER_PICKS: multi-select up to required count. Empty pool → clear "no upcoming sessions" message, not a blank screen. |
+| Booking page — party size | ⬜ Pending | "How many people?" shown early in the flow, before session picker. Capacity check: `available_spots >= party_size`. Price = base_price × party_size + add-ons. Determines number of attendee detail forms. |
+| Booking page — add-on selector | ⬜ Pending | Toggle cards per add-on. Live booking summary sidebar/bar updates total as selections change. |
+| Booking page — attendee details | ⬜ Pending | When `party_size > 1`, collect per-person details (name, ID/passport, nationality, DOB, special requirements). One form block per person. Primary booker is person 1. |
+| Booking page — checkout (single page) | ⬜ Pending | One page combining: customer info (name, email, phone) + booking summary (sticky right column on desktop, sticky bottom bar on mobile) + promo code field + payment instructions (PayPal/Wise username, QR code with Save button, "Send ₱X.XX to this account") + drag-and-drop receipt upload + single submit CTA. Booking is created on submit — not before. If neither payment method is set, show business contact details instead of QR. Method auto-selected when only one exists; selector shown when both exist. |
+| Booking page — confirmation screen | ⬜ Pending | Full-page confirmation: 6-digit booking number, event name, session date(s), total paid, "We'll review your receipt and confirm by email." Confirmation email also sent at this point (see Step 1 — email on booking created). |
 | Booking page — SEO / meta | ⬜ Pending | Dynamic `<title>` and description per business. |
 
 ### Step 4: WordPress Plugin
