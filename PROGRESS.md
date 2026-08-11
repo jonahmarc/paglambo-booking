@@ -43,7 +43,12 @@
 | Email — payment approved | ✅ Done | Combined with booking confirmation email |
 | Email — payment rejected | ✅ Done | Sent to customer on reject; via `send_payment_rejected` |
 | Public session listing API | ✅ Done | `GET /api/public/{key}/event-types` (incl. add-ons + package pool); `GET /api/public/{key}/event-types/{id}/sessions` |
-| Group booking support | ⬜ Pending | Add `party_size` field to Booking; public widget lets customers book for multiple people; price = per-person rate × party_size |
+| Booking number format | ⬜ Pending | Display ID as 6-digit zero-padded string (000001, 000002…). Storage stays integer; formatting is display-only — `str(id).zfill(6)` in schema + frontend. |
+| Business contact info in public API | ⬜ Pending | Add business email/phone to `BookingPublicOut` so the booking page can show contact details when no PayPal/Wise username is configured. |
+| Payment QR code images | ⬜ Pending | Business uploads a PayPal QR and/or Wise QR image via admin Settings. Stored in `UPLOAD_DIR/qr/`. Served by `GET /api/public/{key}/qr/{method}`. Booking page shows the image on the payment step alongside the username. |
+| Email — booking created | ⬜ Pending | Send email to customer immediately when booking is placed (before payment), containing: booking number, event name, session date(s), total due, and PayPal/Wise payment instructions. Currently email is only sent after admin approves. |
+| Party size + multi-slot booking | ⬜ Pending | Add `party_size: int` (default 1) to Booking model + migration. Price = base_price × party_size + add-ons. Booking page: "How many people?" step before session picker. Capacity check: `available_spots >= party_size`. |
+| Attendee details per person | ⬜ Pending | New `Attendee` model (booking_id FK, name, email, id_or_passport, nationality, date_of_birth, special_requirements). Collected on booking page when `party_size > 1` — one form block per person. Admin booking detail shows all attendees. Required for the event/travel use case (see below). |
 | Discount codes API | ⬜ Pending | Standard + Pro feature; admin CRUD for codes (flat / percentage); public validate endpoint; applied at estimate + booking |
 | API tests | ⬜ Pending | pytest |
 
@@ -84,7 +89,9 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 | Business settings page | ✅ Done | Name, PayPal/Wise usernames, booking key (read-only) |
 | Create / edit event types | ✅ Done | List, create modal, edit modal, activate/deactivate, link to sessions |
 | Sessions list / calendar | ✅ Done | Manual add + bulk generate; cancel; linked from event types |
-| Bookings list + detail view | ✅ Done | Status filter tabs; detail shows customer, sessions, add-ons, payment |
+| Bookings list + detail view | ⚠ Bug | Bookings list shows `Event #<id>` (database ID) instead of the event type name. Both `Bookings.jsx` (line 60) and `BookingDetail.jsx` (line 77) use `event_type_id` only — the `BookingOut` schema must include `event_type_name`. |
+| Sessions — capacity / availability view | ⬜ Pending | Admin cannot see how many slots are taken vs. available per session. The backend already calculates `available_spots` correctly (used in public API). Need to expose this in the admin sessions list. For recurring and package event types, capacity limit is per session (per day), not across all sessions. |
+| Bookings — no approval button visible | ⚠ Bug/UX | Approve/Reject buttons in `BookingDetail.jsx` only render when `status === 'awaiting_payment' && payment exists`. Admin sees the booking but has no action to take until the customer submits a receipt, with no explanation why. Fix: always render the Approve/Reject buttons; disable them when the state isn't right; on hover over a disabled button show a tooltip explaining why (e.g. "Waiting for customer to upload payment receipt" when status is `pending`, "No receipt on file" if somehow state is wrong). Also add a status message in the UI explaining the current step in the flow. |
 | Receipt review (approve/reject) | ✅ Done | Receipt image preview inline; approve/reject with optional note |
 | Superadmin — approval queue | ✅ Done | `/superadmin/approvals` — pending registrations with approve/reject + note |
 | Superadmin — subscription payment review | ✅ Done | `/superadmin/subscriptions` — receipt review with view/approve/reject; receipt served via `GET /api/superadmin/subscription-payments/{id}/receipt` |
@@ -95,34 +102,70 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 | Business — status banner | ✅ Done | Layout banner for pending/expired/rejected with link to subscription page |
 | Discount codes UI (Standard + Pro) | ⬜ Pending | Create/manage codes (flat or %) from business dashboard |
 
-### Step 3: Public Booking Widget
+### Step 3: JS Booking Widget — superseded, kept for reference only
+
+> **The vanilla JS widget (`codebase/widget/`) is no longer the primary customer-facing channel.** It was built as a proof-of-concept but has been superseded by the hosted public booking page (Step 3b, now promoted to Step 3). All booking UX work — including fixes for the bugs noted below and all planned upgrades — will be built on the hosted page instead.
+>
+> **Known widget bugs (not being fixed here — equivalents must not appear on the booking page):**
+> - Receipt upload: "Please select payment method" error when neither PayPal nor Wise username is set on the business.
+> - Package sessions: pool sessions with past `start_time` are silently filtered by `_future_scheduled()` in the public service — widget shows empty list with no explanation.
+> - Payment step: no QR code images, no business contact info in fallback message.
+> - Sessions: available spots not shown for PACKAGE pool sessions.
+>
+> The widget code stays in `codebase/widget/` but will not be actively maintained. The WordPress plugin (Step 4) will embed the hosted booking page via iframe instead.
+
+### Step 3b → now Step 3: Hosted Public Booking Page
+
+**The primary customer-facing booking experience.** Accessible at `app.buhatabooking.com/book/bamboo-cooking-school` — no WordPress, no embed complexity. Business owners share the URL directly (WhatsApp, email, Instagram bio). Uses the existing React + Tailwind stack so it shares components with the admin dashboard and is easy to maintain. WordPress plugin iframes this page.
 
 | Task | Status | Notes |
 |---|---|---|
-| Widget scaffold | ⬜ Pending | Vanilla JS, single embeddable script |
-| Browse classes / events | ⬜ Pending | |
-| Date / session picker | ⬜ Pending | Recurring classes |
-| Package date-pool picker | ⬜ Pending | Customer picks from approved pool |
-| Add-on selector + live estimate | ⬜ Pending | Price updates as selections change |
-| PayPal / Wise instructions + QR display | ⬜ Pending | Shown after booking is placed |
-| Receipt upload step | ⬜ Pending | Customer uploads proof of payment |
-| Confirmation screen | ⬜ Pending | "We'll confirm once we verify your payment" |
+| Business slug field — backend | ⬜ Pending | Add `slug` (unique, URL-safe) to Business model + migration. Auto-generated from business name on registration (e.g. "Bamboo Cooking School" → "bamboo-cooking-school"). Admin can edit from Settings. |
+| Slug resolver endpoint | ⬜ Pending | `GET /api/public/by-slug/{slug}` — returns `booking_key` + business name + contact info. Used by the booking page on load. |
+| Booking page — React route | ⬜ Pending | New route `/book/:slug` in `App.jsx`, no auth required. Resolves slug → business, then renders the full booking flow. |
+| Booking page — browse event types | ⬜ Pending | Cards showing event type name, description, kind (class/package), base price, available spots summary. Must not show past-only events. |
+| Booking page — session picker | ⬜ Pending | CLASS: list future sessions with date, time, and remaining spots per session. PACKAGE FIXED: show committed sessions read-only. PACKAGE CUSTOMER_PICKS: multi-select up to required count, each session shows remaining spots. Pool sessions with past dates are silently filtered — add a clear "no upcoming sessions" message if the list is empty. |
+| Booking page — party size | ⬜ Pending | "How many people?" step before session picker. Capacity check must use `available_spots >= party_size`. Price = base_price × party_size + add-ons. |
+| Booking page — add-on selector | ⬜ Pending | Toggle cards per add-on, live total updates as selections change. |
+| Booking page — attendee details | ⬜ Pending | When `party_size > 1`, collect details per person (name, ID/passport, nationality, DOB, special requirements). One form block per attendee. |
+| Booking page — customer info | ⬜ Pending | Primary booker: name, email, phone (optional), notes (optional). |
+| Booking page — payment instructions | ⬜ Pending | After booking is created: show amount due, PayPal username + QR (if set), Wise username + QR (if set). If neither is set, show business contact email/phone. |
+| Booking page — receipt upload | ⬜ Pending | Method selector (only if both PayPal and Wise are configured), file upload, submit. Method auto-selected when only one exists; no method guard error if neither exists (falls back to contact info flow). |
+| Booking page — confirmation screen | ⬜ Pending | "Booking received!" with 6-digit booking number, event name, session date(s), and what happens next. Email also sent at this point (see Step 1 — email on booking created). |
+| Booking page — SEO / meta | ⬜ Pending | Dynamic `<title>` and description per business. |
 
 ### Step 4: WordPress Plugin
 
 | Task | Status | Notes |
 |---|---|---|
 | PHP plugin scaffold | ⬜ Pending | |
-| Embed widget via shortcode | ⬜ Pending | `[buhata_booking key="xxx"]` |
-| Plugin settings page in WP admin | ⬜ Pending | Enter API URL and business key |
+| Embed via shortcode (iframe) | ⬜ Pending | `[buhata_booking slug="bamboo-cooking-school"]` — renders `<iframe src="https://app.buhatabooking.com/book/bamboo-cooking-school" ...>`. Simple wrapper around the hosted booking page. |
+| Plugin settings page in WP admin | ⬜ Pending | Enter platform URL and business slug |
 
 ---
 
-## Phase 2 — Standalone Hosted Booking Page
+## Event & Travel Package Use Case (FIFA World Cup style)
+
+A second client type beyond the cooking school: **event/travel package company**. Customers book ticket + hotel packages for a fixed event (e.g. a World Cup match). This requires the platform to handle multi-person bookings with individual attendee details.
+
+**How it differs from a class booking:**
+
+| Dimension | Cooking class | Event / travel package |
+|---|---|---|
+| Booking unit | 1 person books 1 session | Customer books N tickets (party_size ≥ 1) |
+| Attendee data | Just the booker's name + email | Full details per person (name, passport, nationality, DOB) |
+| Add-ons | Generic extras (e.g. apron kit) | Per-booking (e.g. hotel room — 1 room for the group, not per person) |
+| Sessions | Recurring dates to pick from | Fixed match date(s), typically FIXED package date mode |
+| Pricing | Per-session flat rate | Base price × party_size + optional add-ons |
+
+**Required work (all tied to pending items in Step 1 above):**
 
 | Task | Status | Notes |
 |---|---|---|
-| Hosted booking page | ⬜ Not started | After Phase 1 is live with real clients |
+| Party size field | ⬜ Pending | `party_size` on Booking model; booking page asks "How many people?" before session picker; price = base × party_size + add-ons |
+| Attendee details model | ⬜ Pending | New `Attendee` table: name, id_or_passport, nationality, date_of_birth, special_requirements (per person, FK to Booking). Booking page shows one attendee form per party_size. |
+| Admin — attendee list per booking | ⬜ Pending | Booking detail page shows all attendees in a table. Exportable to CSV for event organisers. |
+| Capacity check respects party size | ⬜ Pending | On booking creation: `available_spots >= party_size`, not just `>= 1`. |
 
 ---
 
