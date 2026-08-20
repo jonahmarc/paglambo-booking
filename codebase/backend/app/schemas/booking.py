@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, EmailStr
@@ -17,6 +17,10 @@ class AttendeeIn(BaseModel):
     name: str
     email: str | None = None
     phone: str | None = None
+    id_or_passport: str | None = None
+    nationality: str | None = None
+    date_of_birth: date | None = None
+    special_requirements: str | None = None
 
 
 class AttendeeOut(BaseModel):
@@ -24,6 +28,10 @@ class AttendeeOut(BaseModel):
     name: str
     email: str | None
     phone: str | None
+    id_or_passport: str | None
+    nationality: str | None
+    date_of_birth: date | None
+    special_requirements: str | None
 
     model_config = {"from_attributes": True}
 
@@ -35,6 +43,7 @@ class BookingCreate(BaseModel):
     session_ids: list[int] = []
     addon_ids: list[int] = []
     attendees: list[AttendeeIn] = []
+    discount_code: str | None = None
     notes: str | None = None
 
 
@@ -71,6 +80,8 @@ class BookingOut(BaseModel):
     status: BookingStatus
     party_size: int
     total_price: Decimal
+    discount_code: str | None
+    discount_amount: Decimal | None
     notes: str | None
     customer: BookingCustomerOut
     sessions: list[BookingSessionOut]
@@ -89,6 +100,8 @@ class BookingPublicOut(BaseModel):
     status: BookingStatus
     party_size: int
     total_price: Decimal
+    discount_code: str | None = None
+    discount_amount: Decimal | None = None
     notes: str | None
     business_name: str
     business_email: str

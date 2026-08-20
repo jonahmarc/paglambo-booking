@@ -115,6 +115,41 @@ export default function BookingDetail() {
           </div>
         )}
 
+        {/* Attendees */}
+        {booking.attendees?.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 lg:col-span-2">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Attendees ({booking.party_size})
+            </h2>
+            <div className="divide-y divide-gray-100">
+              {/* Primary booker */}
+              <div className="py-3 first:pt-0">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Attendee 1 (Primary)</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm">
+                  <span className="text-gray-500">Name</span><span className="font-medium text-gray-900 col-span-1 sm:col-span-2">{booking.customer?.name}</span>
+                  {booking.customer?.email && <><span className="text-gray-500">Email</span><span className="text-gray-700 col-span-1 sm:col-span-2">{booking.customer.email}</span></>}
+                  {booking.customer?.phone && <><span className="text-gray-500">Phone</span><span className="text-gray-700 col-span-1 sm:col-span-2">{booking.customer.phone}</span></>}
+                </div>
+              </div>
+              {/* Additional attendees */}
+              {booking.attendees.map((a, i) => (
+                <div key={a.id} className="py-3">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Attendee {i + 2}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1 text-sm">
+                    <span className="text-gray-500">Name</span><span className="font-medium text-gray-900 col-span-1 sm:col-span-2">{a.name}</span>
+                    {a.email && <><span className="text-gray-500">Email</span><span className="text-gray-700 col-span-1 sm:col-span-2">{a.email}</span></>}
+                    {a.phone && <><span className="text-gray-500">Phone</span><span className="text-gray-700 col-span-1 sm:col-span-2">{a.phone}</span></>}
+                    {a.id_or_passport && <><span className="text-gray-500">ID / Passport</span><span className="text-gray-700 col-span-1 sm:col-span-2">{a.id_or_passport}</span></>}
+                    {a.nationality && <><span className="text-gray-500">Nationality</span><span className="text-gray-700 col-span-1 sm:col-span-2">{a.nationality}</span></>}
+                    {a.date_of_birth && <><span className="text-gray-500">Date of birth</span><span className="text-gray-700 col-span-1 sm:col-span-2">{a.date_of_birth}</span></>}
+                    {a.special_requirements && <><span className="text-gray-500">Special requirements</span><span className="text-gray-700 col-span-1 sm:col-span-2">{a.special_requirements}</span></>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Payment */}
         {booking.payment && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 lg:col-span-2">

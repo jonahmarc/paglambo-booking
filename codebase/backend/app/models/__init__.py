@@ -4,6 +4,7 @@ from app.models.associations import booking_addons, booking_sessions, package_se
 from app.models.booking import Booking, BookingStatus
 from app.models.business import Business
 from app.models.customer import Customer
+from app.models.discount import DiscountCode, DiscountType
 from app.models.event_type import EventType, EventTypeKind
 from app.models.package import Package, PackageDateMode
 from app.models.payment import Payment, PaymentMethod, PaymentStatus
@@ -29,6 +30,8 @@ __all__ = [
     "PaymentMethod",
     "PaymentStatus",
     "Customer",
+    "DiscountCode",
+    "DiscountType",
     "PlatformSetting",
     "SubscriptionPayment",
     "booking_addons",

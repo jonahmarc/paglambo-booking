@@ -2,10 +2,11 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const NAV = [
-  { to: '/bookings',     label: 'Bookings' },
-  { to: '/event-types',  label: 'Event Types' },
-  { to: '/subscription', label: 'Subscription' },
-  { to: '/settings',     label: 'Settings' },
+  { to: '/bookings',        label: 'Bookings' },
+  { to: '/event-types',     label: 'Event Types' },
+  { to: '/discount-codes',  label: 'Discount Codes' },
+  { to: '/subscription',    label: 'Subscription' },
+  { to: '/settings',        label: 'Settings' },
 ]
 
 const STATUS_BANNERS = {

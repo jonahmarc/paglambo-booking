@@ -39,6 +39,7 @@ class Business(Base):
         return self.wise_qr_path is not None
 
     event_types: Mapped[list["EventType"]] = relationship(back_populates="business")
+    discount_codes: Mapped[list["DiscountCode"]] = relationship(back_populates="business")
     customers: Mapped[list["Customer"]] = relationship(back_populates="business")
     bookings: Mapped[list["Booking"]] = relationship(back_populates="business")
     subscription_payments: Mapped[list["SubscriptionPayment"]] = relationship(back_populates="business")

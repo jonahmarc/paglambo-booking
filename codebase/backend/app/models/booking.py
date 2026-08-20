@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -30,6 +30,8 @@ class Booking(Base):
     )
     party_size: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     total_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    discount_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    discount_amount: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

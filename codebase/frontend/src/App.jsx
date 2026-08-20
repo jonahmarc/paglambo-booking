@@ -18,6 +18,7 @@ import EventTypes from './pages/EventTypes'
 import Sessions from './pages/Sessions'
 import Bookings from './pages/Bookings'
 import BookingDetail from './pages/BookingDetail'
+import DiscountCodes from './pages/DiscountCodes'
 import BookingPage from './pages/BookingPage'
 
 function AdminRoutes() {
@@ -30,6 +31,7 @@ function AdminRoutes() {
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="event-types" element={<EventTypes />} />
           <Route path="event-types/:id/sessions" element={<Sessions />} />
+          <Route path="discount-codes" element={<DiscountCodes />} />
           <Route path="subscription" element={<Subscription />} />
           <Route path="settings" element={<Settings />} />
         </Routes>

@@ -38,9 +38,10 @@ function calcTotal(eventType, partySize, selectedAddonIds) {
 
 // ─── Summary sidebar ─────────────────────────────────────────────────────────
 
-function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions }) {
+function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions, discountAmount = 0 }) {
   if (!eventType) return null
-  const total = calcTotal(eventType, partySize, addonIds)
+  const subtotal = calcTotal(eventType, partySize, addonIds)
+  const total = subtotal - discountAmount
   const pickedSessions = allSessions.filter(s => sessionIds.includes(s.id))
 
   return (
@@ -64,6 +65,9 @@ function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions }
             return a ? <li key={id}>+ {a.name} ({fmtMoney(a.price)})</li> : null
           })}
         </ul>
+      )}
+      {discountAmount > 0 && (
+        <p className="text-sm text-green-600 mb-1">− {fmtMoney(discountAmount)} discount</p>
       )}
       <div className="border-t border-gray-100 pt-3 mt-3 flex justify-between items-center">
         <span className="text-sm font-medium text-gray-700">Total</span>
@@ -277,7 +281,7 @@ function AddonSelector({ addons, selectedIds, onChange }) {
 
 // ─── Checkout form ────────────────────────────────────────────────────────────
 
-function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, onConfirmed }) {
+function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, onConfirmed, onDiscountChange }) {
   const hasPayPal = !!business.paypal_username
   const hasWise = !!business.wise_username
   const hasPaymentMethods = hasPayPal || hasWise
@@ -292,11 +296,33 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
     hasPayPal && !hasWise ? 'paypal' : hasWise && !hasPayPal ? 'wise' : null
   )
   const [receiptFile, setReceiptFile] = useState(null)
+  const [promoCode, setPromoCode] = useState('')
+  const [promoResult, setPromoResult] = useState(null) // { valid, discount_amount, message }
+  const [promoChecking, setPromoChecking] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const fileRef = useRef()
 
-  const total = calcTotal(eventType, partySize, addonIds)
+  const subtotal = calcTotal(eventType, partySize, addonIds)
+  const discountAmount = promoResult?.valid ? Number(promoResult.discount_amount) : 0
+  const total = subtotal - discountAmount
+
+  async function applyPromo() {
+    if (!promoCode.trim()) return
+    setPromoChecking(true); setPromoResult(null)
+    try {
+      const result = await publicApi.post(
+        `/api/public/${business.booking_key}/discount-codes/validate`,
+        { code: promoCode.trim(), subtotal }
+      )
+      setPromoResult(result)
+      if (result.valid) onDiscountChange(Number(result.discount_amount))
+    } catch {
+      setPromoResult({ valid: false, message: 'Could not validate code. Try again.' })
+    } finally {
+      setPromoChecking(false)
+    }
+  }
 
   function updateAttendee(i, field, val) {
     setExtraAttendees(prev => prev.map((a, idx) => idx === i ? { ...a, [field]: val } : a))
@@ -317,6 +343,7 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
         party_size: partySize,
         session_ids: sessionIds,
         addon_ids: addonIds,
+        discount_code: promoResult?.valid ? promoCode.trim() : null,
         attendees: extraAttendees.map(a => ({
           name: a.name.trim(),
           email: a.email.trim() || null,
@@ -399,6 +426,45 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
           </div>
         </div>
       )}
+
+      {/* Promo code */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Promo code</h3>
+        <div className="flex gap-2">
+          <input
+            value={promoCode}
+            onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null) }}
+            placeholder="Enter code"
+            disabled={promoResult?.valid}
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+          />
+          {promoResult?.valid ? (
+            <button
+              type="button"
+              onClick={() => { setPromoCode(''); setPromoResult(null); onDiscountChange(0) }}
+              className="text-sm text-red-500 hover:text-red-700 px-3"
+            >
+              Remove
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={applyPromo}
+              disabled={!promoCode.trim() || promoChecking}
+              className="bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              {promoChecking ? '…' : 'Apply'}
+            </button>
+          )}
+        </div>
+        {promoResult && (
+          <p className={`text-xs mt-2 ${promoResult.valid ? 'text-green-600' : 'text-red-600'}`}>
+            {promoResult.valid
+              ? `✓ Code applied — ${fmtMoney(promoResult.discount_amount)} off`
+              : promoResult.message}
+          </p>
+        )}
+      </div>
 
       {/* Payment */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
@@ -558,6 +624,7 @@ export default function BookingPage() {
   const [partySize, setPartySize] = useState(1)
   const [selectedSessionIds, setSelectedSessionIds] = useState([])
   const [selectedAddonIds, setSelectedAddonIds] = useState([])
+  const [appliedDiscount, setAppliedDiscount] = useState(0) // discount amount in dollars
   const [confirmedBooking, setConfirmedBooking] = useState(null)
   const [error, setError] = useState('')
 
@@ -595,6 +662,7 @@ export default function BookingPage() {
     setPartySize(1)
     setSelectedSessionIds([])
     setSelectedAddonIds([])
+    setAppliedDiscount(0)
     setPhase('configure')
   }
 
@@ -779,6 +847,7 @@ export default function BookingPage() {
                 sessionIds={selectedSessionIds}
                 addonIds={selectedAddonIds}
                 onConfirmed={handleConfirmed}
+                onDiscountChange={setAppliedDiscount}
               />
             </div>
             <div>
@@ -788,6 +857,7 @@ export default function BookingPage() {
                 sessionIds={displaySessionIds}
                 addonIds={selectedAddonIds}
                 allSessions={allSessions}
+                discountAmount={appliedDiscount}
               />
             </div>
           </div>

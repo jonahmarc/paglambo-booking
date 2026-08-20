@@ -50,9 +50,9 @@
 | Party size — model + schema | ✅ Done | `party_size: int` (default 1, server_default "1") added to Booking model + migration `c3d4e5f6a7b8`. Added to `BookingCreate`, `BookingOut`, `BookingPublicOut`. Stored in DB; passed through to confirmation response and email. |
 | Party size — capacity check | ✅ Done | `_check_session_capacity` updated to accept `party_size`; checks `available < party_size` and raises a clear error. `_resolve_sessions` passes `party_size` through from `create_booking`. |
 | Attendee model | ✅ Done | `Attendee` model added (`booking_id` FK, `name`, `email`, `phone`). Migration `c3d4e5f6a7b8`. `AttendeeIn`/`AttendeeOut` schemas added. `BookingCreate.attendees` list accepted; stored in `create_booking`. `BookingOut.attendees` returned for admin detail view. |
-| Attendee — extended fields | ⬜ Pending | Current Attendee only has name/email/phone. Event/travel use case requires id_or_passport, nationality, date_of_birth, special_requirements. Add fields + migration when the travel booking flow is built. |
-| Discount codes API | ⬜ Pending | Standard + Pro feature; admin CRUD for codes (flat / percentage); public validate endpoint; applied at estimate + booking |
-| API tests | ⬜ Pending | pytest |
+| Attendee — extended fields | ✅ Done | `id_or_passport`, `nationality`, `date_of_birth`, `special_requirements` added to `Attendee` model + migration `e5f6a7b8c9d0`. `AttendeeIn`/`AttendeeOut` schemas updated. `create_booking` stores them. Admin `BookingDetail.jsx` displays all fields when present. |
+| Discount codes API | ✅ Done | `DiscountCode` model + migration `f6a7b8c9d0e1`. Admin CRUD: `POST/GET /api/discount-codes`, `GET/PATCH /api/discount-codes/{id}`. Public validate: `POST /api/public/{key}/discount-codes/validate`. Applied in `create_booking` — validates, deducts from total, increments use_count, stores code + discount_amount on Booking. |
+| API tests | 🔁 Deferred | pytest — good before production; deferred until core features stable |
 
 ### Step 1b: Platform Subscription Model
 
@@ -102,7 +102,8 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 | Business — subscription status page | ✅ Done | `/subscription` — status card, receipt upload form, payment history |
 | Business — plan selector | ✅ Done | Standard/Pro cards on `/register`; status-aware redirect after registration |
 | Business — status banner | ✅ Done | Layout banner for pending/expired/rejected with link to subscription page |
-| Discount codes UI (Standard + Pro) | ⬜ Pending | Create/manage codes (flat or %) from business dashboard |
+| Discount codes UI (Standard + Pro) | ✅ Done | `/discount-codes` page — table of all codes with code, type/value, uses, expiry, status. Create modal (code, type, value, max_uses, expires). Activate/deactivate toggle. Nav link added to sidebar. |
+| Admin — attendee list per booking | ✅ Done | `BookingDetail.jsx` shows all attendees (primary booker from customer + extra attendees). Displays base fields (name, email, phone) and extended travel fields when present (ID/passport, nationality, DOB, special requirements). |
 
 ### Step 3: JS Booking Widget — superseded, kept for reference only
 
@@ -178,28 +179,77 @@ These are studied as references for the booking page UX. Not copying — adaptin
 | Booking page — checkout (single page) | ✅ Done | Single-page checkout: customer info form + extra attendee forms (if party > 1) + payment instructions (account details for selected method) + method selector (shown only when both configured; auto-selected when only one) + file upload for receipt + "Confirm Booking" CTA. Booking created on submit, receipt uploaded immediately after. No payment method configured → amber notice with business email. |
 | Booking page — confirmation screen | ✅ Done | Full-page confirmation with booking ref (#000001), event name, party size, total, session dates, and contact email. Status-aware message: awaiting_payment vs. pending (no payment method). |
 | Pricing — base_price × party_size | ✅ Done | Fixed in `services/booking.py`: `total_price = base_price * party_size + addon_prices`. Previously add-ons only, party_size was ignored. |
-| Booking page — SEO / meta | ⬜ Pending | Dynamic `<title>` and description per business using `document.title`. |
+| Booking page — SEO / meta | 🔁 Deferred | Moved to Enhancements — will be done together with full site SEO + design pass. |
 | Booking page — QR code display | ✅ Done | QR image shown inline under account details when the selected payment method has a QR uploaded. Fetched from `GET /api/public/{key}/qr/{method}`. |
-| Booking page — promo code | ⬜ Pending | Promo code input field on checkout. Requires discount codes API (Step 1). |
+| Booking page — promo code | ✅ Done | Promo code section on checkout: enter code → Apply validates via public endpoint → shows discount amount in summary sidebar → passed to booking on submit. Remove button clears the applied code. |
 
 ### Planned Feature Enhancements (prioritized backlog)
 
-Features identified for future sprints, in rough priority order.
+Will be completed before the WordPress plugin. Listed in order.
 
-#### Per-event custom payment + QR code
-Each event type can have its own payment configuration — the business uploads a QR code and payment details specific to that event. Shown on the booking page payment step instead of (or in addition to) the global business-level payment info.
+---
 
-#### Per-event payment toggle — RSVP mode
-Event types have a payment toggle. When payment is off, the event becomes RSVP-only — no receipt upload, no payment instructions shown. Booking goes straight to confirmed status on submit.
+#### Enhancement 1: SEO & design improvements
 
-#### Per-event visibility — public vs. private
-Event types can be set to **Public** (appears on the booking page at `/book/{slug}`) or **Private** (hidden from the listing). Private events have an unlisted direct link — the business shares the link manually (e.g. via WhatsApp). Only people with the link can book.
+| Task | Status | Notes |
+|---|---|---|
+| Booking page — dynamic `<title>` | ⬜ Pending | `{business.name} — Book Now` set via `document.title` on load |
+| Booking page — meta description | ⬜ Pending | Set `<meta name="description">` per business |
+| Admin dashboard — polish pass | ⬜ Pending | Typography, spacing, colour consistency review |
+| Public booking page — design pass | ⬜ Pending | Visual improvements to event cards, checkout, confirmation |
 
-#### Attendee management per event
-Full attendee tracking from the admin dashboard: per-booking list of attendees with name, contact, payment status, and any other details. Group bookings (one person books for multiple people) share the same booking number and payment record — only the per-person fields (name, etc.) differ per attendee. Admin can filter and export.
+---
 
-#### Event photo gallery
-Each event type can have a photo gallery — the business uploads images in the admin dashboard. Shown on the event detail card / booking page to give customers a visual preview.
+#### Enhancement 2: Per-event payment toggle — RSVP mode
+
+Event types have a payment toggle. When off, the event is RSVP-only: no receipt upload, no payment instructions. Booking goes straight to `confirmed` on submit.
+
+| Task | Status | Notes |
+|---|---|---|
+| `EventType` model — `requires_payment: bool` | ⬜ Pending | Default `True`; migration needed |
+| Admin UI — payment toggle per event type | ⬜ Pending | Toggle in create/edit event type modal |
+| Booking service — skip payment step when off | ⬜ Pending | `create_booking` transitions directly to `confirmed`; no receipt required |
+| Booking page — hide payment section when RSVP | ⬜ Pending | `requires_payment` included in `PublicEventTypeOut`; booking page skips payment and shows RSVP confirmation |
+
+---
+
+#### Enhancement 3: Per-event visibility — public vs. private
+
+Event types can be **Public** (listed at `/book/{slug}`) or **Private** (hidden; shareable via direct link only).
+
+| Task | Status | Notes |
+|---|---|---|
+| `EventType` model — `visibility` field | ⬜ Pending | `public \| private`; default `public`; migration needed |
+| Public listing API — filter by visibility | ⬜ Pending | `GET /api/public/{key}/event-types` returns only `public` events |
+| Direct link endpoint | ⬜ Pending | `GET /api/public/{key}/event-types/{id}` returns a single event regardless of visibility — for the shareable link |
+| Admin UI — visibility toggle + shareable link | ⬜ Pending | Toggle in event type list/edit; copy-link button for private events |
+| Booking page — direct event link route | ⬜ Pending | `/book/{slug}/event/{id}` skips the event listing and opens directly to session picker |
+
+---
+
+#### Enhancement 4: Per-event custom payment + QR code
+
+Each event type can override the business-level payment config with its own account details and QR.
+
+| Task | Status | Notes |
+|---|---|---|
+| `EventType` model — payment override fields | ⬜ Pending | `paypal_username`, `wise_username`, `paypal_qr_path`, `wise_qr_path` (nullable); migration needed |
+| Admin UI — per-event payment config | ⬜ Pending | Section in event type edit: optional payment username + QR upload per method |
+| QR upload/serve endpoints — event-scoped | ⬜ Pending | `POST /api/event-types/{id}/qr/{method}`, `GET /api/public/{key}/event-types/{id}/qr/{method}` |
+| Booking page — prefer event-level payment info | ⬜ Pending | Falls back to business-level when event has no override |
+
+---
+
+#### Enhancement 5: Event photo gallery
+
+Each event type has a photo gallery uploaded by the admin. Shown on the booking page event card.
+
+| Task | Status | Notes |
+|---|---|---|
+| `EventTypePhoto` model | ⬜ Pending | `id`, `event_type_id` FK, `file_path`, `sort_order`; migration needed |
+| Admin UI — photo upload/delete/reorder | ⬜ Pending | Gallery management section in event type edit |
+| Photo serve endpoint | ⬜ Pending | `GET /api/public/{key}/event-types/{id}/photos/{photo_id}` |
+| Booking page — photo gallery on event cards | ⬜ Pending | Carousel/grid on event detail; shown before session picker |
 
 ---
 
@@ -237,8 +287,8 @@ A second client type beyond the cooking school: **event/travel package company**
 | Task | Status | Notes |
 |---|---|---|
 | Party size field | ✅ Done | `party_size: int` on Booking model + migration. `BookingCreate` accepts it; stored in `create_booking`; included in `BookingOut` and `BookingPublicOut`. |
-| Attendee details model | ⚠ Partial | `Attendee` model added (name, email, phone). Full travel fields (id_or_passport, nationality, DOB, special_requirements) deferred — see "Attendee — extended fields" above. |
-| Admin — attendee list per booking | ⬜ Pending | `BookingOut.attendees` returned by API. Admin `BookingDetail.jsx` not yet updated to display them. CSV export not started. |
+| Attendee details model | ✅ Done | Extended fields added: `id_or_passport`, `nationality`, `date_of_birth`, `special_requirements` — all nullable. Migration `e5f6a7b8c9d0`. |
+| Admin — attendee list per booking | ✅ Done | `BookingDetail.jsx` displays all attendees with all fields. |
 | Capacity check respects party size | ✅ Done | `_check_session_capacity` now takes `party_size`; raises a specific error if `available_spots < party_size`. Message differentiates "fully booked" from "not enough spots for your party size". |
 
 ---

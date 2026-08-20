@@ -176,3 +176,26 @@ expected to update 30 row(s); 0 were matched.
 - QR image renders inline under account details when the selected method has a QR on file.
 
 **Files:** `codebase/backend/app/models/business.py`, `codebase/backend/app/schemas/business.py`, `codebase/backend/app/schemas/public.py`, `codebase/backend/app/routers/business.py`, `codebase/backend/app/routers/public.py`, `codebase/backend/app/services/payment.py`, `codebase/backend/alembic/versions/d4e5f6a7b8c9_qr_paths.py`, `codebase/frontend/src/pages/Settings.jsx`, `codebase/frontend/src/pages/BookingPage.jsx`
+
+---
+
+## 2026-08-21 — Attendee extended fields, admin attendee list, and discount codes added
+
+**New features — not bug fixes.**
+
+### Attendee extended fields
+`id_or_passport`, `nationality`, `date_of_birth`, `special_requirements` added to `Attendee` model (all nullable). Migration `e5f6a7b8c9d0`. `AttendeeIn`/`AttendeeOut` schemas updated. `create_booking` stores all fields. `BookingDetail.jsx` displays them conditionally.
+
+### Admin attendee list
+`BookingDetail.jsx` shows a full attendee section: primary booker (from customer record) as Attendee 1, then each extra attendee. All fields displayed when present.
+
+### Discount codes
+- `DiscountCode` model (`flat` or `percentage`, `max_uses`, `expires_at`, `use_count`, `is_active`). Migration `f6a7b8c9d0e1`.
+- `discount_code` (code string) and `discount_amount` columns added to `bookings`.
+- Admin CRUD: `POST/GET /api/discount-codes`, `PATCH /api/discount-codes/{id}`.
+- Public validate: `POST /api/public/{key}/discount-codes/validate` — returns `valid`, `discount_amount`, `message`.
+- `create_booking` validates + applies code: deducts from total, increments `use_count`, stores on booking.
+- Admin UI: `/discount-codes` page — table with create modal, activate/deactivate. Nav link added.
+- Booking page: promo code input on checkout, validates on Apply, updates summary sidebar, passed to booking on submit.
+
+**Files:** `codebase/backend/app/models/attendee.py`, `codebase/backend/app/models/discount.py`, `codebase/backend/app/models/booking.py`, `codebase/backend/app/models/business.py`, `codebase/backend/app/models/__init__.py`, `codebase/backend/app/schemas/booking.py`, `codebase/backend/app/schemas/discount.py`, `codebase/backend/app/services/booking.py`, `codebase/backend/app/services/discount.py`, `codebase/backend/app/routers/discount.py`, `codebase/backend/app/main.py`, `codebase/backend/alembic/versions/e5f6a7b8c9d0_attendee_extended_fields.py`, `codebase/backend/alembic/versions/f6a7b8c9d0e1_discount_codes.py`, `codebase/frontend/src/pages/BookingDetail.jsx`, `codebase/frontend/src/pages/DiscountCodes.jsx`, `codebase/frontend/src/pages/BookingPage.jsx`, `codebase/frontend/src/components/Layout.jsx`, `codebase/frontend/src/App.jsx`
