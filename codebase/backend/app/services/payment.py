@@ -13,6 +13,27 @@ from app.models.payment import Payment, PaymentMethod, PaymentStatus
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "application/pdf"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
+QR_ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+QR_MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+
+async def save_qr_file(business_id: int, method: str, file: UploadFile) -> str:
+    if file.content_type not in QR_ALLOWED_TYPES:
+        raise ValueError("Invalid file type. Accepted: JPEG, PNG, WEBP, GIF")
+    content = await file.read()
+    if len(content) > QR_MAX_FILE_SIZE:
+        raise ValueError("File is too large. Maximum size is 5 MB")
+
+    upload_dir = Path(settings.upload_dir) / "qr"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    suffix = Path(file.filename or "qr").suffix.lower() or ".png"
+    dest = upload_dir / f"{business_id}_{method}{suffix}"
+    with dest.open("wb") as f:
+        f.write(content)
+
+    return str(dest)
+
 
 async def save_receipt_file(booking_id: int, file: UploadFile) -> str:
     if file.content_type not in ALLOWED_CONTENT_TYPES:

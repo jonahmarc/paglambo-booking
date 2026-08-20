@@ -14,6 +14,8 @@ class PublicBusinessOut(BaseModel):
     email: str
     paypal_username: str | None
     wise_username: str | None
+    has_paypal_qr: bool = False
+    has_wise_qr: bool = False
 
 
 class PublicAddOnOut(BaseModel):

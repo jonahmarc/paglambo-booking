@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
@@ -31,7 +34,27 @@ def get_by_slug(slug: str, db: DBSession = Depends(get_db)):
         email=business.email,
         paypal_username=business.paypal_username,
         wise_username=business.wise_username,
+        has_paypal_qr=business.has_paypal_qr,
+        has_wise_qr=business.has_wise_qr,
     )
+
+
+@router.get("/qr/{method}")
+def get_qr(
+    booking_key: str,
+    method: str,
+    db: DBSession = Depends(get_db),
+):
+    if method not in ("paypal", "wise"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    business = get_business_or_404(db, booking_key)
+    path = business.paypal_qr_path if method == "paypal" else business.wise_qr_path
+    if not path:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No QR code on file")
+    p = Path(path)
+    if not p.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="QR code file not found")
+    return FileResponse(p)
 
 
 @router.get("/event-types", response_model=list[PublicEventTypeOut])

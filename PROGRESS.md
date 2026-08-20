@@ -45,7 +45,7 @@
 | Public session listing API | ✅ Done | `GET /api/public/{key}/event-types` (incl. add-ons + package pool); `GET /api/public/{key}/event-types/{id}/sessions` |
 | Booking number format | ✅ Done | `booking_ref` property on Booking model — `str(self.id).zfill(6)`. Included in `BookingOut` and `BookingPublicOut`. Pydantic picks it up via `from_attributes`. |
 | Business contact info in public API | ✅ Done | `business_name` and `business_email` added to `BookingPublicOut`; populated in the booking router from the Business object. |
-| Payment QR code images | ⬜ Pending | Business uploads a PayPal QR and/or Wise QR image via admin Settings. Stored in `UPLOAD_DIR/qr/`. Served by `GET /api/public/{key}/qr/{method}`. Booking page shows the image on the payment step alongside the username. |
+| Payment QR code images | ✅ Done | `POST /api/business/qr/{method}` (admin upload), `DELETE /api/business/qr/{method}` (remove), `GET /api/public/{key}/qr/{method}` (public serve). `paypal_qr_path`/`wise_qr_path` on Business model + migration `d4e5f6a7b8c9`. Admin Settings has upload/replace/remove UI per method with live preview. Booking page shows QR image inline under account details when selected method has a QR. |
 | Email — booking created | ✅ Done | `send_booking_created(booking, business)` in `services/email.py`. Fires immediately on `POST /api/public/{booking_key}/bookings`. Includes booking ref, event name, party size, sessions, and PayPal/Wise payment instructions (or contact email fallback). |
 | Party size — model + schema | ✅ Done | `party_size: int` (default 1, server_default "1") added to Booking model + migration `c3d4e5f6a7b8`. Added to `BookingCreate`, `BookingOut`, `BookingPublicOut`. Stored in DB; passed through to confirmation response and email. |
 | Party size — capacity check | ✅ Done | `_check_session_capacity` updated to accept `party_size`; checks `available < party_size` and raises a clear error. `_resolve_sessions` passes `party_size` through from `create_booking`. |
@@ -179,7 +179,7 @@ These are studied as references for the booking page UX. Not copying — adaptin
 | Booking page — confirmation screen | ✅ Done | Full-page confirmation with booking ref (#000001), event name, party size, total, session dates, and contact email. Status-aware message: awaiting_payment vs. pending (no payment method). |
 | Pricing — base_price × party_size | ✅ Done | Fixed in `services/booking.py`: `total_price = base_price * party_size + addon_prices`. Previously add-ons only, party_size was ignored. |
 | Booking page — SEO / meta | ⬜ Pending | Dynamic `<title>` and description per business using `document.title`. |
-| Booking page — QR code display | ⬜ Pending | QR code images not yet supported (requires QR upload feature in admin Settings). Currently shows account username only. |
+| Booking page — QR code display | ✅ Done | QR image shown inline under account details when the selected payment method has a QR uploaded. Fetched from `GET /api/public/{key}/qr/{method}`. |
 | Booking page — promo code | ⬜ Pending | Promo code input field on checkout. Requires discount codes API (Step 1). |
 
 ### Planned Feature Enhancements (prioritized backlog)

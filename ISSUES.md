@@ -153,3 +153,26 @@ expected to update 30 row(s); 0 were matched.
 **Fix:** Changed `synchronize_session=False` to `synchronize_session="fetch"` on both the sessions and add-ons bulk deletes. `"fetch"` makes SQLAlchemy SELECT the affected rows first, evict them from the identity map, then DELETE — so the identity map is clean before the event type itself is removed.
 
 **Files:** `codebase/backend/app/services/event_type.py`
+
+---
+
+## 2026-08-20 — QR code images feature added
+
+**New feature, not a bug fix.** Added end-to-end QR code image support for PayPal and Wise payment methods.
+
+**Backend:**
+- `paypal_qr_path` and `wise_qr_path` columns added to the `businesses` table (migration `d4e5f6a7b8c9`).
+- `has_paypal_qr` / `has_wise_qr` properties on the `Business` ORM model; exposed in `BusinessDetail` and `PublicBusinessOut`.
+- `POST /api/business/qr/{method}` — authenticated upload, saves image to `UPLOAD_DIR/qr/{id}_{method}{ext}`.
+- `DELETE /api/business/qr/{method}` — removes file from disk and clears DB path.
+- `GET /api/public/{booking_key}/qr/{method}` — unauthenticated serve via `FileResponse`.
+- `save_qr_file()` added to `services/payment.py` (mirrors `save_receipt_file` pattern; images only, 5 MB max).
+
+**Admin Settings:**
+- `QrUploader` component: upload/replace/remove per method with live image preview.
+- Sits outside the main JSON form so file uploads don't interfere with the PATCH call.
+
+**Booking page:**
+- QR image renders inline under account details when the selected method has a QR on file.
+
+**Files:** `codebase/backend/app/models/business.py`, `codebase/backend/app/schemas/business.py`, `codebase/backend/app/schemas/public.py`, `codebase/backend/app/routers/business.py`, `codebase/backend/app/routers/public.py`, `codebase/backend/app/services/payment.py`, `codebase/backend/alembic/versions/d4e5f6a7b8c9_qr_paths.py`, `codebase/frontend/src/pages/Settings.jsx`, `codebase/frontend/src/pages/BookingPage.jsx`

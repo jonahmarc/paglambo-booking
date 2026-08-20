@@ -436,12 +436,32 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
               <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
                 <p className="text-gray-500 mb-1">PayPal username</p>
                 <p className="font-semibold text-gray-900 text-base">{business.paypal_username}</p>
+                {business.has_paypal_qr && (
+                  <div className="mt-3">
+                    <p className="text-gray-500 text-xs mb-2">Scan QR to pay</p>
+                    <img
+                      src={`/api/public/${business.booking_key}/qr/paypal`}
+                      alt="PayPal QR code"
+                      className="w-36 h-36 object-contain bg-white border border-gray-200 rounded-lg p-1"
+                    />
+                  </div>
+                )}
               </div>
             )}
             {paymentMethod === 'wise' && hasWise && (
               <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
                 <p className="text-gray-500 mb-1">Wise username</p>
                 <p className="font-semibold text-gray-900 text-base">{business.wise_username}</p>
+                {business.has_wise_qr && (
+                  <div className="mt-3">
+                    <p className="text-gray-500 text-xs mb-2">Scan QR to pay</p>
+                    <img
+                      src={`/api/public/${business.booking_key}/qr/wise`}
+                      alt="Wise QR code"
+                      className="w-36 h-36 object-contain bg-white border border-gray-200 rounded-lg p-1"
+                    />
+                  </div>
+                )}
               </div>
             )}
 
