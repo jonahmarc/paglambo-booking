@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from sqlalchemy import func
 from sqlalchemy.orm import Session as DBSession
 
-from app.models import Booking, BookingStatus
+from app.models import Booking, BookingStatus, EventType
 from app.models.associations import booking_sessions as booking_sessions_table
 from app.models.session import Session as SessionModel, SessionStatus
 from app.schemas.session import SessionCreate, SessionGenerateRequest, SessionUpdate
@@ -113,3 +113,15 @@ def reactivate_session(db: DBSession, session: SessionModel) -> SessionModel:
     db.commit()
     db.refresh(session)
     return session
+
+
+def sync_sessions_to_pool(db: DBSession, event_type_id: int) -> None:
+    et = db.query(EventType).filter(EventType.id == event_type_id).first()
+    if et is None or et.package is None:
+        return
+    pkg = et.package
+    pool_ids = {s.id for s in pkg.pool_sessions}
+    for s in et.sessions:
+        if s.id not in pool_ids:
+            pkg.pool_sessions.append(s)
+    db.commit()

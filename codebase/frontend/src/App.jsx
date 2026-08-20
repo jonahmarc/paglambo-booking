@@ -18,6 +18,7 @@ import EventTypes from './pages/EventTypes'
 import Sessions from './pages/Sessions'
 import Bookings from './pages/Bookings'
 import BookingDetail from './pages/BookingDetail'
+import BookingPage from './pages/BookingPage'
 
 function AdminRoutes() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/superadmin/login" element={<SuperAdminLogin />} />
             <Route path="/superadmin/*" element={<SuperAdminRoutes />} />
+            <Route path="/book/:slug" element={<BookingPage />} />
             <Route path="/*" element={<AdminRoutes />} />
           </Routes>
         </SuperAdminAuthProvider>

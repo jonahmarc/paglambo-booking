@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session as DBSession
 
 from app.database import get_db
@@ -21,4 +21,7 @@ def patch_business(
     db: DBSession = Depends(get_db),
     current_business: Business = Depends(get_current_business),
 ):
-    return update_business(db, current_business, payload)
+    try:
+        return update_business(db, current_business, payload)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

@@ -68,6 +68,31 @@ async function apiFetch(path, options = {}, retry = true) {
   return res.json()
 }
 
+// Unauthenticated client for public booking page — no token injection, no /login redirect
+async function publicFetch(path, options = {}) {
+  const headers = { ...options.headers }
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json'
+  }
+  const res = await fetch(`${BASE}${path}`, { ...options, headers })
+  if (!res.ok) {
+    let detail = `HTTP ${res.status}`
+    try {
+      const err = await res.json()
+      detail = err.detail || JSON.stringify(err)
+    } catch {}
+    throw new Error(detail)
+  }
+  if (res.status === 204) return null
+  return res.json()
+}
+
+export const publicApi = {
+  get: (path) => publicFetch(path, { method: 'GET' }),
+  post: (path, body) => publicFetch(path, { method: 'POST', body: JSON.stringify(body) }),
+  postForm: (path, formData) => publicFetch(path, { method: 'POST', body: formData }),
+}
+
 export const api = {
   get: (path) => apiFetch(path, { method: 'GET' }),
   post: (path, body) => apiFetch(path, { method: 'POST', body: JSON.stringify(body) }),

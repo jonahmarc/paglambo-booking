@@ -183,6 +183,9 @@ export default function Sessions() {
     ]).then(([et, sess]) => {
       setEventType(et)
       setSessions(sess)
+      if (et.kind === 'package') {
+        api.post(`/api/event-types/${id}/sessions/sync-pool`, {}).catch(() => {})
+      }
     }).catch(() => setError('Failed to load'))
       .finally(() => setLoading(false))
   }

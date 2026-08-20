@@ -43,12 +43,14 @@
 | Email — payment approved | ✅ Done | Combined with booking confirmation email |
 | Email — payment rejected | ✅ Done | Sent to customer on reject; via `send_payment_rejected` |
 | Public session listing API | ✅ Done | `GET /api/public/{key}/event-types` (incl. add-ons + package pool); `GET /api/public/{key}/event-types/{id}/sessions` |
-| Booking number format | ⬜ Pending | Display ID as 6-digit zero-padded string (000001, 000002…). Storage stays integer; formatting is display-only — `str(id).zfill(6)` in schema + frontend. |
-| Business contact info in public API | ⬜ Pending | Add business email/phone to `BookingPublicOut` so the booking page can show contact details when no PayPal/Wise username is configured. |
+| Booking number format | ✅ Done | `booking_ref` property on Booking model — `str(self.id).zfill(6)`. Included in `BookingOut` and `BookingPublicOut`. Pydantic picks it up via `from_attributes`. |
+| Business contact info in public API | ✅ Done | `business_name` and `business_email` added to `BookingPublicOut`; populated in the booking router from the Business object. |
 | Payment QR code images | ⬜ Pending | Business uploads a PayPal QR and/or Wise QR image via admin Settings. Stored in `UPLOAD_DIR/qr/`. Served by `GET /api/public/{key}/qr/{method}`. Booking page shows the image on the payment step alongside the username. |
-| Email — booking created | ⬜ Pending | Send email to customer immediately when booking is placed (before payment), containing: booking number, event name, session date(s), total due, and PayPal/Wise payment instructions. Currently email is only sent after admin approves. |
-| Party size + multi-slot booking | ⬜ Pending | Add `party_size: int` (default 1) to Booking model + migration. Price = base_price × party_size + add-ons. Booking page: "How many people?" step before session picker. Capacity check: `available_spots >= party_size`. |
-| Attendee details per person | ⬜ Pending | New `Attendee` model (booking_id FK, name, email, id_or_passport, nationality, date_of_birth, special_requirements). Collected on booking page when `party_size > 1` — one form block per person. Admin booking detail shows all attendees. Required for the event/travel use case (see below). |
+| Email — booking created | ✅ Done | `send_booking_created(booking, business)` in `services/email.py`. Fires immediately on `POST /api/public/{booking_key}/bookings`. Includes booking ref, event name, party size, sessions, and PayPal/Wise payment instructions (or contact email fallback). |
+| Party size — model + schema | ✅ Done | `party_size: int` (default 1, server_default "1") added to Booking model + migration `c3d4e5f6a7b8`. Added to `BookingCreate`, `BookingOut`, `BookingPublicOut`. Stored in DB; passed through to confirmation response and email. |
+| Party size — capacity check | ✅ Done | `_check_session_capacity` updated to accept `party_size`; checks `available < party_size` and raises a clear error. `_resolve_sessions` passes `party_size` through from `create_booking`. |
+| Attendee model | ✅ Done | `Attendee` model added (`booking_id` FK, `name`, `email`, `phone`). Migration `c3d4e5f6a7b8`. `AttendeeIn`/`AttendeeOut` schemas added. `BookingCreate.attendees` list accepted; stored in `create_booking`. `BookingOut.attendees` returned for admin detail view. |
+| Attendee — extended fields | ⬜ Pending | Current Attendee only has name/email/phone. Event/travel use case requires id_or_passport, nationality, date_of_birth, special_requirements. Add fields + migration when the travel booking flow is built. |
 | Discount codes API | ⬜ Pending | Standard + Pro feature; admin CRUD for codes (flat / percentage); public validate endpoint; applied at estimate + booking |
 | API tests | ⬜ Pending | pytest |
 
@@ -89,9 +91,9 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 | Business settings page | ✅ Done | Name, PayPal/Wise usernames, booking key (read-only) |
 | Create / edit event types | ✅ Done | List, create modal, edit modal, activate/deactivate, link to sessions |
 | Sessions list / calendar | ✅ Done | Manual add + bulk generate; cancel; linked from event types |
-| Bookings list + detail view | ⚠ Bug | Bookings list shows `Event #<id>` (database ID) instead of the event type name. Both `Bookings.jsx` (line 60) and `BookingDetail.jsx` (line 77) use `event_type_id` only — the `BookingOut` schema must include `event_type_name`. |
-| Sessions — capacity / availability view | ⬜ Pending | Admin cannot see how many slots are taken vs. available per session. The backend already calculates `available_spots` correctly (used in public API). Need to expose this in the admin sessions list. For recurring and package event types, capacity limit is per session (per day), not across all sessions. |
-| Bookings — no approval button visible | ⚠ Bug/UX | Approve/Reject buttons in `BookingDetail.jsx` only render when `status === 'awaiting_payment' && payment exists`. Admin sees the booking but has no action to take until the customer submits a receipt, with no explanation why. Fix: always render the Approve/Reject buttons; disable them when the state isn't right; on hover over a disabled button show a tooltip explaining why (e.g. "Waiting for customer to upload payment receipt" when status is `pending`, "No receipt on file" if somehow state is wrong). Also add a status message in the UI explaining the current step in the flow. |
+| Bookings list + detail view | ✅ Fixed | `event_type_name: str` added to `BookingOut` via `@property event_type_name` on the Booking ORM model (lazy-loads the relationship). `Bookings.jsx` and `BookingDetail.jsx` updated to display the name. |
+| Sessions — capacity / availability view | ✅ Done | `booked_count: int` added to `SessionOut`. `get_booked_counts()` helper added to `services/session.py` (single aggregate query, excludes rejected bookings). `list_all` session router endpoint now attaches counts. Sessions list displays `{booked}/{capacity} booked` per row. |
+| Bookings — no approval button visible | ✅ Fixed | Review card always renders in `BookingDetail.jsx`. `reviewDisabledReason` string computed from booking status — passed to `title` on button wrapper `<span>` and shown as inline text below the buttons. Buttons disabled with `disabled:cursor-not-allowed` when not in `awaiting_payment` state. Textarea also disabled when not reviewable. |
 | Receipt review (approve/reject) | ✅ Done | Receipt image preview inline; approve/reject with optional note |
 | Superadmin — approval queue | ✅ Done | `/superadmin/approvals` — pending registrations with approve/reject + note |
 | Superadmin — subscription payment review | ✅ Done | `/superadmin/subscriptions` — receipt review with view/approve/reject; receipt served via `GET /api/superadmin/subscription-payments/{id}/receipt` |
@@ -164,17 +166,47 @@ These are studied as references for the booking page UX. Not copying — adaptin
 
 | Task | Status | Notes |
 |---|---|---|
-| Business slug field — backend | ⬜ Pending | Add `slug` (unique, URL-safe) to Business model + migration. Auto-generated from business name on registration (e.g. "Bamboo Cooking School" → "bamboo-cooking-school"). Admin can edit from Settings. |
-| Slug resolver endpoint | ⬜ Pending | `GET /api/public/by-slug/{slug}` — returns `booking_key` + business name + contact info. Used by the booking page on load. |
-| Booking page — React route | ⬜ Pending | New route `/book/:slug` in `App.jsx`, no auth required. Resolves slug → business, then renders the full booking flow. |
-| Booking page — browse event types | ⬜ Pending | Cards showing event type name, description, kind (class/package), base price, available spots summary. Must not show past-only events. |
-| Booking page — session picker | ⬜ Pending | Visual calendar/grid for CLASS (recurring) events: available dates highlighted, full/past dates greyed out. Clicking a date shows time slots for that day. Each session shows remaining spots; amber when ≤3 left, grey/disabled when full. PACKAGE FIXED: committed sessions shown read-only. PACKAGE CUSTOMER_PICKS: multi-select up to required count. Empty pool → clear "no upcoming sessions" message, not a blank screen. |
-| Booking page — party size | ⬜ Pending | "How many people?" shown early in the flow, before session picker. Capacity check: `available_spots >= party_size`. Price = base_price × party_size + add-ons. Determines number of attendee detail forms. |
-| Booking page — add-on selector | ⬜ Pending | Toggle cards per add-on. Live booking summary sidebar/bar updates total as selections change. |
-| Booking page — attendee details | ⬜ Pending | When `party_size > 1`, collect per-person details (name, ID/passport, nationality, DOB, special requirements). One form block per person. Primary booker is person 1. |
-| Booking page — checkout (single page) | ⬜ Pending | One page combining: customer info (name, email, phone) + booking summary (sticky right column on desktop, sticky bottom bar on mobile) + promo code field + payment instructions (PayPal/Wise username, QR code with Save button, "Send ₱X.XX to this account") + drag-and-drop receipt upload + single submit CTA. Booking is created on submit — not before. If neither payment method is set, show business contact details instead of QR. Method auto-selected when only one exists; selector shown when both exist. |
-| Booking page — confirmation screen | ⬜ Pending | Full-page confirmation: 6-digit booking number, event name, session date(s), total paid, "We'll review your receipt and confirm by email." Confirmation email also sent at this point (see Step 1 — email on booking created). |
-| Booking page — SEO / meta | ⬜ Pending | Dynamic `<title>` and description per business. |
+| Business slug field — backend | ✅ Done | `slug` (nullable, unique, indexed, `String(100)`) added to Business model + migration `c3d4e5f6a7b8`. `BusinessDetail` returns it; `BusinessUpdate` accepts it with regex validation (lowercase, alphanumeric, hyphens, 3–100 chars). Duplicate slug returns HTTP 400. |
+| Business slug — admin UI | ✅ Done | Slug field added to `Settings.jsx` with inline URL prefix (`{origin}/book/`), "Generate from business name" helper, and "Preview ↗" link. Business owner sets their slug and immediately gets a sharable booking link. |
+| Slug resolver endpoint | ✅ Done | `GET /api/public/by-slug/{slug}` on `meta_router` (prefix `/api/public`). Returns `PublicBusinessOut`: name, slug, booking_key, email, paypal_username, wise_username. Registered in `main.py` before the `{booking_key}` router to avoid path parameter collision. |
+| Booking page — React route | ✅ Done | `/book/:slug` added to `App.jsx` before the `/*` catch-all (no auth). `BookingPage.jsx` resolves slug → business info → event types on load. |
+| Booking page — browse event types | ✅ Done | Event type cards: name, description, kind label, base price per person. Empty state when no events available. |
+| Booking page — session picker | ✅ Done | RECURRING: sessions grouped by date, time-slot buttons per group, spots badge (amber ≤3, grey full, disabled if `available_spots < partySize`). PACKAGE FIXED: read-only list of committed sessions. PACKAGE CUSTOMER_PICKS: multi-select up to `required_session_count`. ONE_TIME: auto-selected, shown as info. Empty state message when no sessions available. |
+| Booking page — party size | ✅ Done | +/− picker before session selector. Changing party size clears session selection. Price = `base_price × party_size + add-ons` (fixed in service layer too). Capacity check: sessions disabled when `available_spots < partySize`. |
+| Booking page — add-on selector | ✅ Done | Toggle cards with name, description, price. Live summary sidebar updates total as selections change. |
+| Booking page — attendee details | ✅ Done | When `partySize > 1`, shows `partySize − 1` extra attendee forms in checkout (name required, email + phone optional). Primary booker covered by customer form. Attendees submitted with booking. |
+| Booking page — checkout (single page) | ✅ Done | Single-page checkout: customer info form + extra attendee forms (if party > 1) + payment instructions (account details for selected method) + method selector (shown only when both configured; auto-selected when only one) + file upload for receipt + "Confirm Booking" CTA. Booking created on submit, receipt uploaded immediately after. No payment method configured → amber notice with business email. |
+| Booking page — confirmation screen | ✅ Done | Full-page confirmation with booking ref (#000001), event name, party size, total, session dates, and contact email. Status-aware message: awaiting_payment vs. pending (no payment method). |
+| Pricing — base_price × party_size | ✅ Done | Fixed in `services/booking.py`: `total_price = base_price * party_size + addon_prices`. Previously add-ons only, party_size was ignored. |
+| Booking page — SEO / meta | ⬜ Pending | Dynamic `<title>` and description per business using `document.title`. |
+| Booking page — QR code display | ⬜ Pending | QR code images not yet supported (requires QR upload feature in admin Settings). Currently shows account username only. |
+| Booking page — promo code | ⬜ Pending | Promo code input field on checkout. Requires discount codes API (Step 1). |
+
+### Planned Feature Enhancements (prioritized backlog)
+
+Features identified for future sprints, in rough priority order.
+
+#### Per-event custom payment + QR code
+Each event type can have its own payment configuration — the business uploads a QR code and payment details specific to that event. Shown on the booking page payment step instead of (or in addition to) the global business-level payment info.
+
+#### Per-event payment toggle — RSVP mode
+Event types have a payment toggle. When payment is off, the event becomes RSVP-only — no receipt upload, no payment instructions shown. Booking goes straight to confirmed status on submit.
+
+#### Per-event visibility — public vs. private
+Event types can be set to **Public** (appears on the booking page at `/book/{slug}`) or **Private** (hidden from the listing). Private events have an unlisted direct link — the business shares the link manually (e.g. via WhatsApp). Only people with the link can book.
+
+#### Attendee management per event
+Full attendee tracking from the admin dashboard: per-booking list of attendees with name, contact, payment status, and any other details. Group bookings (one person books for multiple people) share the same booking number and payment record — only the per-person fields (name, etc.) differ per attendee. Admin can filter and export.
+
+#### Event photo gallery
+Each event type can have a photo gallery — the business uploads images in the admin dashboard. Shown on the event detail card / booking page to give customers a visual preview.
+
+---
+
+#### Not prioritized
+- Customizable booking page design (colours, fonts, layout)
+
+---
 
 ### Step 4: WordPress Plugin
 
@@ -204,10 +236,10 @@ A second client type beyond the cooking school: **event/travel package company**
 
 | Task | Status | Notes |
 |---|---|---|
-| Party size field | ⬜ Pending | `party_size` on Booking model; booking page asks "How many people?" before session picker; price = base × party_size + add-ons |
-| Attendee details model | ⬜ Pending | New `Attendee` table: name, id_or_passport, nationality, date_of_birth, special_requirements (per person, FK to Booking). Booking page shows one attendee form per party_size. |
-| Admin — attendee list per booking | ⬜ Pending | Booking detail page shows all attendees in a table. Exportable to CSV for event organisers. |
-| Capacity check respects party size | ⬜ Pending | On booking creation: `available_spots >= party_size`, not just `>= 1`. |
+| Party size field | ✅ Done | `party_size: int` on Booking model + migration. `BookingCreate` accepts it; stored in `create_booking`; included in `BookingOut` and `BookingPublicOut`. |
+| Attendee details model | ⚠ Partial | `Attendee` model added (name, email, phone). Full travel fields (id_or_passport, nationality, DOB, special_requirements) deferred — see "Attendee — extended fields" above. |
+| Admin — attendee list per booking | ⬜ Pending | `BookingOut.attendees` returned by API. Admin `BookingDetail.jsx` not yet updated to display them. CSV export not started. |
+| Capacity check respects party size | ✅ Done | `_check_session_capacity` now takes `party_size`; raises a specific error if `available_spots < party_size`. Message differentiates "fully booked" from "not enough spots for your party size". |
 
 ---
 

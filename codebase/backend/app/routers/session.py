@@ -14,6 +14,7 @@ from app.services.session import (
     get_session,
     list_sessions,
     reactivate_session,
+    sync_sessions_to_pool,
     update_session,
 )
 
@@ -41,8 +42,12 @@ def create(
     db: DBSession = Depends(get_db),
     current_business: Business = Depends(get_current_business),
 ):
-    _get_event_type_or_404(db, current_business.id, event_type_id)
-    return create_session(db, event_type_id, payload)
+    et = _get_event_type_or_404(db, current_business.id, event_type_id)
+    session = create_session(db, event_type_id, payload)
+    if et.package is not None:
+        et.package.pool_sessions.append(session)
+        db.commit()
+    return session
 
 
 @router.post("/generate", response_model=list[SessionOut], status_code=status.HTTP_201_CREATED)
@@ -52,11 +57,26 @@ def generate(
     db: DBSession = Depends(get_db),
     current_business: Business = Depends(get_current_business),
 ):
-    _get_event_type_or_404(db, current_business.id, event_type_id)
+    et = _get_event_type_or_404(db, current_business.id, event_type_id)
     try:
-        return generate_sessions(db, event_type_id, payload)
+        sessions = generate_sessions(db, event_type_id, payload)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
+    if et.package is not None:
+        for s in sessions:
+            et.package.pool_sessions.append(s)
+        db.commit()
+    return sessions
+
+
+@router.post("/sync-pool", status_code=status.HTTP_204_NO_CONTENT)
+def sync_pool(
+    event_type_id: int,
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    _get_event_type_or_404(db, current_business.id, event_type_id)
+    sync_sessions_to_pool(db, event_type_id)
 
 
 @router.get("", response_model=list[SessionOut])

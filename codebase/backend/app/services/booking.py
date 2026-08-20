@@ -28,7 +28,7 @@ def _find_or_create_customer(db: DBSession, business_id: int, customer_in) -> Cu
     return customer
 
 
-def _check_session_capacity(db: DBSession, session_id: int, capacity: int) -> None:
+def _check_session_capacity(db: DBSession, session_id: int, capacity: int, party_size: int = 1) -> None:
     booked_count = (
         db.query(func.count())
         .select_from(booking_sessions_table)
@@ -39,11 +39,16 @@ def _check_session_capacity(db: DBSession, session_id: int, capacity: int) -> No
         )
         .scalar()
     )
-    if booked_count >= capacity:
-        raise ValueError(f"Session {session_id} is fully booked")
+    available = capacity - booked_count
+    if available < party_size:
+        if available <= 0:
+            raise ValueError(f"Session {session_id} is fully booked")
+        raise ValueError(
+            f"Session {session_id} only has {available} spot(s) left — not enough for a party of {party_size}"
+        )
 
 
-def _resolve_sessions(db: DBSession, event_type: EventType, session_ids: list[int]) -> list[Session]:
+def _resolve_sessions(db: DBSession, event_type: EventType, session_ids: list[int], party_size: int = 1) -> list[Session]:
     if event_type.kind == EventTypeKind.PACKAGE:
         package = event_type.package
         if package is None:
@@ -86,7 +91,7 @@ def _resolve_sessions(db: DBSession, event_type: EventType, session_ids: list[in
             sessions.append(session)
 
     for session in sessions:
-        _check_session_capacity(db, session.id, session.capacity)
+        _check_session_capacity(db, session.id, session.capacity, party_size)
 
     return sessions
 
@@ -115,10 +120,10 @@ def create_booking(db: DBSession, business_id: int, data: BookingCreate) -> Book
         raise ValueError("Event type not found")
 
     customer = _find_or_create_customer(db, business_id, data.customer)
-    sessions = _resolve_sessions(db, event_type, data.session_ids)
+    sessions = _resolve_sessions(db, event_type, data.session_ids, data.party_size)
     addons = _resolve_addons(db, event_type.id, data.addon_ids)
 
-    total_price = event_type.base_price + sum((a.price for a in addons), Decimal("0"))
+    total_price = event_type.base_price * data.party_size + sum((a.price for a in addons), Decimal("0"))
 
     booking = Booking(
         business_id=business_id,

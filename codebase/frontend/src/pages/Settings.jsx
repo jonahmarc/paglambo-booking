@@ -1,11 +1,25 @@
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { api } from '../api/client'
+
+const BOOKING_BASE = `${window.location.origin}/book/`
+
+function slugify(name) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+}
 
 export default function Settings() {
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
-  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm()
+  const { register, handleSubmit, reset, control, setValue, formState: { isSubmitting } } = useForm()
+
+  const slugValue = useWatch({ control, name: 'slug', defaultValue: '' })
 
   useEffect(() => {
     api.get('/api/business').then(reset).catch(() => setError('Failed to load settings'))
@@ -16,6 +30,7 @@ export default function Settings() {
     try {
       await api.patch('/api/business', {
         name: data.name,
+        slug: data.slug?.trim() || null,
         paypal_username: data.paypal_username || null,
         wise_username: data.wise_username || null,
       })
@@ -41,6 +56,49 @@ export default function Settings() {
                 {...register('name')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div>
+          </div>
+
+          <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Booking page URL</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Your public booking link. Lowercase letters, numbers and hyphens only.
+              </p>
+            </div>
+            <div className="col-span-2 space-y-2">
+              <div className="flex items-center rounded-lg border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+                <span className="px-3 py-2 bg-gray-50 border-r border-gray-300 text-sm text-gray-400 whitespace-nowrap select-none">
+                  {BOOKING_BASE}
+                </span>
+                <input
+                  {...register('slug')}
+                  placeholder="your-business-name"
+                  className="flex-1 px-3 py-2 text-sm focus:outline-none"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const name = document.querySelector('input[name="name"]')?.value || ''
+                    if (name) setValue('slug', slugify(name))
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800"
+                >
+                  Generate from business name
+                </button>
+                {slugValue && (
+                  <a
+                    href={`/book/${slugValue}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-gray-400 hover:text-gray-600 underline"
+                  >
+                    Preview ↗
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
