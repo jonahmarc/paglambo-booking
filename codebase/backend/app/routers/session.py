@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session as DBSession
 from app.database import get_db
 from app.models import Business, SessionStatus
 from app.routers.deps import get_current_business
+from app.schemas.booking import BookingOut
 from app.schemas.session import SessionCreate, SessionGenerateRequest, SessionOut, SessionUpdate
 from app.services.event_type import get_event_type
 from app.services.session import (
@@ -12,6 +13,7 @@ from app.services.session import (
     generate_sessions,
     get_booked_counts,
     get_session,
+    get_session_bookings,
     list_sessions,
     reactivate_session,
     sync_sessions_to_pool,
@@ -92,6 +94,18 @@ def list_all(
         SessionOut.model_validate(s).model_copy(update={"booked_count": booked.get(s.id, 0)})
         for s in sessions
     ]
+
+
+@router.get("/{session_id}/bookings", response_model=list[BookingOut])
+def list_session_bookings(
+    event_type_id: int,
+    session_id: int,
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    _get_event_type_or_404(db, current_business.id, event_type_id)
+    _get_session_or_404(db, event_type_id, session_id)
+    return get_session_bookings(db, session_id)
 
 
 @router.get("/{session_id}", response_model=SessionOut)

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import Badge from '../components/Badge'
 import Modal from '../components/Modal'
@@ -101,6 +101,7 @@ function EventTypeForm({ onSave, defaultValues }) {
 }
 
 export default function EventTypes() {
+  const navigate = useNavigate()
   const [eventTypes, setEventTypes] = useState([])
   const [modal, setModal] = useState(null) // null | 'create' | {edit: et}
   const [loading, setLoading] = useState(true)
@@ -176,7 +177,10 @@ export default function EventTypes() {
           <p className="px-6 py-8 text-sm text-gray-400 text-center">No event types yet. Create one to get started.</p>
         )}
         {eventTypes.map(et => (
-          <div key={et.id} className="flex items-center gap-4 px-6 py-4">
+          <div key={et.id}
+            className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+            onClick={() => navigate(`/event-types/${et.id}/sessions`)}
+          >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <p className={`text-sm font-medium ${et.is_active ? 'text-gray-900' : 'text-gray-400 line-through'}`}>{et.name}</p>
@@ -189,11 +193,7 @@ export default function EventTypes() {
               )}
             </div>
             <p className="text-sm font-semibold text-gray-700 w-20 text-right">${Number(et.base_price).toFixed(2)}</p>
-            <div className="flex items-center gap-2">
-              <Link to={`/event-types/${et.id}/sessions`}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                Sessions
-              </Link>
+            <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
               <button onClick={() => setModal({ edit: et })}
                 className="text-xs text-gray-500 hover:text-gray-700 font-medium">Edit</button>
               <button onClick={() => handleToggle(et)}

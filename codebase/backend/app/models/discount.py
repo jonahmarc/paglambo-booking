@@ -20,7 +20,9 @@ class DiscountCode(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     business_id: Mapped[int] = mapped_column(ForeignKey("businesses.id"), index=True)
     code: Mapped[str] = mapped_column(String(50), index=True)
-    type: Mapped[DiscountType] = mapped_column(SAEnum(DiscountType, name="discount_type"))
+    type: Mapped[DiscountType] = mapped_column(
+        SAEnum(DiscountType, name="discount_type", values_callable=lambda obj: [e.value for e in obj])
+    )
     value: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     max_uses: Mapped[int | None] = mapped_column(Integer, nullable=True)
     use_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")

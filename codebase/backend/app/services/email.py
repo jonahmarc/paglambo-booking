@@ -100,7 +100,7 @@ def send_receipt_received(booking, business) -> None:
     <p>Hi,</p>
     <p>A payment receipt has been submitted and is waiting for your review.</p>
     <table cellpadding="6" cellspacing="0">
-      <tr><td><strong>Booking&nbsp;#</strong></td><td>{booking.id}</td></tr>
+      <tr><td><strong>Booking&nbsp;#</strong></td><td>{booking.booking_ref}</td></tr>
       <tr><td><strong>Customer</strong></td><td>{booking.customer.name} ({booking.customer.email})</td></tr>
       <tr><td><strong>Event</strong></td><td>{booking.event_type.name}</td></tr>
       <tr><td><strong>Method</strong></td><td>{method}</td></tr>
@@ -109,7 +109,7 @@ def send_receipt_received(booking, business) -> None:
     </table>
     <p>Log in to the admin dashboard to view the receipt and approve or reject the payment.</p>
     """
-    _send(business.email, f"Receipt uploaded — Booking #{booking.id}", html)
+    _send(business.email, f"Receipt uploaded — Booking #{booking.booking_ref}", html)
 
 
 def send_booking_confirmed(booking) -> None:
@@ -118,7 +118,7 @@ def send_booking_confirmed(booking) -> None:
     <p>Hi {booking.customer.name},</p>
     <p>Your payment has been verified and your booking is <strong>confirmed</strong>!</p>
     <table cellpadding="6" cellspacing="0">
-      <tr><td><strong>Booking&nbsp;#</strong></td><td>{booking.id}</td></tr>
+      <tr><td><strong>Booking&nbsp;#</strong></td><td>{booking.booking_ref}</td></tr>
       <tr><td><strong>Event</strong></td><td>{booking.event_type.name}</td></tr>
       <tr><td><strong>Total&nbsp;paid</strong></td><td>{booking.total_price}</td></tr>
     </table>
@@ -243,7 +243,7 @@ def send_payment_rejected(booking) -> None:
     <p>Hi {booking.customer.name},</p>
     <p>Unfortunately we were unable to verify your payment for the booking below.</p>
     <table cellpadding="6" cellspacing="0">
-      <tr><td><strong>Booking&nbsp;#</strong></td><td>{booking.id}</td></tr>
+      <tr><td><strong>Booking&nbsp;#</strong></td><td>{booking.booking_ref}</td></tr>
       <tr><td><strong>Event</strong></td><td>{booking.event_type.name}</td></tr>
       {note_row}
     </table>

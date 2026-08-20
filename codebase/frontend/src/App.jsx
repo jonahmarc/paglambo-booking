@@ -16,6 +16,7 @@ import Settings from './pages/Settings'
 import Subscription from './pages/Subscription'
 import EventTypes from './pages/EventTypes'
 import Sessions from './pages/Sessions'
+import SessionAttendees from './pages/SessionAttendees'
 import Bookings from './pages/Bookings'
 import BookingDetail from './pages/BookingDetail'
 import DiscountCodes from './pages/DiscountCodes'
@@ -31,6 +32,7 @@ function AdminRoutes() {
           <Route path="bookings/:id" element={<BookingDetail />} />
           <Route path="event-types" element={<EventTypes />} />
           <Route path="event-types/:id/sessions" element={<Sessions />} />
+          <Route path="event-types/:id/sessions/:sessionId/attendees" element={<SessionAttendees />} />
           <Route path="discount-codes" element={<DiscountCodes />} />
           <Route path="subscription" element={<Subscription />} />
           <Route path="settings" element={<Settings />} />

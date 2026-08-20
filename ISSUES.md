@@ -199,3 +199,33 @@ expected to update 30 row(s); 0 were matched.
 - Booking page: promo code input on checkout, validates on Apply, updates summary sidebar, passed to booking on submit.
 
 **Files:** `codebase/backend/app/models/attendee.py`, `codebase/backend/app/models/discount.py`, `codebase/backend/app/models/booking.py`, `codebase/backend/app/models/business.py`, `codebase/backend/app/models/__init__.py`, `codebase/backend/app/schemas/booking.py`, `codebase/backend/app/schemas/discount.py`, `codebase/backend/app/services/booking.py`, `codebase/backend/app/services/discount.py`, `codebase/backend/app/routers/discount.py`, `codebase/backend/app/main.py`, `codebase/backend/alembic/versions/e5f6a7b8c9d0_attendee_extended_fields.py`, `codebase/backend/alembic/versions/f6a7b8c9d0e1_discount_codes.py`, `codebase/frontend/src/pages/BookingDetail.jsx`, `codebase/frontend/src/pages/DiscountCodes.jsx`, `codebase/frontend/src/pages/BookingPage.jsx`, `codebase/frontend/src/components/Layout.jsx`, `codebase/frontend/src/App.jsx`
+
+---
+
+## 2026-08-21 — Email notifications showed raw integer ID instead of booking reference
+
+**Symptom:** Receipt-received, booking-confirmed, and payment-rejected emails showed a raw integer (e.g. `7`) instead of the zero-padded booking reference (e.g. `000007`) in the subject line and body.
+
+**Root cause:** `send_receipt_received`, `send_booking_confirmed`, and `send_payment_rejected` in `services/email.py` used `booking.id` directly. `send_booking_created` was already correct (`booking.booking_ref`).
+
+**Fix:** Replaced `booking.id` with `booking.booking_ref` in all three affected email functions.
+
+**Files:** `codebase/backend/app/services/email.py`
+
+---
+
+## 2026-08-21 — Discount code creation failed with invalid enum value
+
+**Symptom:** Creating a discount code via `POST /api/discount-codes` threw:
+```
+sqlalchemy.exc.DataError: invalid input value for enum discount_type: "FLAT"
+```
+The insert was sending `'FLAT'` (uppercase member name) when the PostgreSQL enum expected `'flat'` (lowercase value).
+
+**Root cause:** SQLAlchemy's `SAEnum(DiscountType, name="discount_type")` defaults to using the enum member **name** (`FLAT`, `PERCENTAGE`) as the stored string, not the member **value** (`flat`, `percentage`). The Alembic migration created the PostgreSQL enum with lowercase values (`flat`, `percentage`), creating a mismatch.
+
+The other enums in the codebase (e.g. `BookingStatus`) work because their member names and values happen to match after SQLAlchemy's handling — this one didn't because the migration values were defined explicitly in lowercase while SQLAlchemy was resolving to uppercase names.
+
+**Fix:** Added `values_callable=lambda obj: [e.value for e in obj]` to the `SAEnum` declaration in `models/discount.py`. This tells SQLAlchemy to use the `.value` attribute of each member rather than its name when reading from and writing to the database. No migration needed — the PostgreSQL enum already had the correct lowercase values.
+
+**Files:** `codebase/backend/app/models/discount.py`

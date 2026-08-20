@@ -38,10 +38,10 @@
 | Booking state machine | ✅ Done | Public `POST /api/public/{booking_key}/bookings`; admin `GET /api/bookings`; transition fns ready for receipt/review steps |
 | Receipt upload endpoint | ✅ Done | `POST /api/public/{booking_key}/bookings/{id}/receipt` — multipart; saves to `UPLOAD_DIR/receipts/`; creates Payment; transitions booking to `awaiting_payment` |
 | Admin payment review API | ✅ Done | `POST /api/bookings/{id}/approve`, `/reject`, `GET /api/bookings/{id}/receipt` |
-| Email — booking confirmation | ✅ Done | Sent to customer on approve; via `send_booking_confirmed` |
-| Email — receipt received | ✅ Done | Sent to admin on receipt upload; via `send_receipt_received` |
+| Email — booking confirmation | ✅ Done | Sent to customer on approve; via `send_booking_confirmed`. Booking ref fixed to use `booking.booking_ref` (zero-padded). |
+| Email — receipt received | ✅ Done | Sent to admin on receipt upload; via `send_receipt_received`. Booking ref fixed to use `booking.booking_ref`. |
 | Email — payment approved | ✅ Done | Combined with booking confirmation email |
-| Email — payment rejected | ✅ Done | Sent to customer on reject; via `send_payment_rejected` |
+| Email — payment rejected | ✅ Done | Sent to customer on reject; via `send_payment_rejected`. Booking ref fixed to use `booking.booking_ref`. |
 | Public session listing API | ✅ Done | `GET /api/public/{key}/event-types` (incl. add-ons + package pool); `GET /api/public/{key}/event-types/{id}/sessions` |
 | Booking number format | ✅ Done | `booking_ref` property on Booking model — `str(self.id).zfill(6)`. Included in `BookingOut` and `BookingPublicOut`. Pydantic picks it up via `from_attributes`. |
 | Business contact info in public API | ✅ Done | `business_name` and `business_email` added to `BookingPublicOut`; populated in the booking router from the Business object. |
@@ -103,6 +103,7 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 | Business — plan selector | ✅ Done | Standard/Pro cards on `/register`; status-aware redirect after registration |
 | Business — status banner | ✅ Done | Layout banner for pending/expired/rejected with link to subscription page |
 | Discount codes UI (Standard + Pro) | ✅ Done | `/discount-codes` page — table of all codes with code, type/value, uses, expiry, status. Create modal (code, type, value, max_uses, expires). Activate/deactivate toggle. Nav link added to sidebar. |
+| Discount codes — per-email / per-user limit | ⬜ Pending | New config per code: (1) one use per customer email — same email cannot reuse the code even if max_uses not hit; (2) restricted to specific emails — whitelist of allowed emails. Model + migration + validate logic + admin create/edit UI. |
 | Admin — attendee list per booking | ✅ Done | `BookingDetail.jsx` shows all attendees (primary booker from customer + extra attendees). Displays base fields (name, email, phone) and extended travel fields when present (ID/passport, nationality, DOB, special requirements). |
 
 ### Step 3: JS Booking Widget — superseded, kept for reference only
@@ -180,6 +181,8 @@ These are studied as references for the booking page UX. Not copying — adaptin
 | Booking page — confirmation screen | ✅ Done | Full-page confirmation with booking ref (#000001), event name, party size, total, session dates, and contact email. Status-aware message: awaiting_payment vs. pending (no payment method). |
 | Pricing — base_price × party_size | ✅ Done | Fixed in `services/booking.py`: `total_price = base_price * party_size + addon_prices`. Previously add-ons only, party_size was ignored. |
 | Booking page — SEO / meta | 🔁 Deferred | Moved to Enhancements — will be done together with full site SEO + design pass. |
+| Booking page — hide past sessions | ⬜ Pending | Filter out sessions where `start_time` is in the past on the public booking page. Applies to all event type kinds (RECURRING, ONE_TIME, CUSTOMER_PICKS packages). |
+| Booking page — confirmation back button | ⬜ Pending | After confirmation screen, add a button to navigate back to the event listing (`/book/{slug}`). |
 | Booking page — QR code display | ✅ Done | QR image shown inline under account details when the selected payment method has a QR uploaded. Fetched from `GET /api/public/{key}/qr/{method}`. |
 | Booking page — promo code | ✅ Done | Promo code section on checkout: enter code → Apply validates via public endpoint → shows discount amount in summary sidebar → passed to booking on submit. Remove button clears the applied code. |
 
@@ -189,18 +192,34 @@ Will be completed before the WordPress plugin. Listed in order.
 
 ---
 
-#### Enhancement 1: SEO & design improvements
+#### Enhancement 1: Booking list — grouped view + session attendee dashboard
+
+Two related views that share a common booking/attendee table component.
+
+**A — Admin booking list grouped by event type (default view)**
+
+The `/bookings` page defaults to a grouped view: each event type is a section showing its bookings and attendees with statuses. A toggle switches to the current flat chronological list. The shared table component is reused in B below.
 
 | Task | Status | Notes |
 |---|---|---|
-| Booking page — dynamic `<title>` | ⬜ Pending | `{business.name} — Book Now` set via `document.title` on load |
-| Booking page — meta description | ⬜ Pending | Set `<meta name="description">` per business |
-| Admin dashboard — polish pass | ⬜ Pending | Typography, spacing, colour consistency review |
-| Public booking page — design pass | ⬜ Pending | Visual improvements to event cards, checkout, confirmation |
+| Shared `BookingTable` component | ✅ Done | `components/BookingTable.jsx` — booking rows with booking ref, customer name/email, guest count, total, status badge, date. Accepts `showEventType` prop (hidden in grouped view, shown in flat/session view). |
+| Bookings page — grouped default view | ✅ Done | Default view: bookings grouped by event type with section headers and booking count. Toggle ("By event type" / "All bookings") in header. Both views share `BookingTable`. Status filter applies to both. |
+
+**B — Admin session attendee dashboard**
+
+Clicking a row in the event types list navigates to the sessions page for that event type (whole row becomes clickable; replaces the existing "Sessions →" link). Sessions are filtered to **active** (default) or **past**. Clicking a session navigates to a dedicated attendee dashboard for that session.
+
+| Task | Status | Notes |
+|---|---|---|
+| Event types list — row click navigates to sessions | ✅ Done | Row div is now `cursor-pointer` with `onClick → navigate(...)`. Action buttons (Edit, Activate, Delete) use `stopPropagation`. "Sessions →" link button removed — row click handles navigation. |
+| Sessions page — active / past filter | ✅ Done | Filter tabs above session list: "active" (default, `start_time ≥ now`) / "past" (`start_time < now`). Filtered client-side. Each session row now has an "Attendees" link. |
+| Session attendee dashboard page | ✅ Done | `pages/SessionAttendees.jsx` at `/event-types/:id/sessions/:sessionId/attendees`. Fetches session info + bookings via `GET /api/event-types/{id}/sessions/{sessionId}/bookings` (new endpoint). Uses `BookingTable` with `showEventType={false}`. Back link → sessions page. |
+| Backend — session bookings endpoint | ✅ Done | `GET /api/event-types/{event_type_id}/sessions/{session_id}/bookings` added to session router. `get_session_bookings(db, session_id)` added to `services/session.py` — queries Booking joined through `booking_sessions` association table, ordered by `created_at desc`. |
 
 ---
 
 #### Enhancement 2: Per-event payment toggle — RSVP mode
+
 
 Event types have a payment toggle. When off, the event is RSVP-only: no receipt upload, no payment instructions. Booking goes straight to `confirmed` on submit.
 
@@ -214,6 +233,7 @@ Event types have a payment toggle. When off, the event is RSVP-only: no receipt 
 ---
 
 #### Enhancement 3: Per-event visibility — public vs. private
+
 
 Event types can be **Public** (listed at `/book/{slug}`) or **Private** (hidden; shareable via direct link only).
 
@@ -229,6 +249,7 @@ Event types can be **Public** (listed at `/book/{slug}`) or **Private** (hidden;
 
 #### Enhancement 4: Per-event custom payment + QR code
 
+
 Each event type can override the business-level payment config with its own account details and QR.
 
 | Task | Status | Notes |
@@ -242,6 +263,7 @@ Each event type can override the business-level payment config with its own acco
 
 #### Enhancement 5: Event photo gallery
 
+
 Each event type has a photo gallery uploaded by the admin. Shown on the booking page event card.
 
 | Task | Status | Notes |
@@ -250,6 +272,19 @@ Each event type has a photo gallery uploaded by the admin. Shown on the booking 
 | Admin UI — photo upload/delete/reorder | ⬜ Pending | Gallery management section in event type edit |
 | Photo serve endpoint | ⬜ Pending | `GET /api/public/{key}/event-types/{id}/photos/{photo_id}` |
 | Booking page — photo gallery on event cards | ⬜ Pending | Carousel/grid on event detail; shown before session picker |
+
+---
+
+#### Enhancement 6: SEO & design improvements
+
+Done last — covers the full site in one pass.
+
+| Task | Status | Notes |
+|---|---|---|
+| Booking page — dynamic `<title>` | ⬜ Pending | `{business.name} — Book Now` set via `document.title` on load |
+| Booking page — meta description | ⬜ Pending | Set `<meta name="description">` per business |
+| Admin dashboard — polish pass | ⬜ Pending | Typography, spacing, colour consistency review |
+| Public booking page — design pass | ⬜ Pending | Visual improvements to event cards, checkout, confirmation |
 
 ---
 

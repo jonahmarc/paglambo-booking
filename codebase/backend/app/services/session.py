@@ -125,3 +125,13 @@ def sync_sessions_to_pool(db: DBSession, event_type_id: int) -> None:
         if s.id not in pool_ids:
             pkg.pool_sessions.append(s)
     db.commit()
+
+
+def get_session_bookings(db: DBSession, session_id: int) -> list[Booking]:
+    return (
+        db.query(Booking)
+        .join(booking_sessions_table, Booking.id == booking_sessions_table.c.booking_id)
+        .filter(booking_sessions_table.c.session_id == session_id)
+        .order_by(Booking.created_at.desc())
+        .all()
+    )

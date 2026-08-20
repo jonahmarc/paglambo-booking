@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
@@ -170,10 +170,16 @@ export default function Sessions() {
   const { id } = useParams()
   const [eventType, setEventType] = useState(null)
   const [sessions, setSessions] = useState([])
+  const [timeFilter, setTimeFilter] = useState('active')
   const [modal, setModal] = useState(null) // null | 'manual' | 'bulk' | 'package-config'
   const [editSession, setEditSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const now = useMemo(() => new Date(), [])
+  const filteredSessions = sessions.filter(s =>
+    timeFilter === 'active' ? new Date(s.start_time) >= now : new Date(s.start_time) < now
+  )
 
   function load() {
     setLoading(true)
@@ -287,12 +293,28 @@ export default function Sessions() {
 
       {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
 
+      <div className="flex gap-2 mb-3">
+        {['active', 'past'].map(f => (
+          <button key={f}
+            onClick={() => setTimeFilter(f)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize ${
+              timeFilter === f
+                ? 'bg-blue-600 text-white'
+                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}>
+            {f}
+          </button>
+        ))}
+      </div>
+
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
         {loading && <Spinner />}
-        {!loading && sessions.length === 0 && (
-          <p className="px-6 py-8 text-sm text-gray-400 text-center">No sessions yet.</p>
+        {!loading && filteredSessions.length === 0 && (
+          <p className="px-6 py-8 text-sm text-gray-400 text-center">
+            No {timeFilter} sessions.
+          </p>
         )}
-        {sessions.map(s => (
+        {filteredSessions.map(s => (
           <div key={s.id} className="flex items-center gap-4 px-6 py-3">
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-900">{fmt(s.start_time)}</p>
@@ -300,6 +322,10 @@ export default function Sessions() {
             </div>
             <p className="text-sm text-gray-600 w-28 text-center">{s.booked_count}/{s.capacity} booked</p>
             <Badge value={s.status} />
+            <Link to={`/event-types/${id}/sessions/${s.id}/attendees`}
+              className="text-xs text-blue-600 hover:text-blue-800 font-medium">
+              Attendees
+            </Link>
             {s.status === 'scheduled' && (
               <>
                 <button onClick={() => setEditSession(s)}
