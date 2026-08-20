@@ -9,7 +9,7 @@ from app.models import Business, EventType
 from app.models.event_type import EventTypeKind
 from app.routers.deps import get_business_or_404
 from app.schemas.public import PublicBusinessOut, PublicEventTypeOut, PublicSessionOut
-from app.services.public import list_available_sessions, list_public_event_types
+from app.services.public import get_public_event_type, list_available_sessions, list_public_event_types
 
 # Slug-based lookup — must be registered in main.py BEFORE the booking_key router
 # so the literal path segment "by-slug" isn't captured by {booking_key}.
@@ -64,6 +64,19 @@ def get_event_types(
 ):
     business = get_business_or_404(db, booking_key)
     return list_public_event_types(db, business.id)
+
+
+@router.get("/event-types/{event_type_id}", response_model=PublicEventTypeOut)
+def get_single_event_type(
+    booking_key: str,
+    event_type_id: int,
+    db: DBSession = Depends(get_db),
+):
+    business = get_business_or_404(db, booking_key)
+    et = get_public_event_type(db, business.id, event_type_id)
+    if et is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event type not found")
+    return et
 
 
 @router.get("/event-types/{event_type_id}/sessions", response_model=list[PublicSessionOut])

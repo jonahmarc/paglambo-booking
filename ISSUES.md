@@ -214,6 +214,42 @@ expected to update 30 row(s); 0 were matched.
 
 ---
 
+## 2026-08-21 — Newly created private events were always stored as public
+
+**Symptom:** Lock icon was not showing on the Event Types and Bookings pages even after creating an event type with Private visibility.
+
+**Root cause:** `EventTypeCreate` schema in `schemas/event_type.py` was missing `requires_payment` and `visibility` fields. When the frontend sent those values in the POST body, the backend's Pydantic model silently ignored them and fell back to the ORM/server defaults (`visibility='public'`, `requires_payment=True`). Editing worked fine because `EventTypeUpdate` had both fields.
+
+**Fix:** Added `requires_payment: bool = True` and `visibility: EventTypeVisibility = EventTypeVisibility.PUBLIC` to `EventTypeCreate`. No migration needed — the DB columns already had correct defaults.
+
+**Files:** `codebase/backend/app/schemas/event_type.py`
+
+---
+
+## 2026-08-21 — "Copy link" button for private events always triggered slug alert
+
+**Symptom:** Clicking "Copy link" on a private event type always showed "Set a booking URL slug in Settings" even though a slug was already configured.
+
+**Root cause:** `GET /api/auth/me` uses `BusinessOut` from `schemas/auth.py`, which did not include the `slug` field. The `useAuth()` hook stores the response as `business`, so `business.slug` was always `undefined` in the frontend — regardless of what was saved in the database.
+
+**Fix:** Added `slug: str | None` to `BusinessOut` in `schemas/auth.py`.
+
+**Files:** `codebase/backend/app/schemas/auth.py`
+
+---
+
+## 2026-08-21 — Requires payment checkbox showed as checked when editing RSVP events
+
+**Symptom:** Opening the edit modal for an event type with `requires_payment: false` showed the "Requires payment" checkbox as checked, making it impossible to tell the event was RSVP-only without saving and checking the badge.
+
+**Root cause:** The checkbox had a hardcoded `defaultChecked` HTML attribute. React Hook Form initialises checkbox state from `useForm({ defaultValues })`, but `defaultChecked` is a DOM attribute that sets the initial visual state independently — overriding RHF's value for the initial render.
+
+**Fix:** Removed `defaultChecked` from the checkbox element. RHF's `defaultValues` (which spread `requires_payment` from the event type record) now correctly controls the initial checked state.
+
+**Files:** `codebase/frontend/src/pages/EventTypes.jsx`
+
+---
+
 ## 2026-08-21 — Discount code creation failed with invalid enum value
 
 **Symptom:** Creating a discount code via `POST /api/discount-codes` threw:

@@ -182,7 +182,7 @@ These are studied as references for the booking page UX. Not copying — adaptin
 | Pricing — base_price × party_size | ✅ Done | Fixed in `services/booking.py`: `total_price = base_price * party_size + addon_prices`. Previously add-ons only, party_size was ignored. |
 | Booking page — SEO / meta | 🔁 Deferred | Moved to Enhancements — will be done together with full site SEO + design pass. |
 | Booking page — hide past sessions | ⬜ Pending | Filter out sessions where `start_time` is in the past on the public booking page. Applies to all event type kinds (RECURRING, ONE_TIME, CUSTOMER_PICKS packages). |
-| Booking page — confirmation back button | ⬜ Pending | After confirmation screen, add a button to navigate back to the event listing (`/book/{slug}`). |
+| Booking page — confirmation back button | ✅ Done | "← Back to booking page" button on confirmation screen links to `/book/{business.slug}`. |
 | Booking page — QR code display | ✅ Done | QR image shown inline under account details when the selected payment method has a QR uploaded. Fetched from `GET /api/public/{key}/qr/{method}`. |
 | Booking page — promo code | ✅ Done | Promo code section on checkout: enter code → Apply validates via public endpoint → shows discount amount in summary sidebar → passed to booking on submit. Remove button clears the applied code. |
 
@@ -225,10 +225,10 @@ Event types have a payment toggle. When off, the event is RSVP-only: no receipt 
 
 | Task | Status | Notes |
 |---|---|---|
-| `EventType` model — `requires_payment: bool` | ⬜ Pending | Default `True`; migration needed |
-| Admin UI — payment toggle per event type | ⬜ Pending | Toggle in create/edit event type modal |
-| Booking service — skip payment step when off | ⬜ Pending | `create_booking` transitions directly to `confirmed`; no receipt required |
-| Booking page — hide payment section when RSVP | ⬜ Pending | `requires_payment` included in `PublicEventTypeOut`; booking page skips payment and shows RSVP confirmation |
+| `EventType` model — `requires_payment: bool` | ✅ Done | `Boolean`, default `True`, `server_default="true"`. Migration `g7b8c9d0e1f2`. |
+| Admin UI — payment toggle per event type | ✅ Done | Checkbox in create/edit modal. "RSVP" purple badge on event type rows when off. |
+| Booking service — skip payment step when off | ✅ Done | `create_booking` sets `status = CONFIRMED` when `not event_type.requires_payment`. Booking router sends `send_booking_confirmed` (not `send_booking_created`) for RSVP bookings. |
+| Booking page — hide payment section when RSVP | ✅ Done | `requires_payment` included in `PublicEventTypeOut`. `CheckoutForm` receives `requiresPayment` prop — hides payment section, shows green RSVP notice, removes receipt validation. Submit button says "Reserve My Spot". Confirmation screen shows "Your spot is reserved!" |
 
 ---
 
@@ -239,11 +239,11 @@ Event types can be **Public** (listed at `/book/{slug}`) or **Private** (hidden;
 
 | Task | Status | Notes |
 |---|---|---|
-| `EventType` model — `visibility` field | ⬜ Pending | `public \| private`; default `public`; migration needed |
-| Public listing API — filter by visibility | ⬜ Pending | `GET /api/public/{key}/event-types` returns only `public` events |
-| Direct link endpoint | ⬜ Pending | `GET /api/public/{key}/event-types/{id}` returns a single event regardless of visibility — for the shareable link |
-| Admin UI — visibility toggle + shareable link | ⬜ Pending | Toggle in event type list/edit; copy-link button for private events |
-| Booking page — direct event link route | ⬜ Pending | `/book/{slug}/event/{id}` skips the event listing and opens directly to session picker |
+| `EventType` model — `visibility` field | ✅ Done | `String(20)`, default `"public"`, `server_default="public"`. `EventTypeVisibility` enum in model. Migration `g7b8c9d0e1f2` (combined with Enhancement 2). |
+| Public listing API — filter by visibility | ✅ Done | `list_public_event_types` now filters `EventType.visibility == "public"`. |
+| Direct link endpoint | ✅ Done | `GET /api/public/{key}/event-types/{id}` added to public router — returns single event type regardless of visibility (as long as `is_active`). |
+| Admin UI — visibility toggle + shareable link | ✅ Done | Select in create/edit modal (Public / Private). "Private" gray badge on rows. "Copy link" button copies `/book/{slug}/event/{id}` to clipboard (uses business slug from auth context). |
+| Booking page — direct event link route | ✅ Done | `/book/:slug/event/:eventTypeId` route added. `BookingPage` reads `eventTypeId` from `useParams()` — if present, fetches that specific event type and skips the listing phase. |
 
 ---
 

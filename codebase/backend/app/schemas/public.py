@@ -47,5 +47,6 @@ class PublicEventTypeOut(BaseModel):
     description: str | None
     kind: EventTypeKind
     base_price: Decimal
+    requires_payment: bool
     add_ons: list[PublicAddOnOut]
     package: PublicPackageOut | None

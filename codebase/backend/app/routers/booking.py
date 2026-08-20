@@ -54,7 +54,11 @@ def create_public_booking(
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-    send_booking_created(booking, business)
+    if booking.status == BookingStatus.CONFIRMED:
+        # RSVP event — no payment required, booking is already confirmed
+        send_booking_confirmed(booking)
+    else:
+        send_booking_created(booking, business)
 
     return BookingPublicOut(
         id=booking.id,

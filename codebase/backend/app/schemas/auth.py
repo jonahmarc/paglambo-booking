@@ -28,6 +28,7 @@ class TokenResponse(BaseModel):
 class BusinessOut(BaseModel):
     id: int
     name: str
+    slug: str | None
     email: EmailStr
     booking_key: str
     is_active: bool

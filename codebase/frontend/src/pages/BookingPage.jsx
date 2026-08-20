@@ -281,10 +281,10 @@ function AddonSelector({ addons, selectedIds, onChange }) {
 
 // ─── Checkout form ────────────────────────────────────────────────────────────
 
-function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, onConfirmed, onDiscountChange }) {
+function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, onConfirmed, onDiscountChange, requiresPayment = true }) {
   const hasPayPal = !!business.paypal_username
   const hasWise = !!business.wise_username
-  const hasPaymentMethods = hasPayPal || hasWise
+  const hasPaymentMethods = (hasPayPal || hasWise) && requiresPayment
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -332,8 +332,8 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
     e.preventDefault()
     if (!name.trim() || !email.trim()) { setError('Name and email are required.'); return }
     if (extraAttendees.some(a => !a.name.trim())) { setError('All attendee names are required.'); return }
-    if (hasPaymentMethods && !paymentMethod) { setError('Please select a payment method.'); return }
-    if (hasPaymentMethods && !receiptFile) { setError('Please upload your payment receipt.'); return }
+    if (requiresPayment && hasPaymentMethods && !paymentMethod) { setError('Please select a payment method.'); return }
+    if (requiresPayment && hasPaymentMethods && !receiptFile) { setError('Please upload your payment receipt.'); return }
 
     setSubmitting(true); setError('')
     try {
@@ -351,7 +351,7 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
         })),
       })
 
-      if (hasPaymentMethods && receiptFile) {
+      if (requiresPayment && hasPaymentMethods && receiptFile) {
         const fd = new FormData()
         fd.append('method', paymentMethod)
         fd.append('amount', total.toFixed(2))
@@ -467,6 +467,12 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
       </div>
 
       {/* Payment */}
+      {!requiresPayment ? (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+          <p className="text-sm font-medium text-green-800 mb-1">No payment required</p>
+          <p className="text-sm text-green-700">This is an RSVP event. Your spot will be confirmed immediately upon submission.</p>
+        </div>
+      ) : (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Payment</h3>
 
@@ -549,12 +555,13 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
           </div>
         )}
       </div>
+      )}
 
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-3">{error}</p>}
 
       <button type="submit" disabled={submitting}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-colors">
-        {submitting ? 'Confirming…' : 'Confirm Booking'}
+        {submitting ? 'Confirming…' : requiresPayment ? 'Confirm Booking' : 'Reserve My Spot'}
       </button>
     </form>
   )
@@ -563,14 +570,20 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
 // ─── Confirmation ─────────────────────────────────────────────────────────────
 
 function ConfirmationScreen({ booking, business, eventType }) {
+  const isConfirmed = booking.status === 'confirmed'
+  const isAwaitingPayment = booking.status === 'awaiting_payment'
   return (
     <div className="max-w-lg mx-auto text-center py-12 px-4">
       <div className="text-5xl mb-4">✓</div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking received!</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        {isConfirmed ? 'Your spot is reserved!' : 'Booking received!'}
+      </h2>
       <p className="text-gray-500 mb-6">
-        {booking.status === 'awaiting_payment'
-          ? "We've received your receipt and will confirm your booking by email."
-          : `Contact ${business.email} to complete your payment and confirm the booking.`}
+        {isConfirmed
+          ? 'Your booking is confirmed. See you there!'
+          : isAwaitingPayment
+            ? "We've received your receipt and will confirm your booking by email."
+            : `Contact ${business.email} to complete your payment and confirm the booking.`}
       </p>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-left space-y-3 mb-6">
@@ -602,10 +615,16 @@ function ConfirmationScreen({ booking, business, eventType }) {
         )}
       </div>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-400 mb-6">
         A confirmation email has been sent to your inbox. Questions? Contact{' '}
         <a href={`mailto:${business.email}`} className="underline">{business.email}</a>.
       </p>
+      <a
+        href={`/book/${business.slug}`}
+        className="inline-block bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+      >
+        ← Back to booking page
+      </a>
     </div>
   )
 }
@@ -613,7 +632,7 @@ function ConfirmationScreen({ booking, business, eventType }) {
 // ─── Main booking page ───────────────────────────────────────────────────────
 
 export default function BookingPage() {
-  const { slug } = useParams()
+  const { slug, eventTypeId } = useParams()
 
   const [phase, setPhase] = useState('loading') // loading | events | configure | checkout | confirmed | error
   const [business, setBusiness] = useState(null)
@@ -628,19 +647,20 @@ export default function BookingPage() {
   const [confirmedBooking, setConfirmedBooking] = useState(null)
   const [error, setError] = useState('')
 
-  // Load business and event types
+  // Load business, then either a single event type (direct link) or the full listing
   useEffect(() => {
     publicApi.get(`/api/public/by-slug/${slug}`)
       .then(biz => {
         setBusiness(biz)
+        if (eventTypeId) {
+          return publicApi.get(`/api/public/${biz.booking_key}/event-types/${eventTypeId}`)
+            .then(et => { setSelectedEventType(et); setPhase('configure') })
+        }
         return publicApi.get(`/api/public/${biz.booking_key}/event-types`)
+          .then(ets => { setEventTypes(ets); setPhase('events') })
       })
-      .then(ets => {
-        setEventTypes(ets)
-        setPhase('events')
-      })
-      .catch(err => { setError(err.message); setPhase('error') })
-  }, [slug])
+      .catch(err => { setError(err.message || 'This booking page could not be found.'); setPhase('error') })
+  }, [slug, eventTypeId])
 
   // Load sessions when an event type is selected (ONE_TIME / RECURRING only)
   useEffect(() => {
@@ -727,9 +747,10 @@ export default function BookingPage() {
             <button
               onClick={() => {
                 if (phase === 'checkout') setPhase('configure')
+                else if (eventTypeId) { /* direct link — no event list to go back to */ }
                 else { setSelectedEventType(null); setPhase('events') }
               }}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className={`text-sm text-blue-600 hover:text-blue-800 ${phase === 'configure' && eventTypeId ? 'invisible' : ''}`}
             >
               ←
             </button>
@@ -848,6 +869,7 @@ export default function BookingPage() {
                 addonIds={selectedAddonIds}
                 onConfirmed={handleConfirmed}
                 onDiscountChange={setAppliedDiscount}
+                requiresPayment={selectedEventType?.requires_payment !== false}
               />
             </div>
             <div>

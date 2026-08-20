@@ -69,6 +69,7 @@ export default function App() {
             <Route path="/superadmin/login" element={<SuperAdminLogin />} />
             <Route path="/superadmin/*" element={<SuperAdminRoutes />} />
             <Route path="/book/:slug" element={<BookingPage />} />
+            <Route path="/book/:slug/event/:eventTypeId" element={<BookingPage />} />
             <Route path="/*" element={<AdminRoutes />} />
           </Routes>
         </SuperAdminAuthProvider>

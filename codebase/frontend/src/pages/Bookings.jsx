@@ -3,6 +3,14 @@ import { api } from '../api/client'
 import BookingTable from '../components/BookingTable'
 import Spinner from '../components/Spinner'
 
+function LockIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5 shrink-0 text-gray-400">
+      <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v4A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5v-4A1.5 1.5 0 0 0 11 7V4.5A3.5 3.5 0 0 0 8 1Zm2 6V4.5a2 2 0 1 0-4 0V7h4Z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
 const STATUSES = ['all', 'pending', 'awaiting_payment', 'confirmed', 'rejected']
 
 export default function Bookings() {
@@ -86,7 +94,10 @@ export default function Bookings() {
             {Object.entries(grouped).map(([eventTypeName, items]) => (
               <div key={eventTypeName} className="bg-white rounded-xl border border-gray-200 shadow-sm">
                 <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-900">{eventTypeName}</p>
+                  <span className="flex items-center gap-1.5">
+                    {items[0]?.event_type_visibility === 'private' && <LockIcon />}
+                    <p className="text-sm font-semibold text-gray-900">{eventTypeName}</p>
+                  </span>
                   <p className="text-xs text-gray-400">{items.length} booking{items.length !== 1 ? 's' : ''}</p>
                 </div>
                 <BookingTable bookings={items} loading={false} showEventType={false} />

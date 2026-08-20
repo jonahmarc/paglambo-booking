@@ -7,7 +7,9 @@ from app.schemas.event_type import EventTypeCreate, EventTypeUpdate
 
 
 def create_event_type(db: DBSession, business_id: int, data: EventTypeCreate) -> EventType:
-    event_type = EventType(business_id=business_id, **data.model_dump())
+    payload = data.model_dump()
+    payload['visibility'] = data.visibility.value
+    event_type = EventType(business_id=business_id, **payload)
     db.add(event_type)
     db.commit()
     db.refresh(event_type)

@@ -175,6 +175,9 @@ def create_booking(db: DBSession, business_id: int, data: BookingCreate) -> Book
             special_requirements=att.special_requirements,
         ))
 
+    if not event_type.requires_payment:
+        booking.status = BookingStatus.CONFIRMED
+
     if applied_code_obj:
         apply_code(db, applied_code_obj)
 

@@ -77,6 +77,7 @@ class BookingOut(BaseModel):
     booking_ref: str
     event_type_id: int
     event_type_name: str
+    event_type_visibility: str
     status: BookingStatus
     party_size: int
     total_price: Decimal

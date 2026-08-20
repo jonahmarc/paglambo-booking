@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session as DBSession
 
 from app.models import AddOn, Booking, BookingStatus, EventType, Session
 from app.models import booking_sessions as booking_sessions_table
+from app.models.event_type import EventTypeVisibility
 from app.models.session import SessionStatus
 from app.schemas.public import (
     PublicAddOnOut,
@@ -48,11 +49,30 @@ def _future_scheduled(sessions) -> list[Session]:
 def list_public_event_types(db: DBSession, business_id: int) -> list[PublicEventTypeOut]:
     event_types = (
         db.query(EventType)
-        .filter(EventType.business_id == business_id, EventType.is_active == True)  # noqa: E712
+        .filter(
+            EventType.business_id == business_id,
+            EventType.is_active == True,  # noqa: E712
+            EventType.visibility == EventTypeVisibility.PUBLIC.value,
+        )
         .order_by(EventType.created_at)
         .all()
     )
     return [_build_event_type_out(db, et) for et in event_types]
+
+
+def get_public_event_type(db: DBSession, business_id: int, event_type_id: int) -> PublicEventTypeOut | None:
+    et = (
+        db.query(EventType)
+        .filter(
+            EventType.id == event_type_id,
+            EventType.business_id == business_id,
+            EventType.is_active == True,  # noqa: E712
+        )
+        .first()
+    )
+    if et is None:
+        return None
+    return _build_event_type_out(db, et)
 
 
 def _build_event_type_out(db: DBSession, et: EventType) -> PublicEventTypeOut:
@@ -79,6 +99,7 @@ def _build_event_type_out(db: DBSession, et: EventType) -> PublicEventTypeOut:
         description=et.description,
         kind=et.kind,
         base_price=et.base_price,
+        requires_payment=et.requires_payment,
         add_ons=add_ons,
         package=package_out,
     )

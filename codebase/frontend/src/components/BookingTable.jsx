@@ -6,6 +6,14 @@ function fmt(dt) {
   return new Date(dt).toLocaleDateString(undefined, { dateStyle: 'medium' })
 }
 
+function LockIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 inline-block shrink-0 text-gray-400">
+      <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v4A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5v-4A1.5 1.5 0 0 0 11 7V4.5A3.5 3.5 0 0 0 8 1Zm2 6V4.5a2 2 0 1 0-4 0V7h4Z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
 export default function BookingTable({
   bookings,
   loading = false,
@@ -27,7 +35,10 @@ export default function BookingTable({
             <p className="text-xs text-gray-400 mt-0.5">{b.customer?.email}</p>
           </div>
           {showEventType && (
-            <p className="text-sm text-gray-600 truncate max-w-[160px] shrink-0">{b.event_type_name}</p>
+            <span className="flex items-center gap-1 text-sm text-gray-600 truncate max-w-40 shrink-0">
+              {b.event_type_visibility === 'private' && <LockIcon />}
+              {b.event_type_name}
+            </span>
           )}
           <p className="text-xs text-gray-500 shrink-0">{b.party_size} {b.party_size === 1 ? 'guest' : 'guests'}</p>
           <p className="text-sm font-semibold text-gray-700 w-20 text-right shrink-0">${Number(b.total_price).toFixed(2)}</p>

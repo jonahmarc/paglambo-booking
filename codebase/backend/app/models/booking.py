@@ -51,5 +51,9 @@ class Booking(Base):
         return self.event_type.name
 
     @property
+    def event_type_visibility(self) -> str:
+        return self.event_type.visibility
+
+    @property
     def booking_ref(self) -> str:
         return str(self.id).zfill(6)

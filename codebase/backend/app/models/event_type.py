@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -16,6 +16,11 @@ class EventTypeKind(str, enum.Enum):
     PACKAGE = "package"
 
 
+class EventTypeVisibility(str, enum.Enum):
+    PUBLIC = "public"
+    PRIVATE = "private"
+
+
 class EventType(Base):
     __tablename__ = "event_types"
 
@@ -27,6 +32,8 @@ class EventType(Base):
     default_capacity: Mapped[int] = mapped_column(default=1)
     base_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     is_active: Mapped[bool] = mapped_column(default=True)
+    requires_payment: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    visibility: Mapped[str] = mapped_column(String(20), default=EventTypeVisibility.PUBLIC.value, server_default="public")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
