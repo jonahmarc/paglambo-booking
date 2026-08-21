@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import PublicLayout from '../components/PublicLayout'
 
 const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30'
 
@@ -26,10 +27,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-cream dark:bg-dark-base flex items-center justify-center p-4">
-      <div className="bg-cream dark:bg-navy rounded-xl shadow-sm border border-navy/10 dark:border-cream/10 w-full max-w-sm p-8">
-        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream mb-1">Buhata Booking</h1>
-        <p className="text-sm text-navy/50 dark:text-cream/50 mb-6">Sign in to your account</p>
+    <PublicLayout altTo="/register" altLabel="Get started">
+      <div className="bg-cream dark:bg-navy rounded-xl shadow-sm border border-navy/10 dark:border-cream/10 w-full max-w-sm mx-auto p-8">
+        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream mb-1">Sign in</h1>
+        <p className="text-sm text-navy/50 dark:text-cream/50 mb-6">Welcome back to Buhata Booking</p>
 
         {error && (
           <div className="mb-4 px-4 py-3 rounded-lg bg-terracotta/10 border border-terracotta/30 text-sm text-terracotta">
@@ -74,6 +75,6 @@ export default function Login() {
           </Link>
         </p>
       </div>
-    </div>
+    </PublicLayout>
   )
 }
