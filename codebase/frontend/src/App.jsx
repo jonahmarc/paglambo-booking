@@ -21,6 +21,7 @@ import Bookings from './pages/Bookings'
 import BookingDetail from './pages/BookingDetail'
 import DiscountCodes from './pages/DiscountCodes'
 import BookingPage from './pages/BookingPage'
+import LandingPage from './pages/LandingPage'
 
 function AdminRoutes() {
   return (
@@ -68,6 +69,7 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/superadmin/login" element={<SuperAdminLogin />} />
             <Route path="/superadmin/*" element={<SuperAdminRoutes />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/book/:slug" element={<BookingPage />} />
             <Route path="/book/:slug/event/:eventTypeId" element={<BookingPage />} />
             <Route path="/*" element={<AdminRoutes />} />

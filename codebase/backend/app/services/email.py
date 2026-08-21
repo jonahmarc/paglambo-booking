@@ -20,16 +20,14 @@ def _send(to: str, subject: str, html: str) -> None:
         logger.info("No RESEND_API_KEY — skipping email '%s' to %s", subject, to)
         return
 
-    # Without a verified sending domain we are in Resend sandbox mode.
-    # Sandbox only allows delivery to the account's own email address.
-    # Redirect to RESEND_TEST_TO if set; otherwise skip rather than error.
-    if not settings.resend_from_email:
-        if settings.resend_test_to:
-            logger.info("Sandbox mode — redirecting email '%s' from %s to %s", subject, to, settings.resend_test_to)
-            to = settings.resend_test_to
-        else:
-            logger.info("No RESEND_FROM_EMAIL or RESEND_TEST_TO — skipping email '%s' to %s", subject, to)
-            return
+    # RESEND_TEST_TO always takes priority — set it in dev to catch all outgoing emails.
+    if settings.resend_test_to:
+        logger.info("RESEND_TEST_TO set — redirecting email '%s' from %s to %s", subject, to, settings.resend_test_to)
+        to = settings.resend_test_to
+    elif not settings.resend_from_email:
+        # No verified domain and no test redirect — skip to avoid Resend sandbox errors.
+        logger.info("No RESEND_FROM_EMAIL or RESEND_TEST_TO — skipping email '%s' to %s", subject, to)
+        return
 
     resend.api_key = settings.resend_api_key
     try:
@@ -232,6 +230,22 @@ def send_trial_expired(business) -> None:
     <p>To reactivate, log in to your dashboard and upload a subscription payment receipt.</p>
     """
     _send(business.email, "Trial expired — Buhata Booking", html)
+
+
+def send_contact_inquiry(name: str, email: str, message: str) -> None:
+    """Forward a landing page contact form submission to the platform inbox."""
+    html = f"""
+    <p>You have a new message from the Buhata Booking contact form.</p>
+    <table cellpadding="6" cellspacing="0">
+      <tr><td><strong>Name</strong></td><td>{name}</td></tr>
+      <tr><td><strong>Email</strong></td><td>{email}</td></tr>
+    </table>
+    <p><strong>Message:</strong></p>
+    <p style="white-space:pre-wrap">{message}</p>
+    <hr />
+    <p style="color:#888;font-size:12px">Reply directly to {email} to respond.</p>
+    """
+    _send(settings.platform_email, f"Contact form — {name}", html)
 
 
 def send_payment_rejected(booking) -> None:

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import addon, auth, booking, business, discount, event_type, package, public, session, subscription, superadmin
+from app.routers import addon, auth, booking, business, contact, discount, event_type, package, public, session, subscription, superadmin
 from app.routers.public import meta_router as public_meta_router
 
 app = FastAPI(
@@ -22,6 +22,7 @@ app.add_middleware(
 
 
 app.include_router(auth.router)
+app.include_router(contact.router)
 app.include_router(business.router)
 app.include_router(discount.router)
 app.include_router(event_type.router)

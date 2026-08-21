@@ -265,7 +265,7 @@ Full design pass establishing the Buhata Booking visual identity. Dark mode is t
 | Dark mode default + toggle | ✅ Done | Defaults to dark (localStorage + inline script in `index.html` prevents flash). `ThemeContext` stores preference. Sun/Moon toggle button in sidebar footer switches between dark/light. |
 | Admin dashboard — brand + dark mode | ✅ Done | Sidebar (`bg-navy dark:bg-dark-deep`), Layout, Badge (all status/kind variants), Modal, Spinner, BookingTable, and all admin pages (EventTypes, Bookings, Sessions, BookingDetail, Settings, DiscountCodes, Subscription, Login, Register, all Superadmin pages) — fully branded with amber/navy/terracotta/cream tokens and dark mode support. |
 | Public booking page — brand + dark mode | ✅ Done | `BookingPage.jsx` fully redesigned: cream/navy cards (`bg-cream dark:bg-navy`), amber selected states, terracotta errors, amber primary buttons, `font-display` headings, amber checkmarks, brand file upload button, dark mode on all sections (event cards, session picker, add-ons, checkout form, summary sidebar, confirmation screen). |
-| Landing page | ⬜ Pending | `/` route; hero, features, pricing teaser, sign-up CTA |
+| Landing page | ✅ Done | `/` route — sticky nav (logo, sign in, get started, theme toggle), hero (headline + CTAs), features grid (4 cards), how-it-works steps, pricing cards (Standard $49 / Pro $89), CTA banner, footer. Full dark/light mode support. |
 
 ---
 
