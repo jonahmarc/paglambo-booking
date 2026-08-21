@@ -247,7 +247,29 @@ Event types can be **Public** (listed at `/book/{slug}`) or **Private** (hidden;
 
 ---
 
-#### Enhancement 4: Per-event custom payment + QR code
+#### Enhancement 4: Brand identity, dark mode & landing page
+
+Full design pass establishing the Buhata Booking visual identity. Dark mode is the default. Covers the admin dashboard, public booking page, and a new marketing landing page.
+
+**Scope:**
+- Brand color palette — primary, accent, neutral, semantic (success/warning/error) tokens defined as CSS custom properties
+- Typography — select and apply a consistent font pairing (heading + body); set scale
+- Dark mode as default — all pages respect `prefers-color-scheme: dark`; toggle available to override; tokens flip between light/dark values
+- Admin dashboard redesign — apply brand tokens to sidebar, cards, forms, tables, badges
+- Public booking page redesign — apply brand tokens to event cards, session picker, checkout, confirmation screen
+- Landing page — new `/` route (public, no auth); hero, feature highlights, CTA to sign up; reflects brand identity
+
+| Task | Status | Notes |
+|---|---|---|
+| Brand color + typography tokens | ✅ Done | Flat brand tokens in `@theme` matching parent brand: `amber` (#C8841A), `terracotta` (#C85A38), `cream` (#FAF5EB), `navy` (#1A2E3D), `dark-base` (#0D1B2A), `dark-deep` (#070F1A). Two fonts: Playfair Display (headings, `font-display`) + Inter (body, `font-sans`). Both loaded from Google Fonts. Light body = cream bg + navy text; dark body = dark-base bg + cream text. Borders use Tailwind opacity modifiers (`border-navy/10`, `border-cream/10`) — no hard-coded border colors. `ThemeContext` + init script in `index.html` prevent flash. |
+| Dark mode default + toggle | ✅ Done | Defaults to dark (localStorage + inline script in `index.html` prevents flash). `ThemeContext` stores preference. Sun/Moon toggle button in sidebar footer switches between dark/light. |
+| Admin dashboard — brand + dark mode | ✅ Done | Sidebar (`bg-navy dark:bg-dark-deep`), Layout, Badge (all status/kind variants), Modal, Spinner, BookingTable, and all admin pages (EventTypes, Bookings, Sessions, BookingDetail, Settings, DiscountCodes, Subscription, Login, Register, all Superadmin pages) — fully branded with amber/navy/terracotta/cream tokens and dark mode support. |
+| Public booking page — brand + dark mode | ✅ Done | `BookingPage.jsx` fully redesigned: cream/navy cards (`bg-cream dark:bg-navy`), amber selected states, terracotta errors, amber primary buttons, `font-display` headings, amber checkmarks, brand file upload button, dark mode on all sections (event cards, session picker, add-ons, checkout form, summary sidebar, confirmation screen). |
+| Landing page | ⬜ Pending | `/` route; hero, features, pricing teaser, sign-up CTA |
+
+---
+
+#### Enhancement 5: Per-event custom payment + QR code
 
 
 Each event type can override the business-level payment config with its own account details and QR.
@@ -261,7 +283,7 @@ Each event type can override the business-level payment config with its own acco
 
 ---
 
-#### Enhancement 5: Event photo gallery
+#### Enhancement 6: Event photo gallery
 
 
 Each event type has a photo gallery uploaded by the admin. Shown on the booking page event card.
@@ -275,21 +297,20 @@ Each event type has a photo gallery uploaded by the admin. Shown on the booking 
 
 ---
 
-#### Enhancement 6: SEO & design improvements
+#### Enhancement 7: SEO
 
-Done last — covers the full site in one pass.
+Covers the public booking page and landing page.
 
 | Task | Status | Notes |
 |---|---|---|
 | Booking page — dynamic `<title>` | ⬜ Pending | `{business.name} — Book Now` set via `document.title` on load |
 | Booking page — meta description | ⬜ Pending | Set `<meta name="description">` per business |
-| Admin dashboard — polish pass | ⬜ Pending | Typography, spacing, colour consistency review |
-| Public booking page — design pass | ⬜ Pending | Visual improvements to event cards, checkout, confirmation |
+| Landing page — meta tags | ⬜ Pending | Static title, description, og:image |
 
 ---
 
 #### Not prioritized
-- Customizable booking page design (colours, fonts, layout)
+- Per-business customizable design (colours, fonts)
 
 ---
 

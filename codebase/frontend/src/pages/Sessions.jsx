@@ -19,28 +19,31 @@ function toLocalDatetime(isoStr) {
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30'
+const LABEL_CLS = 'block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1'
+
 function ManualForm({ onSave, defaultCapacity }) {
   const { register, handleSubmit, formState: { isSubmitting } } = useForm({ defaultValues: { capacity: defaultCapacity } })
   return (
     <form onSubmit={handleSubmit(onSave)} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Start time</label>
+        <label className={LABEL_CLS}>Start time</label>
         <input {...register('start_time', { required: true })} type="datetime-local"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">End time (optional)</label>
+        <label className={LABEL_CLS}>End time (optional)</label>
         <input {...register('end_time')} type="datetime-local"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+        <label className={LABEL_CLS}>Capacity</label>
         <input {...register('capacity', { required: true, min: 1 })} type="number"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div className="flex justify-end pt-2">
         <button type="submit" disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
+          className="bg-amber hover:bg-amber/90 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
           {isSubmitting ? 'Creating…' : 'Create session'}
         </button>
       </div>
@@ -59,23 +62,23 @@ function EditSessionForm({ session, onSave }) {
   return (
     <form onSubmit={handleSubmit(onSave)} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Start time</label>
+        <label className={LABEL_CLS}>Start time</label>
         <input {...register('start_time', { required: true })} type="datetime-local"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">End time (optional)</label>
+        <label className={LABEL_CLS}>End time (optional)</label>
         <input {...register('end_time')} type="datetime-local"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+        <label className={LABEL_CLS}>Capacity</label>
         <input {...register('capacity', { required: true, min: 1 })} type="number"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div className="flex justify-end pt-2">
         <button type="submit" disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
+          className="bg-amber hover:bg-amber/90 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
           {isSubmitting ? 'Saving…' : 'Save changes'}
         </button>
       </div>
@@ -91,21 +94,21 @@ function BulkForm({ onSave, defaultCapacity }) {
     <form onSubmit={handleSubmit(onSave)} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
+          <label className={LABEL_CLS}>Start date</label>
           <input {...register('start_date', { required: true })} type="date"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            className={INPUT_CLS} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">End date</label>
+          <label className={LABEL_CLS}>End date</label>
           <input {...register('end_date', { required: true })} type="date"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            className={INPUT_CLS} />
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Days of week</label>
+        <label className={LABEL_CLS}>Days of week</label>
         <div className="flex flex-wrap gap-2">
           {DAYS.map((d, i) => (
-            <label key={i} className="flex items-center gap-1 text-sm text-gray-700 cursor-pointer">
+            <label key={i} className="flex items-center gap-1 text-sm text-navy/80 dark:text-cream/80 cursor-pointer">
               <input {...register('days_of_week')} type="checkbox" value={i} className="rounded" />
               {d}
             </label>
@@ -114,29 +117,29 @@ function BulkForm({ onSave, defaultCapacity }) {
       </div>
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Start time</label>
+          <label className={LABEL_CLS}>Start time</label>
           <input {...register('start_time', { required: true })} type="time"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            className={INPUT_CLS} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Duration (min)</label>
+          <label className={LABEL_CLS}>Duration (min)</label>
           <input {...register('duration_minutes', { min: 1 })} type="number"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            className={INPUT_CLS} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+          <label className={LABEL_CLS}>Capacity</label>
           <input {...register('capacity', { required: true, min: 1 })} type="number"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            className={INPUT_CLS} />
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+        <label className={LABEL_CLS}>Timezone</label>
         <input {...register('timezone')} placeholder="e.g. Asia/Manila"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div className="flex justify-end pt-2">
         <button type="submit" disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
+          className="bg-amber hover:bg-amber/90 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
           {isSubmitting ? 'Generating…' : 'Generate sessions'}
         </button>
       </div>
@@ -151,14 +154,14 @@ function PackageConfigForm({ pkg, onSave }) {
   return (
     <form onSubmit={handleSubmit(onSave)} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Sessions per booking</label>
+        <label className={LABEL_CLS}>Sessions per booking</label>
         <input {...register('required_session_count', { required: true, min: 1, valueAsNumber: true })} type="number" min={1}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <p className="text-xs text-gray-400 mt-1">How many sessions a customer picks in one booking</p>
+          className={INPUT_CLS} />
+        <p className="text-xs text-navy/40 dark:text-cream/40 mt-1">How many sessions a customer picks in one booking</p>
       </div>
       <div className="flex justify-end pt-2">
         <button type="submit" disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
+          className="bg-amber hover:bg-amber/90 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg">
           {isSubmitting ? 'Saving…' : 'Save'}
         </button>
       </div>
@@ -255,43 +258,43 @@ export default function Sessions() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-1">
-        <Link to="/event-types" className="text-sm text-blue-600 hover:text-blue-800">← Event Types</Link>
+        <Link to="/event-types" className="text-sm text-amber hover:text-amber/70">← Event Types</Link>
       </div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream">
           Sessions{eventType ? ` — ${eventType.name}` : ''}
         </h1>
         <div className="flex items-center gap-2">
           {showBulkGenerate && (
             <button onClick={() => setModal('bulk')}
-              className="border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-3 py-2 rounded-lg">
+              className="border border-navy/20 dark:border-cream/20 hover:bg-navy/5 dark:hover:bg-cream/5 text-navy dark:text-cream text-sm font-medium px-3 py-2 rounded-lg transition-colors">
               Bulk generate
             </button>
           )}
           {canAddSession ? (
             <button onClick={() => setModal('manual')}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg">
+              className="bg-amber hover:bg-amber/90 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
               + Add session
             </button>
           ) : (
-            <span className="text-xs text-gray-400 italic">Session already set</span>
+            <span className="text-xs text-navy/40 dark:text-cream/40 italic">Session already set</span>
           )}
         </div>
       </div>
 
       {kind === 'package' && eventType?.package && (
-        <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 mb-4 flex items-center justify-between">
-          <p className="text-sm text-gray-700">
+        <div className="bg-amber/10 border border-amber/30 rounded-lg px-4 py-3 mb-4 flex items-center justify-between">
+          <p className="text-sm text-navy dark:text-cream">
             Customers pick <strong>{eventType.package.required_session_count}</strong> session{eventType.package.required_session_count !== 1 ? 's' : ''} per booking
           </p>
           <button onClick={() => setModal('package-config')}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium">
+            className="text-xs text-amber hover:text-amber/70 font-medium">
             Edit
           </button>
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-terracotta mb-4">{error}</p>}
 
       <div className="flex gap-2 mb-3">
         {['active', 'past'].map(f => (
@@ -299,44 +302,44 @@ export default function Sessions() {
             onClick={() => setTimeFilter(f)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors capitalize ${
               timeFilter === f
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                ? 'bg-amber text-white'
+                : 'bg-cream border border-navy/20 text-navy/60 hover:bg-navy/5 dark:bg-navy dark:border-cream/20 dark:text-cream/60 dark:hover:bg-cream/5'
             }`}>
             {f}
           </button>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+      <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm divide-y divide-navy/10 dark:divide-cream/10">
         {loading && <Spinner />}
         {!loading && filteredSessions.length === 0 && (
-          <p className="px-6 py-8 text-sm text-gray-400 text-center">
+          <p className="px-6 py-8 text-sm text-navy/40 dark:text-cream/40 text-center">
             No {timeFilter} sessions.
           </p>
         )}
         {filteredSessions.map(s => (
           <div key={s.id} className="flex items-center gap-4 px-6 py-3">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">{fmt(s.start_time)}</p>
-              {s.end_time && <p className="text-xs text-gray-400">ends {fmt(s.end_time)}</p>}
+              <p className="text-sm font-medium text-navy dark:text-cream">{fmt(s.start_time)}</p>
+              {s.end_time && <p className="text-xs text-navy/40 dark:text-cream/40">ends {fmt(s.end_time)}</p>}
             </div>
-            <p className="text-sm text-gray-600 w-28 text-center">{s.booked_count}/{s.capacity} booked</p>
+            <p className="text-sm text-navy/50 dark:text-cream/50 w-28 text-center">{s.booked_count}/{s.capacity} booked</p>
             <Badge value={s.status} />
             <Link to={`/event-types/${id}/sessions/${s.id}/attendees`}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium">
+              className="text-xs text-amber hover:text-amber/70 font-medium">
               Attendees
             </Link>
             {s.status === 'scheduled' && (
               <>
                 <button onClick={() => setEditSession(s)}
-                  className="text-xs text-gray-500 hover:text-gray-700 font-medium">Edit</button>
+                  className="text-xs text-navy/50 hover:text-navy dark:text-cream/50 dark:hover:text-cream font-medium">Edit</button>
                 <button onClick={() => handleDeactivate(s)}
-                  className="text-xs text-red-400 hover:text-red-600 font-medium">Deactivate</button>
+                  className="text-xs text-terracotta hover:text-terracotta/70 font-medium">Deactivate</button>
               </>
             )}
             {s.status === 'cancelled' && (
               <button onClick={() => handleReactivate(s)}
-                className="text-xs text-green-600 hover:text-green-800 font-medium">Reactivate</button>
+                className="text-xs text-navy/50 hover:text-navy dark:text-cream/50 dark:hover:text-cream font-medium">Reactivate</button>
             )}
           </div>
         ))}

@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 const NAV = [
   { to: '/bookings',        label: 'Bookings' },
@@ -11,22 +12,47 @@ const NAV = [
 
 const STATUS_BANNERS = {
   pending_approval: {
-    cls: 'bg-amber-50 border-amber-200 text-amber-800',
+    cls: 'bg-amber/10 border-amber/30 text-amber',
     msg: 'Your account is pending approval. You\'ll receive an email once approved.',
   },
   expired: {
-    cls: 'bg-red-50 border-red-200 text-red-800',
+    cls: 'bg-terracotta/10 border-terracotta/30 text-terracotta',
     msg: 'Your subscription has expired. Your booking page is currently offline.',
     link: { to: '/subscription', label: 'Reactivate' },
   },
   rejected: {
-    cls: 'bg-red-50 border-red-200 text-red-800',
+    cls: 'bg-terracotta/10 border-terracotta/30 text-terracotta',
     msg: 'Your registration was not approved. Please contact support.',
   },
 }
 
+function SunIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </svg>
+  )
+}
+
+function MoonIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  )
+}
+
 export default function Layout({ children }) {
   const { business, logout } = useAuth()
+  const { theme, toggle } = useTheme()
   const navigate = useNavigate()
 
   function handleLogout() {
@@ -37,11 +63,11 @@ export default function Layout({ children }) {
   const banner = business ? STATUS_BANNERS[business.status] : null
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      <aside className="w-56 bg-white border-r border-gray-200 flex flex-col">
-        <div className="px-5 py-5 border-b border-gray-200">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Buhata Booking</p>
-          <p className="mt-1 text-sm font-medium text-gray-900 truncate">{business?.name}</p>
+    <div className="min-h-screen flex bg-cream dark:bg-dark-base">
+      <aside className="w-56 bg-navy dark:bg-dark-deep flex flex-col">
+        <div className="px-5 py-5 border-b border-cream/10">
+          <p className="text-xs font-semibold text-amber uppercase tracking-widest">Buhata Booking</p>
+          <p className="mt-1 text-sm font-medium text-cream/60 truncate">{business?.name}</p>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV.map(({ to, label }) => (
@@ -51,8 +77,8 @@ export default function Layout({ children }) {
               className={({ isActive }) =>
                 `flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-amber/15 text-amber'
+                    : 'text-cream/55 hover:bg-cream/10 hover:text-cream'
                 }`
               }
             >
@@ -60,10 +86,17 @@ export default function Layout({ children }) {
             </NavLink>
           ))}
         </nav>
-        <div className="px-3 py-4 border-t border-gray-200">
+        <div className="px-3 py-4 border-t border-cream/10 space-y-1">
+          <button
+            onClick={toggle}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-cream/50 hover:bg-cream/10 hover:text-cream transition-colors"
+          >
+            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          </button>
           <button
             onClick={handleLogout}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+            className="w-full text-left px-3 py-2 rounded-lg text-sm text-cream/50 hover:bg-cream/10 hover:text-cream transition-colors"
           >
             Sign out
           </button>

@@ -14,6 +14,8 @@ function slugify(name) {
     .replace(/^-|-$/g, '')
 }
 
+const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30'
+
 function QrUploader({ method, label, bookingKey, hasQr: initialHasQr }) {
   const [hasQr, setHasQr] = useState(initialHasQr)
   const [uploading, setUploading] = useState(false)
@@ -50,10 +52,10 @@ function QrUploader({ method, label, bookingKey, hasQr: initialHasQr }) {
   }
 
   return (
-    <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start border-t border-gray-100">
+    <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start border-t border-navy/10 dark:border-cream/10">
       <div>
-        <p className="text-sm font-medium text-gray-900">{label} QR code</p>
-        <p className="text-xs text-gray-500 mt-0.5">Shown to customers at checkout alongside account details</p>
+        <p className="text-sm font-medium text-navy dark:text-cream">{label} QR code</p>
+        <p className="text-xs text-navy/50 dark:text-cream/50 mt-0.5">Shown to customers at checkout alongside account details</p>
       </div>
       <div className="col-span-2 space-y-3">
         {hasQr && bookingKey && (
@@ -61,20 +63,20 @@ function QrUploader({ method, label, bookingKey, hasQr: initialHasQr }) {
             <img
               src={`/api/public/${bookingKey}/qr/${method}`}
               alt={`${label} QR code`}
-              className="w-32 h-32 object-contain border border-gray-200 rounded-lg bg-white p-1"
+              className="w-32 h-32 object-contain border border-navy/10 dark:border-cream/10 rounded-lg bg-cream dark:bg-navy p-1"
             />
             <button
               type="button"
               onClick={handleRemove}
               disabled={uploading}
-              className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50 mt-1"
+              className="text-xs text-terracotta hover:text-terracotta/70 disabled:opacity-50 mt-1"
             >
               Remove
             </button>
           </div>
         )}
         <div className="flex items-center gap-3">
-          <label className={`cursor-pointer inline-flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${uploading ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600'}`}>
+          <label className={`cursor-pointer inline-flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${uploading ? 'opacity-50 cursor-not-allowed border-navy/10 dark:border-cream/10 text-navy/40 dark:text-cream/40' : 'border-navy/20 dark:border-cream/20 text-navy dark:text-cream hover:border-amber hover:text-amber'}`}>
             {uploading ? 'Uploading…' : hasQr ? 'Replace QR image' : 'Upload QR image'}
             <input
               ref={fileRef}
@@ -85,9 +87,9 @@ function QrUploader({ method, label, bookingKey, hasQr: initialHasQr }) {
               onChange={handleUpload}
             />
           </label>
-          <span className="text-xs text-gray-400">JPEG, PNG, WEBP or GIF · max 5 MB</span>
+          <span className="text-xs text-navy/40 dark:text-cream/40">JPEG, PNG, WEBP or GIF · max 5 MB</span>
         </div>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-terracotta">{error}</p>}
       </div>
     </div>
   )
@@ -127,38 +129,38 @@ export default function Settings() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Business Settings</h1>
+      <h1 className="text-2xl font-bold font-display text-navy dark:text-cream mb-6">Business Settings</h1>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        <form onSubmit={handleSubmit(onSubmit)} className="divide-y divide-gray-100">
+      <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm">
+        <form onSubmit={handleSubmit(onSubmit)} className="divide-y divide-navy/10 dark:divide-cream/10">
           <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start">
             <div>
-              <p className="text-sm font-medium text-gray-900">Business name</p>
+              <p className="text-sm font-medium text-navy dark:text-cream">Business name</p>
             </div>
             <div className="col-span-2">
               <input
                 {...register('name')}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={INPUT_CLS}
               />
             </div>
           </div>
 
           <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start">
             <div>
-              <p className="text-sm font-medium text-gray-900">Booking page URL</p>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-sm font-medium text-navy dark:text-cream">Booking page URL</p>
+              <p className="text-xs text-navy/50 dark:text-cream/50 mt-0.5">
                 Your public booking link. Lowercase letters, numbers and hyphens only.
               </p>
             </div>
             <div className="col-span-2 space-y-2">
-              <div className="flex items-center rounded-lg border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-                <span className="px-3 py-2 bg-gray-50 border-r border-gray-300 text-sm text-gray-400 whitespace-nowrap select-none">
+              <div className="flex items-center rounded-lg border border-navy/20 dark:border-cream/20 overflow-hidden focus-within:ring-2 focus-within:ring-amber">
+                <span className="px-3 py-2 bg-navy/5 dark:bg-cream/5 border-r border-navy/20 dark:border-cream/20 text-sm text-navy/40 dark:text-cream/40 whitespace-nowrap select-none">
                   {BOOKING_BASE}
                 </span>
                 <input
                   {...register('slug')}
                   placeholder="your-business-name"
-                  className="flex-1 px-3 py-2 text-sm focus:outline-none"
+                  className="flex-1 px-3 py-2 text-sm bg-cream dark:bg-navy/50 text-navy dark:text-cream focus:outline-none placeholder:text-navy/30 dark:placeholder:text-cream/30"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -168,7 +170,7 @@ export default function Settings() {
                     const name = document.querySelector('input[name="name"]')?.value || ''
                     if (name) setValue('slug', slugify(name))
                   }}
-                  className="text-xs text-blue-600 hover:text-blue-800"
+                  className="text-xs text-amber hover:text-amber/70"
                 >
                   Generate from business name
                 </button>
@@ -177,7 +179,7 @@ export default function Settings() {
                     href={`/book/${slugValue}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-gray-400 hover:text-gray-600 underline"
+                    className="text-xs text-navy/40 dark:text-cream/40 hover:text-navy/60 dark:hover:text-cream/60 underline"
                   >
                     Preview ↗
                   </a>
@@ -188,54 +190,54 @@ export default function Settings() {
 
           <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start">
             <div>
-              <p className="text-sm font-medium text-gray-900">PayPal username</p>
-              <p className="text-xs text-gray-500 mt-0.5">Shown to customers at checkout</p>
+              <p className="text-sm font-medium text-navy dark:text-cream">PayPal username</p>
+              <p className="text-xs text-navy/50 dark:text-cream/50 mt-0.5">Shown to customers at checkout</p>
             </div>
             <div className="col-span-2">
               <input
                 {...register('paypal_username')}
                 placeholder="e.g. yourbusiness@paypal.com"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={INPUT_CLS}
               />
             </div>
           </div>
 
           <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start">
             <div>
-              <p className="text-sm font-medium text-gray-900">Wise username</p>
-              <p className="text-xs text-gray-500 mt-0.5">Shown to customers at checkout</p>
+              <p className="text-sm font-medium text-navy dark:text-cream">Wise username</p>
+              <p className="text-xs text-navy/50 dark:text-cream/50 mt-0.5">Shown to customers at checkout</p>
             </div>
             <div className="col-span-2">
               <input
                 {...register('wise_username')}
                 placeholder="e.g. @yourbusiness"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={INPUT_CLS}
               />
             </div>
           </div>
 
           <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start">
             <div>
-              <p className="text-sm font-medium text-gray-900">Booking key</p>
-              <p className="text-xs text-gray-500 mt-0.5">Embed this in your booking widget</p>
+              <p className="text-sm font-medium text-navy dark:text-cream">Booking key</p>
+              <p className="text-xs text-navy/50 dark:text-cream/50 mt-0.5">Embed this in your booking widget</p>
             </div>
             <div className="col-span-2">
               <input
                 {...register('booking_key')}
                 readOnly
-                className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500 cursor-default"
+                className="w-full border border-navy/10 dark:border-cream/10 bg-navy/5 dark:bg-cream/5 rounded-lg px-3 py-2 text-sm text-navy/50 dark:text-cream/50 cursor-default"
               />
             </div>
           </div>
 
-          <div className="px-6 py-4 flex items-center justify-between bg-gray-50 rounded-b-xl">
-            {error && <p className="text-sm text-red-600">{error}</p>}
-            {saved && <p className="text-sm text-green-600">Saved</p>}
+          <div className="px-6 py-4 flex items-center justify-between bg-navy/5 dark:bg-cream/5 rounded-b-xl">
+            {error && <p className="text-sm text-terracotta">{error}</p>}
+            {saved && <p className="text-sm text-green-600 dark:text-green-400">Saved</p>}
             {!error && !saved && <span />}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-amber hover:bg-amber/90 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               {isSubmitting ? 'Saving…' : 'Save changes'}
             </button>

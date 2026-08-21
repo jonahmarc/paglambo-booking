@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { saFetch } from '../context/SuperAdminAuthContext'
 
 const PAYMENT_STATUS_STYLE = {
-  pending:  'bg-amber-50 text-amber-700',
-  approved: 'bg-green-50 text-green-700',
-  rejected: 'bg-red-50 text-red-700',
+  pending:  'bg-amber/15 text-amber',
+  approved: 'bg-green-500/15 text-green-600 dark:text-green-400',
+  rejected: 'bg-terracotta/15 text-terracotta',
 }
+
+const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30 resize-none'
 
 export default function SuperAdminSubscriptions() {
   const [payments, setPayments] = useState([])
@@ -74,61 +76,61 @@ export default function SuperAdminSubscriptions() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-gray-900">Subscriptions</h1>
-        <p className="text-sm text-gray-500 mt-1">Platform subscription receipts submitted by business clients.</p>
+        <h1 className="text-xl font-semibold font-display text-navy dark:text-cream">Subscriptions</h1>
+        <p className="text-sm text-navy/50 dark:text-cream/50 mt-1">Platform subscription receipts submitted by business clients.</p>
       </div>
 
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>
+        <div className="mb-4 px-4 py-3 rounded-lg bg-terracotta/10 border border-terracotta/30 text-sm text-terracotta">{error}</div>
       )}
 
       {loading ? (
-        <p className="text-sm text-gray-500">Loading…</p>
+        <p className="text-sm text-navy/50 dark:text-cream/50">Loading…</p>
       ) : (
         <>
           {/* Pending */}
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">
-            Pending review {pending.length > 0 && <span className="ml-1 text-amber-600">({pending.length})</span>}
+          <h2 className="text-sm font-semibold text-navy dark:text-cream mb-3">
+            Pending review {pending.length > 0 && <span className="ml-1 text-amber">({pending.length})</span>}
           </h2>
           {pending.length === 0 ? (
-            <p className="text-sm text-gray-400 mb-8">No pending receipts.</p>
+            <p className="text-sm text-navy/40 dark:text-cream/40 mb-8">No pending receipts.</p>
           ) : (
             <div className="space-y-3 mb-8">
               {pending.map((p) => (
-                <div key={p.id} className="bg-white rounded-xl border border-amber-200 p-5">
+                <div key={p.id} className="bg-cream dark:bg-navy rounded-xl border border-amber/30 shadow-sm p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-gray-900">{p.business.name}</p>
+                        <p className="font-medium text-navy dark:text-cream">{p.business.name}</p>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                          p.business.plan === 'pro' ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-600'
+                          p.business.plan === 'pro' ? 'bg-terracotta/10 text-terracotta' : 'bg-navy/10 text-navy dark:bg-cream/10 dark:text-cream/80'
                         }`}>
                           {p.business.plan === 'pro' ? 'Pro' : 'Standard'}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500">{p.business.email}</p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-sm text-navy/50 dark:text-cream/50">{p.business.email}</p>
+                      <p className="text-xs text-navy/40 dark:text-cream/40 mt-1">
                         Submitted {new Date(p.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => openReceipt(p.id)}
-                        className="text-sm font-medium px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                        className="text-sm font-medium px-3 py-2 rounded-lg border border-navy/20 dark:border-cream/20 text-navy/60 dark:text-cream/60 hover:bg-navy/5 dark:hover:bg-cream/5 transition-colors"
                       >
                         View receipt
                       </button>
                       <button
                         onClick={() => approve(p.id)}
                         disabled={working === p.id}
-                        className="text-sm font-medium px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors disabled:opacity-50"
+                        className="text-sm font-medium px-4 py-2 rounded-lg bg-amber hover:bg-amber/90 text-white transition-colors disabled:opacity-50"
                       >
                         {working === p.id ? '…' : 'Approve'}
                       </button>
                       <button
                         onClick={() => setRejectOpen(rejectOpen === p.id ? null : p.id)}
                         disabled={working === p.id}
-                        className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        className="text-sm font-medium px-4 py-2 rounded-lg border border-navy/20 dark:border-cream/20 text-navy/60 dark:text-cream/60 hover:bg-navy/5 dark:hover:bg-cream/5 transition-colors disabled:opacity-50"
                       >
                         Reject
                       </button>
@@ -136,22 +138,22 @@ export default function SuperAdminSubscriptions() {
                   </div>
 
                   {rejectOpen === p.id && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Reason <span className="text-gray-400 font-normal">(optional)</span>
+                    <div className="mt-4 pt-4 border-t border-navy/10 dark:border-cream/10">
+                      <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">
+                        Reason <span className="text-navy/40 dark:text-cream/40 font-normal">(optional)</span>
                       </label>
                       <textarea
                         rows={2}
                         value={rejectNote[p.id] || ''}
                         onChange={(e) => setRejectNote((n) => ({ ...n, [p.id]: e.target.value }))}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
+                        className={INPUT_CLS}
                         placeholder="Optional reason…"
                       />
                       <div className="flex justify-end mt-2">
                         <button
                           onClick={() => reject(p.id)}
                           disabled={working === p.id}
-                          className="text-sm font-medium px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50"
+                          className="text-sm font-medium px-4 py-2 rounded-lg bg-terracotta hover:bg-terracotta/90 text-white transition-colors disabled:opacity-50"
                         >
                           {working === p.id ? '…' : 'Confirm rejection'}
                         </button>
@@ -166,29 +168,29 @@ export default function SuperAdminSubscriptions() {
           {/* Reviewed */}
           {reviewed.length > 0 && (
             <>
-              <h2 className="text-sm font-semibold text-gray-700 mb-3">Previously reviewed</h2>
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <h2 className="text-sm font-semibold text-navy dark:text-cream mb-3">Previously reviewed</h2>
+              <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm overflow-hidden">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-navy/5 dark:bg-cream/5 border-b border-navy/10 dark:border-cream/10">
                     <tr>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">Business</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">Plan</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">Reviewed</th>
-                      <th className="text-left px-4 py-3 font-medium text-gray-600">Note</th>
+                      <th className="text-left px-4 py-3 font-medium text-navy/60 dark:text-cream/60">Business</th>
+                      <th className="text-left px-4 py-3 font-medium text-navy/60 dark:text-cream/60">Plan</th>
+                      <th className="text-left px-4 py-3 font-medium text-navy/60 dark:text-cream/60">Status</th>
+                      <th className="text-left px-4 py-3 font-medium text-navy/60 dark:text-cream/60">Reviewed</th>
+                      <th className="text-left px-4 py-3 font-medium text-navy/60 dark:text-cream/60">Note</th>
                       <th className="px-4 py-3" />
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-navy/10 dark:divide-cream/10">
                     {reviewed.map((p) => (
-                      <tr key={p.id} className="hover:bg-gray-50">
+                      <tr key={p.id} className="hover:bg-navy/5 dark:hover:bg-cream/5 transition-colors">
                         <td className="px-4 py-3">
-                          <p className="font-medium text-gray-900">{p.business.name}</p>
-                          <p className="text-xs text-gray-400">{p.business.email}</p>
+                          <p className="font-medium text-navy dark:text-cream">{p.business.name}</p>
+                          <p className="text-xs text-navy/40 dark:text-cream/40">{p.business.email}</p>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            p.business.plan === 'pro' ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-600'
+                            p.business.plan === 'pro' ? 'bg-terracotta/10 text-terracotta' : 'bg-navy/10 text-navy dark:bg-cream/10 dark:text-cream/80'
                           }`}>
                             {p.business.plan === 'pro' ? 'Pro' : 'Standard'}
                           </span>
@@ -198,16 +200,16 @@ export default function SuperAdminSubscriptions() {
                             {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-500">
+                        <td className="px-4 py-3 text-navy/50 dark:text-cream/50">
                           {p.reviewed_at ? new Date(p.reviewed_at).toLocaleDateString() : '—'}
                         </td>
-                        <td className="px-4 py-3 text-gray-500 text-xs max-w-xs truncate">
+                        <td className="px-4 py-3 text-navy/50 dark:text-cream/50 text-xs max-w-xs truncate">
                           {p.review_note || '—'}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <button
                             onClick={() => openReceipt(p.id)}
-                            className="text-xs text-blue-600 hover:underline"
+                            className="text-xs text-amber hover:text-amber/70"
                           >
                             Receipt
                           </button>

@@ -9,13 +9,15 @@ import Spinner from '../components/Spinner'
 
 function LockIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5 shrink-0 text-gray-400">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5 shrink-0 text-navy/40 dark:text-cream/40">
       <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v4A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5v-4A1.5 1.5 0 0 0 11 7V4.5A3.5 3.5 0 0 0 8 1Zm2 6V4.5a2 2 0 1 0-4 0V7h4Z" clipRule="evenodd" />
     </svg>
   )
 }
 
 const KIND_OPTIONS = ['one_time', 'recurring', 'package']
+
+const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30'
 
 function EventTypeForm({ onSave, defaultValues }) {
   const isEditing = !!defaultValues
@@ -56,76 +58,76 @@ function EventTypeForm({ onSave, defaultValues }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+        <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Name</label>
         <input {...register('name', { required: true })}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        {errors.name && <p className="text-xs text-red-500 mt-1">Required</p>}
+          className={INPUT_CLS} />
+        {errors.name && <p className="text-xs text-terracotta mt-1">Required</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Description</label>
         <textarea {...register('description')} rows={3}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          className={INPUT_CLS} />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kind</label>
+          <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Kind</label>
           {isEditing ? (
-            <p className="text-sm text-gray-700 py-2 capitalize">{editKind.replace(/_/g, ' ')}</p>
+            <p className="text-sm text-navy dark:text-cream py-2 capitalize">{editKind.replace(/_/g, ' ')}</p>
           ) : (
             <select {...register('kind', { required: true })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              className={INPUT_CLS}>
               {KIND_OPTIONS.map(k => <option key={k} value={k}>{k.replace(/_/g, ' ')}</option>)}
             </select>
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Default capacity</label>
+          <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Default capacity</label>
           <input {...register('default_capacity', { required: true, min: 1 })} type="number" min={1}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            className={INPUT_CLS} />
         </div>
       </div>
       {isPackage && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sessions per booking</label>
+          <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Sessions per booking</label>
           <input {...register('sessions_per_booking', { required: !isEditing, min: 1 })} type="number" min={1}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-          <p className="text-xs text-gray-400 mt-1">How many sessions a customer picks in one booking</p>
-          {errors.sessions_per_booking && <p className="text-xs text-red-500 mt-1">Required</p>}
+            className={INPUT_CLS} />
+          <p className="text-xs text-navy/40 dark:text-cream/40 mt-1">How many sessions a customer picks in one booking</p>
+          {errors.sessions_per_booking && <p className="text-xs text-terracotta mt-1">Required</p>}
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">
           Base price
-          {!requiresPayment && <span className="text-gray-400 font-normal ml-1">(optional — RSVP event)</span>}
+          {!requiresPayment && <span className="text-navy/40 dark:text-cream/40 font-normal ml-1">(optional — RSVP event)</span>}
         </label>
         <div className="relative">
-          <span className="absolute left-3 top-2 text-sm text-gray-400">$</span>
+          <span className="absolute left-3 top-2 text-sm text-navy/40 dark:text-cream/40">$</span>
           <input {...register('base_price', { required: requiresPayment, min: 0 })} type="number" step="0.01"
-            className="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            className="w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30" />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
+          <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Visibility</label>
           <select {...register('visibility')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            className={INPUT_CLS}>
             <option value="public">Public</option>
             <option value="private">Private</option>
           </select>
-          <p className="text-xs text-gray-400 mt-1">Private events only accessible via direct link</p>
+          <p className="text-xs text-navy/40 dark:text-cream/40 mt-1">Private events only accessible via direct link</p>
         </div>
         <div className="flex flex-col justify-center pt-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input {...register('requires_payment')} type="checkbox" className="rounded" />
-            <span className="text-sm font-medium text-gray-700">Requires payment</span>
+            <span className="text-sm font-medium text-navy/80 dark:text-cream/80">Requires payment</span>
           </label>
-          <p className="text-xs text-gray-400 mt-1">Uncheck for RSVP-only (no receipt needed)</p>
+          <p className="text-xs text-navy/40 dark:text-cream/40 mt-1">Uncheck for RSVP-only (no receipt needed)</p>
         </div>
       </div>
-      {formError && <p className="text-sm text-red-600">{formError}</p>}
+      {formError && <p className="text-sm text-terracotta">{formError}</p>}
       <div className="flex justify-end gap-3 pt-2">
         <button type="submit" disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          className="bg-amber hover:bg-amber/90 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
           {isSubmitting ? 'Saving…' : 'Save'}
         </button>
       </div>
@@ -209,56 +211,56 @@ export default function EventTypes() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Event Types</h1>
+        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream">Event Types</h1>
         <button onClick={() => setModal('create')}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          className="bg-amber hover:bg-amber/90 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
           + New event type
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-terracotta mb-4">{error}</p>}
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+      <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm divide-y divide-navy/10 dark:divide-cream/10">
         {loading && <Spinner />}
         {!loading && eventTypes.length === 0 && (
-          <p className="px-6 py-8 text-sm text-gray-400 text-center">No event types yet. Create one to get started.</p>
+          <p className="px-6 py-8 text-sm text-navy/40 dark:text-cream/40 text-center">No event types yet. Create one to get started.</p>
         )}
         {eventTypes.map(et => (
           <div key={et.id}
-            className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors"
+            className="flex items-center gap-4 px-6 py-4 hover:bg-navy/5 dark:hover:bg-cream/5 cursor-pointer transition-colors"
             onClick={() => navigate(`/event-types/${et.id}/sessions`)}
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className={`text-sm font-medium ${et.is_active ? 'text-gray-900' : 'text-gray-400 line-through'}`}>{et.name}</p>
+                <p className={`text-sm font-medium ${et.is_active ? 'text-navy dark:text-cream' : 'text-navy/30 dark:text-cream/30 line-through'}`}>{et.name}</p>
                 <Badge value={et.kind} />
                 {!et.is_active && <Badge value="cancelled" />}
                 {!et.requires_payment && (
-                  <span className="text-xs font-medium bg-purple-50 text-purple-700 px-2 py-0.5 rounded">RSVP</span>
+                  <span className="text-xs font-medium bg-terracotta/10 text-terracotta px-2 py-0.5 rounded">RSVP</span>
                 )}
                 {et.visibility === 'private' && <LockIcon />}
               </div>
-              {et.description && <p className="text-xs text-gray-400 mt-0.5 truncate">{et.description}</p>}
+              {et.description && <p className="text-xs text-navy/40 dark:text-cream/40 mt-0.5 truncate">{et.description}</p>}
               {et.kind === 'package' && et.package && (
-                <p className="text-xs text-gray-400 mt-0.5">{et.package.required_session_count} sessions/booking</p>
+                <p className="text-xs text-navy/40 dark:text-cream/40 mt-0.5">{et.package.required_session_count} sessions/booking</p>
               )}
             </div>
-            <p className="text-sm font-semibold text-gray-700 w-20 text-right">${Number(et.base_price).toFixed(2)}</p>
+            <p className="text-sm font-semibold text-navy dark:text-cream w-20 text-right">${Number(et.base_price).toFixed(2)}</p>
             <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
               {et.visibility === 'private' && (
                 <button onClick={() => copyLink(et)}
-                  className="text-xs text-blue-500 hover:text-blue-700 font-medium">
+                  className="text-xs text-amber hover:text-amber/70 font-medium">
                   {copiedId === et.id ? 'Copied!' : 'Copy link'}
                 </button>
               )}
               <button onClick={() => setModal({ edit: et })}
-                className="text-xs text-gray-500 hover:text-gray-700 font-medium">Edit</button>
+                className="text-xs text-navy/50 hover:text-navy dark:text-cream/50 dark:hover:text-cream font-medium">Edit</button>
               <button onClick={() => handleToggle(et)}
-                className="text-xs text-gray-400 hover:text-gray-700 font-medium">
+                className="text-xs text-navy/50 hover:text-navy dark:text-cream/50 dark:hover:text-cream font-medium">
                 {et.is_active ? 'Deactivate' : 'Activate'}
               </button>
               <button onClick={() => handleDelete(et)}
-                className="text-xs text-red-400 hover:text-red-600 font-medium">Delete</button>
+                className="text-xs text-terracotta hover:text-terracotta/70 font-medium">Delete</button>
             </div>
           </div>
         ))}

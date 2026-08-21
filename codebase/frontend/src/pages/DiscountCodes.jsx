@@ -8,12 +8,15 @@ function fmtDate(dt) {
 function StatusBadge({ active }) {
   return (
     <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full ${
-      active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+      active ? 'bg-green-500/15 text-green-600 dark:text-green-400' : 'bg-navy/10 text-navy/50 dark:bg-cream/10 dark:text-cream/40'
     }`}>
       {active ? 'Active' : 'Inactive'}
     </span>
   )
 }
+
+const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30'
+const LABEL_CLS = 'block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1'
 
 function CreateModal({ onCreated, onClose }) {
   const [code, setCode] = useState('')
@@ -46,34 +49,34 @@ function CreateModal({ onCreated, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-        <div className="px-6 py-5 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-900">Create discount code</h2>
+      <div className="bg-cream dark:bg-navy rounded-xl shadow-xl w-full max-w-md">
+        <div className="px-6 py-5 border-b border-navy/10 dark:border-cream/10">
+          <h2 className="text-lg font-semibold text-navy dark:text-cream">Create discount code</h2>
         </div>
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Code</label>
+            <label className={LABEL_CLS}>Code</label>
             <input
               value={code}
               onChange={e => setCode(e.target.value.toUpperCase())}
               placeholder="e.g. SUMMER20"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`${INPUT_CLS} font-mono uppercase`}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className={LABEL_CLS}>Type</label>
               <select
                 value={type}
                 onChange={e => setType(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={INPUT_CLS}
               >
                 <option value="flat">Flat ($)</option>
                 <option value="percentage">Percentage (%)</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={LABEL_CLS}>
                 {type === 'flat' ? 'Amount ($)' : 'Percentage (%)'}
               </label>
               <input
@@ -84,14 +87,14 @@ function CreateModal({ onCreated, onClose }) {
                 max={type === 'percentage' ? '100' : undefined}
                 step="0.01"
                 placeholder={type === 'flat' ? '10.00' : '20'}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={INPUT_CLS}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Max uses <span className="text-gray-400 font-normal">(optional)</span>
+              <label className={LABEL_CLS}>
+                Max uses <span className="text-navy/40 dark:text-cream/40 font-normal">(optional)</span>
               </label>
               <input
                 value={maxUses}
@@ -99,31 +102,31 @@ function CreateModal({ onCreated, onClose }) {
                 type="number"
                 min="1"
                 placeholder="Unlimited"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={INPUT_CLS}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Expires <span className="text-gray-400 font-normal">(optional)</span>
+              <label className={LABEL_CLS}>
+                Expires <span className="text-navy/40 dark:text-cream/40 font-normal">(optional)</span>
               </label>
               <input
                 value={expiresAt}
                 onChange={e => setExpiresAt(e.target.value)}
                 type="date"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={INPUT_CLS}
               />
             </div>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-terracotta">{error}</p>}
           <div className="flex gap-3 pt-1">
             <button
               type="submit"
               disabled={submitting}
-              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
+              className="bg-amber hover:bg-amber/90 disabled:opacity-50 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
             >
               {submitting ? 'Creating…' : 'Create code'}
             </button>
-            <button type="button" onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700 px-4 py-2">
+            <button type="button" onClick={onClose} className="text-sm text-navy/50 dark:text-cream/50 hover:text-navy dark:hover:text-cream px-4 py-2">
               Cancel
             </button>
           </div>
@@ -160,60 +163,60 @@ export default function DiscountCodes() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Discount Codes</h1>
+        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream">Discount Codes</h1>
         <button
           onClick={() => setShowCreate(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="bg-amber hover:bg-amber/90 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           + New code
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-terracotta mb-4">{error}</p>}
 
       {loading ? (
-        <p className="text-sm text-gray-400">Loading…</p>
+        <p className="text-sm text-navy/40 dark:text-cream/40">Loading…</p>
       ) : codes.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-          <p className="text-gray-400 text-sm mb-3">No discount codes yet.</p>
+        <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm p-12 text-center">
+          <p className="text-navy/40 dark:text-cream/40 text-sm mb-3">No discount codes yet.</p>
           <button
             onClick={() => setShowCreate(true)}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-sm text-amber hover:text-amber/70 font-medium"
           >
             Create your first code
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 text-left">
-                <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Code</th>
-                <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Discount</th>
-                <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Uses</th>
-                <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Expires</th>
-                <th className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+              <tr className="border-b border-navy/10 dark:border-cream/10 text-left">
+                <th className="px-5 py-3 text-xs font-semibold text-navy/50 dark:text-cream/50 uppercase tracking-wide">Code</th>
+                <th className="px-5 py-3 text-xs font-semibold text-navy/50 dark:text-cream/50 uppercase tracking-wide">Discount</th>
+                <th className="px-5 py-3 text-xs font-semibold text-navy/50 dark:text-cream/50 uppercase tracking-wide">Uses</th>
+                <th className="px-5 py-3 text-xs font-semibold text-navy/50 dark:text-cream/50 uppercase tracking-wide">Expires</th>
+                <th className="px-5 py-3 text-xs font-semibold text-navy/50 dark:text-cream/50 uppercase tracking-wide">Status</th>
                 <th className="px-5 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-navy/10 dark:divide-cream/10">
               {codes.map(c => (
-                <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3 font-mono font-semibold text-gray-900">{c.code}</td>
-                  <td className="px-5 py-3 text-gray-700">
+                <tr key={c.id} className="hover:bg-navy/5 dark:hover:bg-cream/5 transition-colors">
+                  <td className="px-5 py-3 font-mono font-semibold text-navy dark:text-cream">{c.code}</td>
+                  <td className="px-5 py-3 text-navy/70 dark:text-cream/70">
                     {c.type === 'flat'
                       ? `$${Number(c.value).toFixed(2)} off`
                       : `${Number(c.value).toFixed(0)}% off`}
                   </td>
-                  <td className="px-5 py-3 text-gray-500">
+                  <td className="px-5 py-3 text-navy/50 dark:text-cream/50">
                     {c.use_count}{c.max_uses ? ` / ${c.max_uses}` : ''}
                   </td>
-                  <td className="px-5 py-3 text-gray-500">{fmtDate(c.expires_at)}</td>
+                  <td className="px-5 py-3 text-navy/50 dark:text-cream/50">{fmtDate(c.expires_at)}</td>
                   <td className="px-5 py-3"><StatusBadge active={c.is_active} /></td>
                   <td className="px-5 py-3 text-right">
                     <button
                       onClick={() => toggleActive(c)}
-                      className="text-xs text-gray-400 hover:text-gray-700"
+                      className="text-xs text-navy/40 dark:text-cream/40 hover:text-navy dark:hover:text-cream transition-colors"
                     >
                       {c.is_active ? 'Deactivate' : 'Activate'}
                     </button>

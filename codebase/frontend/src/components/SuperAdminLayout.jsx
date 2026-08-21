@@ -18,12 +18,12 @@ export default function SuperAdminLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      <aside className="w-56 bg-white border-r border-gray-200 flex flex-col">
-        <div className="px-5 py-5 border-b border-gray-200">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Buhata Booking</p>
-          <p className="mt-1 text-xs font-medium text-indigo-600 uppercase tracking-wide">Platform Admin</p>
-          <p className="mt-1 text-sm font-medium text-gray-900 truncate">{superAdmin?.email}</p>
+    <div className="min-h-screen flex bg-cream dark:bg-dark-base">
+      <aside className="w-56 bg-navy dark:bg-dark-deep flex flex-col">
+        <div className="px-5 py-5 border-b border-cream/10">
+          <p className="text-xs font-semibold text-amber uppercase tracking-widest">Buhata Booking</p>
+          <p className="mt-1 text-xs font-medium text-amber/70 uppercase tracking-wide">Platform Admin</p>
+          <p className="mt-1 text-sm font-medium text-cream/60 truncate">{superAdmin?.email}</p>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV.map(({ to, label }) => (
@@ -33,8 +33,8 @@ export default function SuperAdminLayout({ children }) {
               className={({ isActive }) =>
                 `flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-amber/15 text-amber'
+                    : 'text-cream/55 hover:bg-cream/10 hover:text-cream'
                 }`
               }
             >
@@ -42,10 +42,10 @@ export default function SuperAdminLayout({ children }) {
             </NavLink>
           ))}
         </nav>
-        <div className="px-3 py-4 border-t border-gray-200">
+        <div className="px-3 py-4 border-t border-cream/10">
           <button
             onClick={handleLogout}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+            className="w-full text-left px-3 py-2 rounded-lg text-sm text-cream/50 hover:bg-cream/10 hover:text-cream transition-colors"
           >
             Sign out
           </button>

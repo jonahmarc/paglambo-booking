@@ -34,16 +34,16 @@ export default function SessionAttendees() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-1">
-        <Link to={`/event-types/${id}/sessions`} className="text-sm text-blue-600 hover:text-blue-800">
+        <Link to={`/event-types/${id}/sessions`} className="text-sm text-amber hover:text-amber/70">
           ← Sessions{eventType ? ` — ${eventType.name}` : ''}
         </Link>
       </div>
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Session Attendees</h1>
+          <h1 className="text-2xl font-bold font-display text-navy dark:text-cream">Session Attendees</h1>
           {session && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-navy/50 dark:text-cream/50 mt-1">
               {fmt(session.start_time)}
               {session.end_time ? ` – ${fmt(session.end_time)}` : ''}
               {' · '}{session.booked_count ?? 0}/{session.capacity} booked
@@ -52,9 +52,9 @@ export default function SessionAttendees() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-terracotta mb-4">{error}</p>}
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm">
         <BookingTable
           bookings={bookings}
           loading={loading}

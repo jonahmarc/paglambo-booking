@@ -36,6 +36,10 @@ function calcTotal(eventType, partySize, selectedAddonIds) {
   return base + extras
 }
 
+const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30'
+const CARD_CLS = 'bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm p-6'
+const SECTION_LABEL = 'text-xs font-semibold text-navy/50 dark:text-cream/50 uppercase tracking-wider mb-4'
+
 // ─── Summary sidebar ─────────────────────────────────────────────────────────
 
 function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions, discountAmount = 0 }) {
@@ -45,21 +49,21 @@ function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions, 
   const pickedSessions = allSessions.filter(s => sessionIds.includes(s.id))
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 sticky top-6">
-      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Booking summary</h3>
-      <p className="font-semibold text-gray-900 mb-1">{eventType.name}</p>
+    <div className={`${CARD_CLS} sticky top-6`}>
+      <h3 className={SECTION_LABEL}>Booking summary</h3>
+      <p className="font-semibold text-navy dark:text-cream mb-1">{eventType.name}</p>
       {partySize > 1 && (
-        <p className="text-sm text-gray-500 mb-1">{partySize} people</p>
+        <p className="text-sm text-navy/50 dark:text-cream/50 mb-1">{partySize} people</p>
       )}
       {pickedSessions.length > 0 && (
-        <ul className="text-sm text-gray-600 space-y-0.5 mb-2">
+        <ul className="text-sm text-navy/70 dark:text-cream/70 space-y-0.5 mb-2">
           {pickedSessions.map(s => (
             <li key={s.id}>• {fmtDate(s.start_time)} {fmtTime(s.start_time)}</li>
           ))}
         </ul>
       )}
       {addonIds.length > 0 && (
-        <ul className="text-sm text-gray-500 space-y-0.5 mb-2">
+        <ul className="text-sm text-navy/50 dark:text-cream/50 space-y-0.5 mb-2">
           {addonIds.map(id => {
             const a = eventType.add_ons.find(x => x.id === id)
             return a ? <li key={id}>+ {a.name} ({fmtMoney(a.price)})</li> : null
@@ -67,11 +71,11 @@ function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions, 
         </ul>
       )}
       {discountAmount > 0 && (
-        <p className="text-sm text-green-600 mb-1">− {fmtMoney(discountAmount)} discount</p>
+        <p className="text-sm text-green-600 dark:text-green-400 mb-1">− {fmtMoney(discountAmount)} discount</p>
       )}
-      <div className="border-t border-gray-100 pt-3 mt-3 flex justify-between items-center">
-        <span className="text-sm font-medium text-gray-700">Total</span>
-        <span className="text-lg font-bold text-gray-900">{fmtMoney(total)}</span>
+      <div className="border-t border-navy/10 dark:border-cream/10 pt-3 mt-3 flex justify-between items-center">
+        <span className="text-sm font-medium text-navy/70 dark:text-cream/70">Total</span>
+        <span className="text-lg font-bold text-navy dark:text-cream">{fmtMoney(total)}</span>
       </div>
     </div>
   )
@@ -80,18 +84,18 @@ function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions, 
 // ─── Event type cards ─────────────────────────────────────────────────────────
 
 function EventTypeCard({ et, onSelect }) {
-  const kindLabel = { one_time: 'One-time class', recurring: 'Class', package: 'Package' }
+  const kindLabel = { one_time: 'One-time', recurring: 'Class', package: 'Package' }
   return (
     <button
       onClick={() => onSelect(et)}
-      className="text-left w-full bg-white rounded-xl border border-gray-200 shadow-sm p-5 hover:border-blue-400 hover:shadow-md transition-all"
+      className="text-left w-full bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm p-5 hover:border-amber dark:hover:border-amber hover:shadow-md transition-all"
     >
       <div className="flex items-start justify-between gap-3 mb-2">
-        <h3 className="font-semibold text-gray-900 text-base">{et.name}</h3>
-        <span className="text-sm font-bold text-blue-700 whitespace-nowrap">{fmtMoney(et.base_price)} / person</span>
+        <h3 className="font-semibold text-navy dark:text-cream text-base">{et.name}</h3>
+        <span className="text-sm font-bold text-amber whitespace-nowrap">{fmtMoney(et.base_price)} / person</span>
       </div>
-      {et.description && <p className="text-sm text-gray-500 mb-2">{et.description}</p>}
-      <span className="inline-block text-xs font-medium bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
+      {et.description && <p className="text-sm text-navy/50 dark:text-cream/50 mb-2">{et.description}</p>}
+      <span className="inline-block text-xs font-medium bg-amber/10 text-amber px-2 py-0.5 rounded">
         {kindLabel[et.kind] ?? et.kind}
       </span>
     </button>
@@ -104,23 +108,22 @@ function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }
   const kind = eventType.kind
   const pkg = eventType.package
 
-  // FIXED package — sessions are pre-committed, just show them
   if (kind === 'package' && pkg?.date_mode === 'fixed') {
     const pool = pkg.pool_sessions
     return (
       <div>
-        <p className="text-sm font-medium text-gray-700 mb-2">
+        <p className="text-sm font-medium text-navy/80 dark:text-cream/80 mb-2">
           This package includes {pool.length} session{pool.length !== 1 ? 's' : ''}:
         </p>
         {pool.length === 0
-          ? <p className="text-sm text-gray-400 italic">No upcoming sessions scheduled yet.</p>
+          ? <p className="text-sm text-navy/40 dark:text-cream/40 italic">No upcoming sessions scheduled yet.</p>
           : (
             <ul className="space-y-1">
               {pool.map(s => (
-                <li key={s.id} className="text-sm text-gray-700 flex items-center gap-2">
-                  <span className="text-green-500">✓</span>
+                <li key={s.id} className="text-sm text-navy/80 dark:text-cream/80 flex items-center gap-2">
+                  <span className="text-amber">✓</span>
                   {fmtDate(s.start_time)} at {fmtTime(s.start_time)}
-                  {s.end_time && <span className="text-gray-400">– {fmtTime(s.end_time)}</span>}
+                  {s.end_time && <span className="text-navy/40 dark:text-cream/40">– {fmtTime(s.end_time)}</span>}
                 </li>
               ))}
             </ul>
@@ -130,7 +133,6 @@ function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }
     )
   }
 
-  // CUSTOMER_PICKS package — multi-select from pool
   if (kind === 'package' && pkg?.date_mode === 'customer_picks') {
     const required = pkg.required_session_count
     const pool = pkg.pool_sessions
@@ -145,11 +147,11 @@ function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }
 
     return (
       <div>
-        <p className="text-sm font-medium text-gray-700 mb-3">
+        <p className="text-sm font-medium text-navy/80 dark:text-cream/80 mb-3">
           Choose {required} session{required !== 1 ? 's' : ''} ({selectedIds.length}/{required} selected):
         </p>
         {pool.length === 0
-          ? <p className="text-sm text-gray-400 italic">No upcoming sessions available.</p>
+          ? <p className="text-sm text-navy/40 dark:text-cream/40 italic">No upcoming sessions available.</p>
           : (
             <div className="space-y-2">
               {pool.map(s => {
@@ -162,14 +164,16 @@ function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }
                     onClick={() => !disabled && toggleSession(s.id)}
                     disabled={disabled && !checked}
                     className={`w-full text-left flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors ${
-                      checked ? 'border-blue-500 bg-blue-50' :
-                      disabled ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed' :
-                      'border-gray-200 bg-white hover:border-blue-300'
+                      checked
+                        ? 'border-amber bg-amber/10 text-navy dark:text-cream'
+                        : disabled
+                          ? 'border-navy/10 dark:border-cream/10 bg-navy/5 dark:bg-cream/5 opacity-50 cursor-not-allowed'
+                          : 'border-navy/15 dark:border-cream/15 bg-cream dark:bg-navy hover:border-amber/50'
                     }`}
                   >
                     <span>
                       <span className="font-medium">{fmtDate(s.start_time)}</span>
-                      <span className="text-gray-500 ml-2">at {fmtTime(s.start_time)}</span>
+                      <span className="text-navy/50 dark:text-cream/50 ml-2">at {fmtTime(s.start_time)}</span>
                     </span>
                     <SpotsBadge spots={s.available_spots} partySize={partySize} />
                   </button>
@@ -182,32 +186,29 @@ function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }
     )
   }
 
-  // ONE_TIME or RECURRING — pick one session from the fetched sessions list
   if (sessions.length === 0) {
-    return <p className="text-sm text-gray-400 italic">No upcoming sessions available for this event.</p>
+    return <p className="text-sm text-navy/40 dark:text-cream/40 italic">No upcoming sessions available for this event.</p>
   }
 
-  // ONE_TIME: auto-select the single session (can't be changed)
   if (kind === 'one_time') {
     const s = sessions[0]
     if (!selectedIds.includes(s.id)) onChange([s.id])
     return (
-      <div className="flex items-center gap-2 text-sm text-gray-700">
-        <span className="text-green-500">✓</span>
+      <div className="flex items-center gap-2 text-sm text-navy/80 dark:text-cream/80">
+        <span className="text-amber">✓</span>
         <span className="font-medium">{fmtDate(s.start_time)}</span>
-        <span className="text-gray-500">at {fmtTime(s.start_time)}</span>
-        {s.end_time && <span className="text-gray-400">– {fmtTime(s.end_time)}</span>}
+        <span className="text-navy/50 dark:text-cream/50">at {fmtTime(s.start_time)}</span>
+        {s.end_time && <span className="text-navy/40 dark:text-cream/40">– {fmtTime(s.end_time)}</span>}
       </div>
     )
   }
 
-  // RECURRING — grouped by date
   const groups = groupByDate(sessions)
   return (
     <div className="space-y-4">
       {groups.map(([dateKey, slots]) => (
         <div key={dateKey}>
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+          <p className="text-xs font-semibold text-navy/50 dark:text-cream/50 uppercase tracking-wide mb-1.5">
             {fmtDate(slots[0].start_time)}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -220,14 +221,16 @@ function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }
                   onClick={() => enough && onChange(selected ? [] : [s.id])}
                   disabled={!enough}
                   className={`text-left flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors ${
-                    selected ? 'border-blue-500 bg-blue-50' :
-                    !enough ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed' :
-                    'border-gray-200 bg-white hover:border-blue-300'
+                    selected
+                      ? 'border-amber bg-amber/10 text-navy dark:text-cream'
+                      : !enough
+                        ? 'border-navy/10 dark:border-cream/10 bg-navy/5 dark:bg-cream/5 opacity-50 cursor-not-allowed'
+                        : 'border-navy/15 dark:border-cream/15 bg-cream dark:bg-navy hover:border-amber/50'
                   }`}
                 >
                   <span className="font-medium">
                     {fmtTime(s.start_time)}
-                    {s.end_time && <span className="text-gray-400 font-normal"> – {fmtTime(s.end_time)}</span>}
+                    {s.end_time && <span className="text-navy/40 dark:text-cream/40 font-normal"> – {fmtTime(s.end_time)}</span>}
                   </span>
                   <SpotsBadge spots={s.available_spots} partySize={partySize} />
                 </button>
@@ -241,9 +244,9 @@ function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }
 }
 
 function SpotsBadge({ spots, partySize }) {
-  if (spots < partySize) return <span className="text-xs text-gray-400">Full</span>
-  if (spots <= 3) return <span className="text-xs font-medium text-amber-600">{spots} left</span>
-  return <span className="text-xs text-gray-400">{spots} spots</span>
+  if (spots < partySize) return <span className="text-xs text-navy/40 dark:text-cream/40">Full</span>
+  if (spots <= 3) return <span className="text-xs font-medium text-amber">{spots} left</span>
+  return <span className="text-xs text-navy/40 dark:text-cream/40">{spots} spots</span>
 }
 
 // ─── Add-on selector ─────────────────────────────────────────────────────────
@@ -262,14 +265,16 @@ function AddonSelector({ addons, selectedIds, onChange }) {
             key={a.id}
             onClick={() => toggle(a.id)}
             className={`w-full text-left flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors ${
-              selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-300'
+              selected
+                ? 'border-amber bg-amber/10'
+                : 'border-navy/15 dark:border-cream/15 bg-cream dark:bg-navy hover:border-amber/50'
             }`}
           >
             <span>
-              <span className="font-medium">{a.name}</span>
-              {a.description && <span className="text-gray-500 ml-2">— {a.description}</span>}
+              <span className="font-medium text-navy dark:text-cream">{a.name}</span>
+              {a.description && <span className="text-navy/50 dark:text-cream/50 ml-2">— {a.description}</span>}
             </span>
-            <span className={`font-semibold ml-3 ${selected ? 'text-blue-700' : 'text-gray-700'}`}>
+            <span className={`font-semibold ml-3 ${selected ? 'text-amber' : 'text-navy/70 dark:text-cream/70'}`}>
               + {fmtMoney(a.price)}
             </span>
           </button>
@@ -297,7 +302,7 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
   )
   const [receiptFile, setReceiptFile] = useState(null)
   const [promoCode, setPromoCode] = useState('')
-  const [promoResult, setPromoResult] = useState(null) // { valid, discount_amount, message }
+  const [promoResult, setPromoResult] = useState(null)
   const [promoChecking, setPromoChecking] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -373,52 +378,58 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Customer info */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Your details</h3>
+      <div className={CARD_CLS}>
+        <h3 className={SECTION_LABEL}>Your details</h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full name <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">
+              Full name <span className="text-terracotta">*</span>
+            </label>
             <input value={name} onChange={e => setName(e.target.value)} type="text" required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">
+              Email <span className="text-terracotta">*</span>
+            </label>
             <input value={email} onChange={e => setEmail(e.target.value)} type="email" required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone <span className="text-gray-400 font-normal">(optional)</span></label>
+            <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">
+              Phone <span className="text-navy/40 dark:text-cream/40 font-normal">(optional)</span>
+            </label>
             <input value={phone} onChange={e => setPhone(e.target.value)} type="tel"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              className={INPUT_CLS} />
           </div>
         </div>
       </div>
 
       {/* Extra attendees */}
       {extraAttendees.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-            Additional attendees
-          </h3>
+        <div className={CARD_CLS}>
+          <h3 className={SECTION_LABEL}>Additional attendees</h3>
           <div className="space-y-4">
             {extraAttendees.map((a, i) => (
-              <div key={i} className="border border-gray-100 rounded-lg p-4 space-y-3">
-                <p className="text-sm font-medium text-gray-700">Attendee {i + 2}</p>
+              <div key={i} className="border border-navy/10 dark:border-cream/10 rounded-lg p-4 space-y-3">
+                <p className="text-sm font-medium text-navy/80 dark:text-cream/80">Attendee {i + 2}</p>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Name <span className="text-red-500">*</span></label>
+                  <label className="block text-xs text-navy/60 dark:text-cream/60 mb-1">
+                    Name <span className="text-terracotta">*</span>
+                  </label>
                   <input value={a.name} onChange={e => updateAttendee(i, 'name', e.target.value)} type="text" required
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    className={INPUT_CLS} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Email</label>
+                    <label className="block text-xs text-navy/60 dark:text-cream/60 mb-1">Email</label>
                     <input value={a.email} onChange={e => updateAttendee(i, 'email', e.target.value)} type="email"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      className={INPUT_CLS} />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-600 mb-1">Phone</label>
+                    <label className="block text-xs text-navy/60 dark:text-cream/60 mb-1">Phone</label>
                     <input value={a.phone} onChange={e => updateAttendee(i, 'phone', e.target.value)} type="tel"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      className={INPUT_CLS} />
                   </div>
                 </div>
               </div>
@@ -428,21 +439,21 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
       )}
 
       {/* Promo code */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Promo code</h3>
+      <div className={CARD_CLS}>
+        <h3 className={SECTION_LABEL}>Promo code</h3>
         <div className="flex gap-2">
           <input
             value={promoCode}
             onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null) }}
             placeholder="Enter code"
             disabled={promoResult?.valid}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+            className={`flex-1 border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30 disabled:opacity-50`}
           />
           {promoResult?.valid ? (
             <button
               type="button"
               onClick={() => { setPromoCode(''); setPromoResult(null); onDiscountChange(0) }}
-              className="text-sm text-red-500 hover:text-red-700 px-3"
+              className="text-sm text-terracotta hover:text-terracotta/70 px-3"
             >
               Remove
             </button>
@@ -451,14 +462,14 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
               type="button"
               onClick={applyPromo}
               disabled={!promoCode.trim() || promoChecking}
-              className="bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-navy/5 dark:bg-cream/10 hover:bg-navy/10 dark:hover:bg-cream/15 disabled:opacity-50 text-navy/70 dark:text-cream/70 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               {promoChecking ? '…' : 'Apply'}
             </button>
           )}
         </div>
         {promoResult && (
-          <p className={`text-xs mt-2 ${promoResult.valid ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-xs mt-2 ${promoResult.valid ? 'text-green-600 dark:text-green-400' : 'text-terracotta'}`}>
             {promoResult.valid
               ? `✓ Code applied — ${fmtMoney(promoResult.discount_amount)} off`
               : promoResult.message}
@@ -468,99 +479,106 @@ function CheckoutForm({ business, eventType, partySize, sessionIds, addonIds, on
 
       {/* Payment */}
       {!requiresPayment ? (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-5">
-          <p className="text-sm font-medium text-green-800 mb-1">No payment required</p>
-          <p className="text-sm text-green-700">This is an RSVP event. Your spot will be confirmed immediately upon submission.</p>
+        <div className="bg-amber/10 border border-amber/30 rounded-xl p-5">
+          <p className="text-sm font-medium text-amber mb-1">No payment required</p>
+          <p className="text-sm text-navy/70 dark:text-cream/70">This is an RSVP event. Your spot will be confirmed immediately upon submission.</p>
         </div>
       ) : (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Payment</h3>
+        <div className={CARD_CLS}>
+          <h3 className={SECTION_LABEL}>Payment</h3>
 
-        {hasPaymentMethods ? (
-          <>
-            <p className="text-sm text-gray-600 mb-4">
-              Send <strong>{fmtMoney(total)}</strong> to one of the accounts below,
-              then upload your receipt to confirm your booking.
-            </p>
+          {hasPaymentMethods ? (
+            <>
+              <p className="text-sm text-navy/70 dark:text-cream/70 mb-4">
+                Send <strong className="text-navy dark:text-cream">{fmtMoney(total)}</strong> to one of the accounts below,
+                then upload your receipt to confirm your booking.
+              </p>
 
-            {/* Method selector — shown only when both are available */}
-            {hasPayPal && hasWise && (
-              <div className="flex gap-3 mb-4">
-                {['paypal', 'wise'].map(m => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setPaymentMethod(m)}
-                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                      paymentMethod === m
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    {m === 'paypal' ? 'PayPal' : 'Wise'}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Account details */}
-            {paymentMethod === 'paypal' && hasPayPal && (
-              <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
-                <p className="text-gray-500 mb-1">PayPal username</p>
-                <p className="font-semibold text-gray-900 text-base">{business.paypal_username}</p>
-                {business.has_paypal_qr && (
-                  <div className="mt-3">
-                    <p className="text-gray-500 text-xs mb-2">Scan QR to pay</p>
-                    <img
-                      src={`/api/public/${business.booking_key}/qr/paypal`}
-                      alt="PayPal QR code"
-                      className="w-36 h-36 object-contain bg-white border border-gray-200 rounded-lg p-1"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-            {paymentMethod === 'wise' && hasWise && (
-              <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
-                <p className="text-gray-500 mb-1">Wise username</p>
-                <p className="font-semibold text-gray-900 text-base">{business.wise_username}</p>
-                {business.has_wise_qr && (
-                  <div className="mt-3">
-                    <p className="text-gray-500 text-xs mb-2">Scan QR to pay</p>
-                    <img
-                      src={`/api/public/${business.booking_key}/qr/wise`}
-                      alt="Wise QR code"
-                      className="w-36 h-36 object-contain bg-white border border-gray-200 rounded-lg p-1"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Receipt upload */}
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">Upload receipt <span className="text-red-500">*</span></p>
-              <input ref={fileRef} type="file" accept="image/*,application/pdf"
-                onChange={e => setReceiptFile(e.target.files[0] || null)}
-                className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
-              {receiptFile && (
-                <p className="text-xs text-green-600 mt-1">✓ {receiptFile.name}</p>
+              {hasPayPal && hasWise && (
+                <div className="flex gap-3 mb-4">
+                  {['paypal', 'wise'].map(m => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setPaymentMethod(m)}
+                      className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                        paymentMethod === m
+                          ? 'border-amber bg-amber/10 text-amber'
+                          : 'border-navy/15 dark:border-cream/15 text-navy/60 dark:text-cream/60 hover:border-navy/30 dark:hover:border-cream/30'
+                      }`}
+                    >
+                      {m === 'paypal' ? 'PayPal' : 'Wise'}
+                    </button>
+                  ))}
+                </div>
               )}
+
+              {paymentMethod === 'paypal' && hasPayPal && (
+                <div className="bg-navy/5 dark:bg-cream/5 rounded-lg p-4 mb-4 text-sm">
+                  <p className="text-navy/50 dark:text-cream/50 mb-1">PayPal username</p>
+                  <p className="font-semibold text-navy dark:text-cream text-base">{business.paypal_username}</p>
+                  {business.has_paypal_qr && (
+                    <div className="mt-3">
+                      <p className="text-navy/40 dark:text-cream/40 text-xs mb-2">Scan QR to pay</p>
+                      <img
+                        src={`/api/public/${business.booking_key}/qr/paypal`}
+                        alt="PayPal QR code"
+                        className="w-36 h-36 object-contain bg-cream dark:bg-navy border border-navy/10 dark:border-cream/10 rounded-lg p-1"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+              {paymentMethod === 'wise' && hasWise && (
+                <div className="bg-navy/5 dark:bg-cream/5 rounded-lg p-4 mb-4 text-sm">
+                  <p className="text-navy/50 dark:text-cream/50 mb-1">Wise username</p>
+                  <p className="font-semibold text-navy dark:text-cream text-base">{business.wise_username}</p>
+                  {business.has_wise_qr && (
+                    <div className="mt-3">
+                      <p className="text-navy/40 dark:text-cream/40 text-xs mb-2">Scan QR to pay</p>
+                      <img
+                        src={`/api/public/${business.booking_key}/qr/wise`}
+                        alt="Wise QR code"
+                        className="w-36 h-36 object-contain bg-cream dark:bg-navy border border-navy/10 dark:border-cream/10 rounded-lg p-1"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div>
+                <p className="text-sm font-medium text-navy/80 dark:text-cream/80 mb-2">
+                  Upload receipt <span className="text-terracotta">*</span>
+                </p>
+                <input ref={fileRef} type="file" accept="image/*,application/pdf"
+                  onChange={e => setReceiptFile(e.target.files[0] || null)}
+                  className="block w-full text-sm text-navy/50 dark:text-cream/50 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-amber/10 file:text-amber hover:file:bg-amber/20 cursor-pointer" />
+                {receiptFile && (
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">✓ {receiptFile.name}</p>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="bg-amber/10 border border-amber/30 rounded-lg p-4 text-sm">
+              <p className="font-medium text-amber mb-1">Payment instructions pending</p>
+              <p className="text-navy/70 dark:text-cream/70">
+                Contact us at{' '}
+                <a href={`mailto:${business.email}`} className="text-amber underline underline-offset-2">
+                  {business.email}
+                </a>{' '}
+                to arrange payment. Your booking will be reserved once confirmed.
+              </p>
             </div>
-          </>
-        ) : (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
-            <p className="font-medium mb-1">Payment instructions pending</p>
-            <p>Contact us at <a href={`mailto:${business.email}`} className="underline">{business.email}</a> to arrange payment. Your booking will be reserved once confirmed.</p>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       )}
 
-      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-3">{error}</p>}
+      {error && (
+        <p className="text-sm text-terracotta bg-terracotta/10 rounded-lg px-4 py-3">{error}</p>
+      )}
 
       <button type="submit" disabled={submitting}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-colors">
+        className="w-full bg-amber hover:bg-amber/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-colors">
         {submitting ? 'Confirming…' : requiresPayment ? 'Confirm Booking' : 'Reserve My Spot'}
       </button>
     </form>
@@ -574,11 +592,15 @@ function ConfirmationScreen({ booking, business, eventType }) {
   const isAwaitingPayment = booking.status === 'awaiting_payment'
   return (
     <div className="max-w-lg mx-auto text-center py-12 px-4">
-      <div className="text-5xl mb-4">✓</div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">
+      <div className="w-16 h-16 rounded-full bg-amber/15 flex items-center justify-center mx-auto mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-amber">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold font-display text-navy dark:text-cream mb-2">
         {isConfirmed ? 'Your spot is reserved!' : 'Booking received!'}
       </h2>
-      <p className="text-gray-500 mb-6">
+      <p className="text-navy/60 dark:text-cream/60 mb-6">
         {isConfirmed
           ? 'Your booking is confirmed. See you there!'
           : isAwaitingPayment
@@ -586,28 +608,28 @@ function ConfirmationScreen({ booking, business, eventType }) {
             : `Contact ${business.email} to complete your payment and confirm the booking.`}
       </p>
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-left space-y-3 mb-6">
+      <div className={`${CARD_CLS} text-left space-y-3 mb-6`}>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Booking ref</span>
-          <span className="font-semibold text-gray-900">#{booking.booking_ref}</span>
+          <span className="text-navy/50 dark:text-cream/50">Booking ref</span>
+          <span className="font-semibold text-navy dark:text-cream">#{booking.booking_ref}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Event</span>
-          <span className="font-semibold text-gray-900">{eventType.name}</span>
+          <span className="text-navy/50 dark:text-cream/50">Event</span>
+          <span className="font-semibold text-navy dark:text-cream">{eventType.name}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">People</span>
-          <span className="font-semibold text-gray-900">{booking.party_size}</span>
+          <span className="text-navy/50 dark:text-cream/50">People</span>
+          <span className="font-semibold text-navy dark:text-cream">{booking.party_size}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-500">Total</span>
-          <span className="font-semibold text-gray-900">{fmtMoney(booking.total_price)}</span>
+          <span className="text-navy/50 dark:text-cream/50">Total</span>
+          <span className="font-semibold text-navy dark:text-cream">{fmtMoney(booking.total_price)}</span>
         </div>
         {booking.sessions?.length > 0 && (
-          <div className="pt-2 border-t border-gray-100">
-            <p className="text-xs text-gray-400 uppercase tracking-wide mb-1">Sessions</p>
+          <div className="pt-2 border-t border-navy/10 dark:border-cream/10">
+            <p className="text-xs text-navy/40 dark:text-cream/40 uppercase tracking-wide mb-1">Sessions</p>
             {booking.sessions.map(s => (
-              <p key={s.id} className="text-sm text-gray-700">
+              <p key={s.id} className="text-sm text-navy/80 dark:text-cream/80">
                 {fmtDate(s.start_time)} at {fmtTime(s.start_time)}
               </p>
             ))}
@@ -615,13 +637,15 @@ function ConfirmationScreen({ booking, business, eventType }) {
         )}
       </div>
 
-      <p className="text-xs text-gray-400 mb-6">
-        A confirmation email has been sent to your inbox. Questions? Contact{' '}
-        <a href={`mailto:${business.email}`} className="underline">{business.email}</a>.
+      <p className="text-xs text-navy/40 dark:text-cream/40 mb-6">
+        A confirmation email has been sent to your inbox. Questions?{' '}
+        <a href={`mailto:${business.email}`} className="text-amber underline underline-offset-2">
+          {business.email}
+        </a>
       </p>
       <a
         href={`/book/${business.slug}`}
-        className="inline-block bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+        className="inline-block border border-navy/15 dark:border-cream/15 hover:bg-navy/5 dark:hover:bg-cream/5 text-navy/70 dark:text-cream/70 text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
       >
         ← Back to booking page
       </a>
@@ -634,20 +658,19 @@ function ConfirmationScreen({ booking, business, eventType }) {
 export default function BookingPage() {
   const { slug, eventTypeId } = useParams()
 
-  const [phase, setPhase] = useState('loading') // loading | events | configure | checkout | confirmed | error
+  const [phase, setPhase] = useState('loading')
   const [business, setBusiness] = useState(null)
   const [eventTypes, setEventTypes] = useState([])
   const [selectedEventType, setSelectedEventType] = useState(null)
-  const [sessions, setSessions] = useState([]) // only for ONE_TIME / RECURRING
+  const [sessions, setSessions] = useState([])
   const [sessionsLoading, setSessionsLoading] = useState(false)
   const [partySize, setPartySize] = useState(1)
   const [selectedSessionIds, setSelectedSessionIds] = useState([])
   const [selectedAddonIds, setSelectedAddonIds] = useState([])
-  const [appliedDiscount, setAppliedDiscount] = useState(0) // discount amount in dollars
+  const [appliedDiscount, setAppliedDiscount] = useState(0)
   const [confirmedBooking, setConfirmedBooking] = useState(null)
   const [error, setError] = useState('')
 
-  // Load business, then either a single event type (direct link) or the full listing
   useEffect(() => {
     publicApi.get(`/api/public/by-slug/${slug}`)
       .then(biz => {
@@ -662,14 +685,10 @@ export default function BookingPage() {
       .catch(err => { setError(err.message || 'This booking page could not be found.'); setPhase('error') })
   }, [slug, eventTypeId])
 
-  // Load sessions when an event type is selected (ONE_TIME / RECURRING only)
   useEffect(() => {
     if (!selectedEventType || !business) return
     const kind = selectedEventType.kind
-    if (kind === 'package') {
-      setSessions([])
-      return
-    }
+    if (kind === 'package') { setSessions([]); return }
     setSessionsLoading(true)
     publicApi.get(`/api/public/${business.booking_key}/event-types/${selectedEventType.id}/sessions`)
       .then(setSessions)
@@ -688,10 +707,9 @@ export default function BookingPage() {
 
   function handlePartySizeChange(n) {
     setPartySize(n)
-    setSelectedSessionIds([]) // clear selections when party size changes
+    setSelectedSessionIds([])
   }
 
-  // Is the selection valid enough to proceed to checkout?
   function canCheckout() {
     if (!selectedEventType) return false
     const kind = selectedEventType.kind
@@ -701,7 +719,7 @@ export default function BookingPage() {
       return selectedSessionIds.length === pkg.required_session_count
     }
     if (kind === 'one_time') return sessions.length > 0
-    return selectedSessionIds.length > 0 // recurring — must pick a session
+    return selectedSessionIds.length > 0
   }
 
   function handleConfirmed(booking) {
@@ -709,12 +727,10 @@ export default function BookingPage() {
     setPhase('confirmed')
   }
 
-  // All sessions for summary (package uses pool sessions)
   const allSessions = selectedEventType?.kind === 'package'
     ? (selectedEventType.package?.pool_sessions ?? [])
     : sessions
 
-  // For FIXED packages the customer can't pick sessions — show all pool sessions in the summary
   const displaySessionIds = (
     selectedEventType?.kind === 'package' &&
     selectedEventType?.package?.date_mode === 'fixed'
@@ -722,43 +738,45 @@ export default function BookingPage() {
     ? allSessions.map(s => s.id)
     : selectedSessionIds
 
-  // ── Render ─────────────────────────────────────────────────────────────────
-
   if (phase === 'loading') {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><Spinner /></div>
+    return (
+      <div className="min-h-screen bg-cream dark:bg-dark-base flex items-center justify-center">
+        <Spinner />
+      </div>
+    )
   }
 
   if (phase === 'error') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-cream dark:bg-dark-base flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500 text-sm">{error || 'This booking page could not be found.'}</p>
+          <p className="text-navy/50 dark:text-cream/50 text-sm">{error || 'This booking page could not be found.'}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cream dark:bg-dark-base">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-cream dark:bg-navy border-b border-navy/10 dark:border-cream/10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           {phase !== 'events' && phase !== 'confirmed' && (
             <button
               onClick={() => {
                 if (phase === 'checkout') setPhase('configure')
-                else if (eventTypeId) { /* direct link — no event list to go back to */ }
+                else if (eventTypeId) { /* direct link — no list to go back to */ }
                 else { setSelectedEventType(null); setPhase('events') }
               }}
-              className={`text-sm text-blue-600 hover:text-blue-800 ${phase === 'configure' && eventTypeId ? 'invisible' : ''}`}
+              className={`text-sm text-amber hover:text-amber/70 font-medium ${phase === 'configure' && eventTypeId ? 'invisible' : ''}`}
             >
               ←
             </button>
           )}
           <div>
-            <h1 className="font-bold text-gray-900">{business.name}</h1>
+            <h1 className="font-bold font-display text-navy dark:text-cream">{business.name}</h1>
             {phase !== 'events' && selectedEventType && (
-              <p className="text-xs text-gray-400">{selectedEventType.name}</p>
+              <p className="text-xs text-navy/40 dark:text-cream/40">{selectedEventType.name}</p>
             )}
           </div>
         </div>
@@ -768,9 +786,9 @@ export default function BookingPage() {
         {/* ── Event selection ── */}
         {phase === 'events' && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Choose an experience</h2>
+            <h2 className="text-xl font-bold font-display text-navy dark:text-cream mb-6">Choose an experience</h2>
             {eventTypes.length === 0
-              ? <p className="text-sm text-gray-400 text-center py-12">No events available at this time.</p>
+              ? <p className="text-sm text-navy/40 dark:text-cream/40 text-center py-12">No events available at this time.</p>
               : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {eventTypes.map(et => <EventTypeCard key={et.id} et={et} onSelect={selectEventType} />)}
@@ -785,25 +803,25 @@ export default function BookingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               {/* Party size */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">How many people?</h3>
+              <div className={CARD_CLS}>
+                <h3 className={SECTION_LABEL}>How many people?</h3>
                 <div className="flex items-center gap-4">
                   <button onClick={() => handlePartySizeChange(Math.max(1, partySize - 1))}
-                    className="w-9 h-9 rounded-full border border-gray-300 text-gray-700 text-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center">
+                    className="w-9 h-9 rounded-full border border-navy/20 dark:border-cream/20 text-navy dark:text-cream text-lg font-medium hover:bg-navy/5 dark:hover:bg-cream/5 transition-colors flex items-center justify-center">
                     −
                   </button>
-                  <span className="text-2xl font-bold text-gray-900 w-8 text-center">{partySize}</span>
+                  <span className="text-2xl font-bold text-navy dark:text-cream w-8 text-center">{partySize}</span>
                   <button onClick={() => handlePartySizeChange(partySize + 1)}
-                    className="w-9 h-9 rounded-full border border-gray-300 text-gray-700 text-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center">
+                    className="w-9 h-9 rounded-full border border-navy/20 dark:border-cream/20 text-navy dark:text-cream text-lg font-medium hover:bg-navy/5 dark:hover:bg-cream/5 transition-colors flex items-center justify-center">
                     +
                   </button>
-                  <span className="text-sm text-gray-500">person{partySize !== 1 ? 's' : ''}</span>
+                  <span className="text-sm text-navy/50 dark:text-cream/50">person{partySize !== 1 ? 's' : ''}</span>
                 </div>
               </div>
 
               {/* Session picker */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+              <div className={CARD_CLS}>
+                <h3 className={SECTION_LABEL}>
                   {selectedEventType.kind === 'package'
                     ? selectedEventType.package?.date_mode === 'fixed' ? 'Included sessions' : 'Choose your sessions'
                     : 'Choose a date & time'}
@@ -824,8 +842,8 @@ export default function BookingPage() {
 
               {/* Add-ons */}
               {selectedEventType.add_ons?.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Add-ons (optional)</h3>
+                <div className={CARD_CLS}>
+                  <h3 className={SECTION_LABEL}>Add-ons (optional)</h3>
                   <AddonSelector
                     addons={selectedEventType.add_ons}
                     selectedIds={selectedAddonIds}
@@ -837,13 +855,12 @@ export default function BookingPage() {
               <button
                 onClick={() => setPhase('checkout')}
                 disabled={!canCheckout()}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-colors"
+                className="w-full bg-amber hover:bg-amber/90 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl text-sm transition-colors"
               >
                 Continue to checkout
               </button>
             </div>
 
-            {/* Summary sidebar */}
             <div>
               <SummaryCard
                 eventType={selectedEventType}
@@ -860,7 +877,7 @@ export default function BookingPage() {
         {phase === 'checkout' && selectedEventType && business && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Complete your booking</h2>
+              <h2 className="text-xl font-bold font-display text-navy dark:text-cream mb-6">Complete your booking</h2>
               <CheckoutForm
                 business={business}
                 eventType={selectedEventType}

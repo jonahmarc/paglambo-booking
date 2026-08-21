@@ -5,7 +5,7 @@ import Spinner from '../components/Spinner'
 
 function LockIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5 shrink-0 text-gray-400">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5 shrink-0 text-navy/40 dark:text-cream/40">
       <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7A1.5 1.5 0 0 0 3 8.5v4A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5v-4A1.5 1.5 0 0 0 11 7V4.5A3.5 3.5 0 0 0 8 1Zm2 6V4.5a2 2 0 1 0-4 0V7h4Z" clipRule="evenodd" />
     </svg>
   )
@@ -39,12 +39,14 @@ export default function Bookings() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
-        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream">Bookings</h1>
+        <div className="flex items-center gap-1 bg-navy/10 dark:bg-cream/10 rounded-lg p-1">
           <button
             onClick={() => setViewMode('grouped')}
             className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-              viewMode === 'grouped' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              viewMode === 'grouped'
+                ? 'bg-cream dark:bg-navy text-navy dark:text-cream shadow-sm'
+                : 'text-navy/50 dark:text-cream/50 hover:text-navy dark:hover:text-cream'
             }`}
           >
             By event type
@@ -52,7 +54,9 @@ export default function Bookings() {
           <button
             onClick={() => setViewMode('flat')}
             className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-              viewMode === 'flat' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              viewMode === 'flat'
+                ? 'bg-cream dark:bg-navy text-navy dark:text-cream shadow-sm'
+                : 'text-navy/50 dark:text-cream/50 hover:text-navy dark:hover:text-cream'
             }`}
           >
             All bookings
@@ -60,24 +64,24 @@ export default function Bookings() {
         </div>
       </div>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 flex-wrap">
         {STATUSES.map(s => (
           <button key={s}
             onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filter === s
-                ? 'bg-blue-600 text-white'
-                : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                ? 'bg-amber text-white'
+                : 'bg-cream border border-navy/20 text-navy/60 hover:bg-navy/5 dark:bg-navy dark:border-cream/20 dark:text-cream/60 dark:hover:bg-cream/5'
             }`}>
             {s.replace(/_/g, ' ')}
           </button>
         ))}
       </div>
 
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-terracotta mb-4">{error}</p>}
 
       {viewMode === 'flat' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm">
           <BookingTable bookings={bookings} loading={loading} showEventType />
         </div>
       )}
@@ -86,19 +90,19 @@ export default function Bookings() {
 
       {viewMode === 'grouped' && !loading && (
         Object.keys(grouped).length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <p className="px-6 py-8 text-sm text-gray-400 text-center">No bookings found.</p>
+          <div className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm">
+            <p className="px-6 py-8 text-sm text-navy/40 dark:text-cream/40 text-center">No bookings found.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {Object.entries(grouped).map(([eventTypeName, items]) => (
-              <div key={eventTypeName} className="bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+              <div key={eventTypeName} className="bg-cream dark:bg-navy rounded-xl border border-navy/10 dark:border-cream/10 shadow-sm">
+                <div className="px-6 py-3 border-b border-navy/10 dark:border-cream/10 flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
                     {items[0]?.event_type_visibility === 'private' && <LockIcon />}
-                    <p className="text-sm font-semibold text-gray-900">{eventTypeName}</p>
+                    <p className="text-sm font-semibold text-navy dark:text-cream">{eventTypeName}</p>
                   </span>
-                  <p className="text-xs text-gray-400">{items.length} booking{items.length !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-navy/40 dark:text-cream/40">{items.length} booking{items.length !== 1 ? 's' : ''}</p>
                 </div>
                 <BookingTable bookings={items} loading={false} showEventType={false} />
               </div>
