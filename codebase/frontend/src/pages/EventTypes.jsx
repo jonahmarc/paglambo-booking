@@ -25,7 +25,7 @@ function EventTypeForm({ onSave, defaultValues }) {
 
   const formDefaults = defaultValues
     ? { ...defaultValues, sessions_per_booking: defaultValues.package?.required_session_count ?? '' }
-    : { kind: 'one_time', default_capacity: 1, requires_payment: true, visibility: 'public' }
+    : { kind: 'one_time', default_capacity: 1, requires_payment: true, visibility: 'public', location: '' }
 
   const { register, handleSubmit, watch, formState: { isSubmitting, errors } } = useForm({ defaultValues: formDefaults })
   const [formError, setFormError] = useState('')
@@ -40,6 +40,7 @@ function EventTypeForm({ onSave, defaultValues }) {
       const payload = {
         name: data.name,
         description: data.description || null,
+        location: data.location?.trim() || null,
         default_capacity: Number(data.default_capacity),
         base_price: data.base_price || 0,
         requires_payment: data.requires_payment !== false && data.requires_payment !== 'false',
@@ -67,6 +68,12 @@ function EventTypeForm({ onSave, defaultValues }) {
         <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Description</label>
         <textarea {...register('description')} rows={3}
           className={INPUT_CLS} />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-navy/80 dark:text-cream/80 mb-1">Location</label>
+        <input {...register('location')} placeholder="e.g. Studio A, 2nd Floor · 123 Main St"
+          className={INPUT_CLS} />
+        <p className="text-xs text-navy/40 dark:text-cream/40 mt-1">Shown on the booking page event card (optional)</p>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>

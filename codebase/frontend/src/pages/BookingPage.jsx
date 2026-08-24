@@ -83,6 +83,14 @@ function SummaryCard({ eventType, partySize, sessionIds, addonIds, allSessions, 
 
 // ─── Event type cards ─────────────────────────────────────────────────────────
 
+function PinIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 shrink-0 mt-px">
+      <path fillRule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
 function EventTypeCard({ et, onSelect }) {
   const kindLabel = { one_time: 'One-time', recurring: 'Class', package: 'Package' }
   return (
@@ -95,6 +103,12 @@ function EventTypeCard({ et, onSelect }) {
         <span className="text-sm font-bold text-amber whitespace-nowrap">{fmtMoney(et.base_price)} / person</span>
       </div>
       {et.description && <p className="text-sm text-navy/50 dark:text-cream/50 mb-2">{et.description}</p>}
+      {et.location && (
+        <p className="flex items-center gap-1 text-xs text-navy/50 dark:text-cream/50 mb-2">
+          <PinIcon />
+          {et.location}
+        </p>
+      )}
       <span className="inline-block text-xs font-medium bg-amber/10 text-amber px-2 py-0.5 rounded">
         {kindLabel[et.kind] ?? et.kind}
       </span>
@@ -758,6 +772,17 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-cream dark:bg-dark-base">
+      {/* Hero banner — only on the events listing phase */}
+      {phase === 'events' && business?.has_header_image && (
+        <div className="w-full overflow-hidden max-h-72">
+          <img
+            src={`/api/public/${business.booking_key}/header-image`}
+            alt={business.name}
+            className="w-full h-72 object-cover"
+          />
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-cream dark:bg-navy border-b border-navy/10 dark:border-cream/10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">

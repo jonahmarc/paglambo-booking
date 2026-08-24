@@ -31,6 +31,7 @@ class EventType(Base):
     kind: Mapped[EventTypeKind] = mapped_column(SAEnum(EventTypeKind, name="event_type_kind"))
     default_capacity: Mapped[int] = mapped_column(default=1)
     base_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    location: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
     requires_payment: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
     visibility: Mapped[str] = mapped_column(String(20), default=EventTypeVisibility.PUBLIC.value, server_default="public")

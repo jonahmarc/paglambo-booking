@@ -16,6 +16,7 @@ class PublicBusinessOut(BaseModel):
     wise_username: str | None
     has_paypal_qr: bool = False
     has_wise_qr: bool = False
+    has_header_image: bool = False
 
 
 class PublicAddOnOut(BaseModel):
@@ -45,6 +46,7 @@ class PublicEventTypeOut(BaseModel):
     id: int
     name: str
     description: str | None
+    location: str | None = None
     kind: EventTypeKind
     base_price: Decimal
     requires_payment: bool

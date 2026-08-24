@@ -36,7 +36,22 @@ def get_by_slug(slug: str, db: DBSession = Depends(get_db)):
         wise_username=business.wise_username,
         has_paypal_qr=business.has_paypal_qr,
         has_wise_qr=business.has_wise_qr,
+        has_header_image=business.has_header_image,
     )
+
+
+@router.get("/header-image")
+def get_header_image(
+    booking_key: str,
+    db: DBSession = Depends(get_db),
+):
+    business = get_business_or_404(db, booking_key)
+    if not business.header_image_path:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No header image on file")
+    p = Path(business.header_image_path)
+    if not p.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Header image file not found")
+    return FileResponse(p)
 
 
 @router.get("/qr/{method}")

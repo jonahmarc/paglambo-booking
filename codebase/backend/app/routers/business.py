@@ -8,7 +8,7 @@ from app.models import Business
 from app.routers.deps import get_current_business
 from app.schemas.business import BusinessDetail, BusinessUpdate
 from app.services.business import update_business
-from app.services.payment import save_qr_file
+from app.services.payment import save_header_image_file, save_qr_file
 
 router = APIRouter(prefix="/api/business", tags=["business"])
 
@@ -68,4 +68,29 @@ def delete_qr(
         current_business.paypal_qr_path = None
     else:
         current_business.wise_qr_path = None
+    db.commit()
+
+
+@router.post("/header-image", status_code=status.HTTP_204_NO_CONTENT)
+async def upload_header_image(
+    file: UploadFile = File(...),
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    try:
+        file_path = await save_header_image_file(current_business.id, file)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    current_business.header_image_path = file_path
+    db.commit()
+
+
+@router.delete("/header-image", status_code=status.HTTP_204_NO_CONTENT)
+def delete_header_image(
+    db: DBSession = Depends(get_db),
+    current_business: Business = Depends(get_current_business),
+):
+    if current_business.header_image_path:
+        Path(current_business.header_image_path).unlink(missing_ok=True)
+    current_business.header_image_path = None
     db.commit()

@@ -269,6 +269,21 @@ Full design pass establishing the Buhata Booking visual identity. Dark mode is t
 
 ---
 
+#### Enhancement 4b: Booking page header image + event location
+
+| Task | Status | Notes |
+|---|---|---|
+| Business header image — model + migration | ✅ Done | `header_image_path` (nullable) on Business model + `has_header_image` property. Migration `h8c9d0e1f2g3`. |
+| Business header image — admin upload/remove | ✅ Done | `POST /api/business/header-image`, `DELETE /api/business/header-image`. `save_header_image_file()` in `services/payment.py`. `HeaderImageUploader` component in `Settings.jsx` with preview. |
+| Business header image — public serve | ✅ Done | `GET /api/public/{key}/header-image`. `has_header_image` added to `PublicBusinessOut` and `get_by_slug`. |
+| Booking page — header image hero banner | ✅ Done | Full-width image shown above the nav header on the events listing phase (`phase === 'events'`). Hidden on configure/checkout/confirmed. |
+| Event type location — model + migration | ✅ Done | `location` (nullable `String(500)`) on EventType model. Same migration `h8c9d0e1f2g3`. |
+| Event type location — schemas + service | ✅ Done | `location` added to `EventTypeCreate`, `EventTypeUpdate`, `EventTypeOut`, `PublicEventTypeOut`. `_build_event_type_out` passes it through. |
+| Event type location — admin UI | ✅ Done | Location field in create/edit modal in `EventTypes.jsx`. |
+| Booking page — location on event cards | ✅ Done | Pin icon + location text shown below description on `EventTypeCard` when set. |
+
+---
+
 #### Enhancement 5: Per-event custom payment + QR code
 
 

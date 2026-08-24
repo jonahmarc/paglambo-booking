@@ -16,6 +16,27 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 QR_ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 QR_MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
+HEADER_ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
+HEADER_MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
+async def save_header_image_file(business_id: int, file: UploadFile) -> str:
+    if file.content_type not in HEADER_ALLOWED_TYPES:
+        raise ValueError("Invalid file type. Accepted: JPEG, PNG, WEBP")
+    content = await file.read()
+    if len(content) > HEADER_MAX_FILE_SIZE:
+        raise ValueError("File is too large. Maximum size is 10 MB")
+
+    upload_dir = Path(settings.upload_dir) / "headers"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    suffix = Path(file.filename or "header").suffix.lower() or ".jpg"
+    dest = upload_dir / f"{business_id}_header{suffix}"
+    with dest.open("wb") as f:
+        f.write(content)
+
+    return str(dest)
+
 
 async def save_qr_file(business_id: int, method: str, file: UploadFile) -> str:
     if file.content_type not in QR_ALLOWED_TYPES:

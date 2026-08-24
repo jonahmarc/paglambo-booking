@@ -97,6 +97,7 @@ def _build_event_type_out(db: DBSession, et: EventType) -> PublicEventTypeOut:
         id=et.id,
         name=et.name,
         description=et.description,
+        location=et.location,
         kind=et.kind,
         base_price=et.base_price,
         requires_payment=et.requires_payment,

@@ -19,6 +19,7 @@ class Business(Base):
     wise_username: Mapped[str | None] = mapped_column(String(255))
     paypal_qr_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     wise_qr_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    header_image_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
     plan: Mapped[str] = mapped_column(String(20), default="standard")  # standard | pro
     # pending_approval | trial | active | expired | rejected | suspended
@@ -37,6 +38,10 @@ class Business(Base):
     @property
     def has_wise_qr(self) -> bool:
         return self.wise_qr_path is not None
+
+    @property
+    def has_header_image(self) -> bool:
+        return self.header_image_path is not None
 
     event_types: Mapped[list["EventType"]] = relationship(back_populates="business")
     discount_codes: Mapped[list["DiscountCode"]] = relationship(back_populates="business")

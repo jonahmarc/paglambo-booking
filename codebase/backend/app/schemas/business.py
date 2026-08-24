@@ -16,6 +16,7 @@ class BusinessDetail(BaseModel):
     wise_username: str | None
     has_paypal_qr: bool = False
     has_wise_qr: bool = False
+    has_header_image: bool = False
     is_active: bool
     plan: str
     status: str

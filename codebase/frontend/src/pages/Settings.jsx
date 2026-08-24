@@ -16,6 +16,85 @@ function slugify(name) {
 
 const INPUT_CLS = 'w-full border border-navy/20 dark:border-cream/20 bg-cream dark:bg-navy/50 text-navy dark:text-cream rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber placeholder:text-navy/30 dark:placeholder:text-cream/30'
 
+function HeaderImageUploader({ bookingKey, hasImage: initialHasImage }) {
+  const [hasImage, setHasImage] = useState(initialHasImage)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+  const fileRef = useRef()
+
+  async function handleUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true); setError('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      await api.postForm('/api/business/header-image', fd)
+      setHasImage(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  async function handleRemove() {
+    setUploading(true); setError('')
+    try {
+      await api.delete('/api/business/header-image')
+      setHasImage(false)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="px-6 py-5 grid grid-cols-3 gap-4 items-start border-t border-navy/10 dark:border-cream/10">
+      <div>
+        <p className="text-sm font-medium text-navy dark:text-cream">Booking page header</p>
+        <p className="text-xs text-navy/50 dark:text-cream/50 mt-0.5">Banner image shown at the top of your public booking page</p>
+      </div>
+      <div className="col-span-2 space-y-3">
+        {hasImage && bookingKey && (
+          <div className="space-y-2">
+            <img
+              src={`/api/public/${bookingKey}/header-image`}
+              alt="Booking page header"
+              className="w-full max-h-36 object-cover border border-navy/10 dark:border-cream/10 rounded-lg"
+            />
+            <button
+              type="button"
+              onClick={handleRemove}
+              disabled={uploading}
+              className="text-xs text-terracotta hover:text-terracotta/70 disabled:opacity-50"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+        <div className="flex items-center gap-3">
+          <label className={`cursor-pointer inline-flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${uploading ? 'opacity-50 cursor-not-allowed border-navy/10 dark:border-cream/10 text-navy/40 dark:text-cream/40' : 'border-navy/20 dark:border-cream/20 text-navy dark:text-cream hover:border-amber hover:text-amber'}`}>
+            {uploading ? 'Uploading…' : hasImage ? 'Replace image' : 'Upload image'}
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              disabled={uploading}
+              onChange={handleUpload}
+            />
+          </label>
+          <span className="text-xs text-navy/40 dark:text-cream/40">JPEG, PNG or WEBP · max 10 MB</span>
+        </div>
+        {error && <p className="text-xs text-terracotta">{error}</p>}
+      </div>
+    </div>
+  )
+}
+
 function QrUploader({ method, label, bookingKey, hasQr: initialHasQr }) {
   const [hasQr, setHasQr] = useState(initialHasQr)
   const [uploading, setUploading] = useState(false)
@@ -244,9 +323,13 @@ export default function Settings() {
           </div>
         </form>
 
-        {/* QR uploads — outside the JSON form, submitted independently */}
+        {/* Image uploads — outside the JSON form, submitted independently */}
         {business && (
           <>
+            <HeaderImageUploader
+              bookingKey={business.booking_key}
+              hasImage={business.has_header_image}
+            />
             <QrUploader
               method="paypal"
               label="PayPal"
