@@ -16,8 +16,8 @@
   --color-dark-deep:  #070F1A;
 
   /* Typography */
-  --font-display: "Playfair Display", Georgia, serif;
-  --font-sans:    "Inter", ui-sans-serif, system-ui, sans-serif,
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    "Krub", ui-sans-serif, system-ui, sans-serif,
                   "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
@@ -34,7 +34,7 @@
 /* ─── Base ───────────────────────────────────────────────────────── */
 @layer base {
   html {
-    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Krub", ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
