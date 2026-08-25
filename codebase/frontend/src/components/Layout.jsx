@@ -63,8 +63,8 @@ export default function Layout({ children }) {
   const banner = business ? STATUS_BANNERS[business.status] : null
 
   return (
-    <div className="min-h-screen flex bg-cream dark:bg-dark-base">
-      <aside className="w-56 bg-navy dark:bg-dark-deep flex flex-col">
+    <div className="h-screen flex bg-cream dark:bg-dark-base">
+      <aside className="w-56 bg-navy dark:bg-dark-deep flex flex-col shrink-0">
         <div className="px-5 py-5 border-b border-cream/10">
           <p className="text-xs font-semibold text-amber uppercase tracking-widest">Paglambo Booking</p>
           <p className="mt-1 text-sm font-medium text-cream/60 truncate">{business?.name}</p>
