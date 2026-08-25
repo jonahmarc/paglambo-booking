@@ -33,9 +33,11 @@ Customers pay via PayPal or Wise (QR code or username displayed at checkout). Th
 
 Provider: Resend (free tier). API key is in `.env` as `RESEND_API_KEY`.
 
-Domain is NOT yet purchased — Cloudflare domain + verified email is planned after the platform is working. Until then, use Resend sandbox/test mode. Do not assume a verified sending domain exists.
+Contact/sending address: `hello@paglambo.com`
 
-`RESEND_FROM_EMAIL` will be set once the Cloudflare domain is purchased and verified in Resend.
+Domain `paglambo.com` is purchased via Cloudflare. DNS and email routing are not yet configured. Until email is verified, use Resend sandbox/test mode. Do not assume a verified sending domain exists.
+
+Once configured: verify `paglambo.com` in Resend, set `RESEND_FROM_EMAIL=hello@paglambo.com`, and use Cloudflare Email Routing to forward `hello@paglambo.com` to the owner's Gmail.
 
 ## Infrastructure
 
@@ -43,7 +45,7 @@ Domain is NOT yet purchased — Cloudflare domain + verified email is planned af
 |---|---|---|
 | DigitalOcean VPS | ✅ Provisioned | 1GB RAM for now, upgrade to 2GB when traffic starts |
 | PostgreSQL | Set up in Phase 0 | On the VPS |
-| Domain | Not yet | Will be Cloudflare |
+| Domain | ✅ Purchased | `paglambo.com` via Cloudflare; booking app on `booking.paglambo.com`; DNS + email routing not yet configured |
 | GitHub repo | Not yet | User initializes Git in the root `/Paglambo Booking/` folder |
 | DO Spaces backups | Phase 0 | Nightly DB + file backups |
 

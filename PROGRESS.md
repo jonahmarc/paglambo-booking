@@ -11,9 +11,25 @@
 | SSH key pair for GitHub Actions | ✅ Done | Public key on VPS, private key in GitHub Secrets |
 | PostgreSQL on VPS | ✅ Done | `buhata_booking` DB and user created |
 | GitHub repo | ✅ Done | Pushed to GitHub |
-| GitHub Actions deploy pipeline | ⬜ Pending | SSH deploy on push to `main` — defer until domain/production ready |
-| `.env` on VPS | ⬜ Pending | Fill in production values — defer until domain/production ready |
+| GitHub Actions deploy pipeline | ⬜ Pending | SSH deploy on push to `main` |
+| `.env` on VPS | ⬜ Pending | Fill in all production values |
 | Nightly DB backup to DO Spaces | ⬜ Pending | Cron job on VPS |
+
+---
+
+### 🔴 Priority — Go-live setup
+
+`paglambo.com` is purchased. These steps unblock production. Do in order.
+
+| Step | Task | Status | Notes |
+|---|---|---|---|
+| 1 | Cloudflare DNS — subdomain | ⬜ Pending | Add A record: `booking` → VPS IP. Also add A record for root `@` → VPS IP (or parking page) |
+| 2 | Cloudflare Email Routing — forward | ⬜ Pending | Enable Email Routing in Cloudflare dashboard. Add rule: `hello@paglambo.com` → owner Gmail |
+| 3 | Resend — verify sending domain | ⬜ Pending | Add `paglambo.com` in Resend dashboard. Add the DNS records it provides (SPF, DKIM, DMARC) in Cloudflare |
+| 4 | VPS `.env` — fill production values | ⬜ Pending | `DATABASE_URL`, `SECRET_KEY`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL=hello@paglambo.com`, `APP_URL=https://booking.paglambo.com`, `UPLOAD_DIR` |
+| 5 | VPS — rename DB/directories buhata → paglambo | ⬜ Pending | Manual step on VPS: rename `buhata_booking` DB and user to `paglambo_booking`. Update `DATABASE_URL` in `.env` accordingly |
+| 6 | GitHub Actions deploy pipeline | ⬜ Pending | Create `.github/workflows/deploy.yml` — SSH into VPS on push to `main`, pull latest, restart backend |
+| 7 | Nightly DB backup to DO Spaces | ⬜ Pending | Cron job on VPS after everything else is stable |
 
 ---
 

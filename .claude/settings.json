@@ -47,10 +47,12 @@
       "PowerShell(netstat -an)",
       "Bash(git mv *)",
       "Bash(ls \"c:\\\\Users\\\\olymp\\\\.claude\\\\projects\\\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\\\memory\\\\\")",
-      "Read(//c/Users/olymp/.claude/projects/c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking/**)"
+      "Read(//c/Users/olymp/.claude/projects/c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking/**)",
+      "Read(//c/Users/olymp/.claude/projects/c--Users-olymp-OneDrive-Documents-joyang-Paglambo-Booking/memory/**)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory"
+      "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Buhata-Booking\\memory",
+      "c:\\Users\\olymp\\.claude\\projects\\c--Users-olymp-OneDrive-Documents-joyang-Paglambo-Booking\\memory"
     ]
   }
 }
