@@ -137,7 +137,7 @@ Business clients pay Paglambo Booking a monthly subscription fee. Plans gate fea
 
 ### Step 3b → now Step 3: Hosted Public Booking Page
 
-**The primary customer-facing booking experience.** Accessible at `app.paglamboBooking.com/book/bamboo-cooking-school` — no WordPress, no embed complexity. Business owners share the URL directly (WhatsApp, email, Instagram bio). Uses the existing React + Tailwind stack so it shares components with the admin dashboard and is easy to maintain. WordPress plugin iframes this page.
+**The primary customer-facing booking experience.** Accessible at `booking.paglambo.com/book/bamboo-cooking-school` — no WordPress, no embed complexity. Business owners share the URL directly (WhatsApp, email, Instagram bio). Uses the existing React + Tailwind stack so it shares components with the admin dashboard and is easy to maintain. WordPress plugin iframes this page.
 
 ---
 
@@ -351,7 +351,7 @@ Covers the public booking page and landing page.
 | Task | Status | Notes |
 |---|---|---|
 | PHP plugin scaffold | ⬜ Pending | |
-| Embed via shortcode (iframe) | ⬜ Pending | `[paglambo_booking slug="bamboo-cooking-school"]` — renders `<iframe src="https://app.paglamboBooking.com/book/bamboo-cooking-school" ...>`. Simple wrapper around the hosted booking page. |
+| Embed via shortcode (iframe) | ⬜ Pending | `[paglambo_booking slug="bamboo-cooking-school"]` — renders `<iframe src="https://booking.paglambo.com/book/bamboo-cooking-school" ...>`. Simple wrapper around the hosted booking page. |
 | Plugin settings page in WP admin | ⬜ Pending | Enter platform URL and business slug |
 
 ---

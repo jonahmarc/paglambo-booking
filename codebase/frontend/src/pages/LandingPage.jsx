@@ -99,7 +99,7 @@ export default function LandingPage() {
       setContactStatus('success')
     } catch {
       setContactStatus('error')
-      setContactError('Something went wrong. Email us directly at hello@paglamboBooking.com')
+      setContactError('Something went wrong. Email us directly at hello@paglambo.com')
     }
   }
 
@@ -332,7 +332,7 @@ export default function LandingPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-sm text-navy/70 dark:text-cream/70">
                 <span className="text-amber text-base">✉</span>
-                hello@paglamboBooking.com
+                hello@paglambo.com
               </div>
               <div className="flex items-center gap-3 text-sm text-navy/70 dark:text-cream/70">
                 <span className="text-amber text-base">⏱</span>
