@@ -6,12 +6,12 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-_FALLBACK_FROM = "Buhata Booking <onboarding@resend.dev>"
+_FALLBACK_FROM = "Paglambo Booking <onboarding@resend.dev>"
 
 
 def _from_address() -> str:
     if settings.resend_from_email:
-        return f"Buhata Booking <{settings.resend_from_email}>"
+        return f"Paglambo Booking <{settings.resend_from_email}>"
     return _FALLBACK_FROM
 
 
@@ -139,7 +139,7 @@ def send_new_registration(business, superadmin_email: str) -> None:
     """Notify superadmin that a new business has registered and is awaiting approval."""
     html = f"""
     <p>Hi,</p>
-    <p>A new business has registered on Buhata Booking and is awaiting your approval.</p>
+    <p>A new business has registered on Paglambo Booking and is awaiting your approval.</p>
     <table cellpadding="6" cellspacing="0">
       <tr><td><strong>Business</strong></td><td>{business.name}</td></tr>
       <tr><td><strong>Email</strong></td><td>{business.email}</td></tr>
@@ -155,11 +155,11 @@ def send_registration_approved(business) -> None:
     end_date = business.trial_ends_at.strftime("%d %b %Y") if business.trial_ends_at else "—"
     html = f"""
     <p>Hi {business.name},</p>
-    <p>Your Buhata Booking registration has been approved!</p>
+    <p>Your Paglambo Booking registration has been approved!</p>
     <p>Your <strong>{business.plan.title()}</strong> plan trial is active until <strong>{end_date}</strong>.</p>
     <p>Log in to your dashboard to set up your booking page.</p>
     """
-    _send(business.email, "Registration approved — Buhata Booking", html)
+    _send(business.email, "Registration approved — Paglambo Booking", html)
 
 
 def send_registration_rejected(business, note: str | None = None) -> None:
@@ -167,11 +167,11 @@ def send_registration_rejected(business, note: str | None = None) -> None:
     note_row = f"<p><strong>Reason:</strong> {note}</p>" if note else ""
     html = f"""
     <p>Hi {business.name},</p>
-    <p>Unfortunately we were unable to approve your Buhata Booking registration at this time.</p>
+    <p>Unfortunately we were unable to approve your Paglambo Booking registration at this time.</p>
     {note_row}
     <p>Please contact us if you have any questions.</p>
     """
-    _send(business.email, "Registration not approved — Buhata Booking", html)
+    _send(business.email, "Registration not approved — Paglambo Booking", html)
 
 
 def send_subscription_receipt_received(business, superadmin_email: str) -> None:
@@ -192,11 +192,11 @@ def send_subscription_approved(business) -> None:
     """Notify business that their subscription payment was approved."""
     html = f"""
     <p>Hi {business.name},</p>
-    <p>Your subscription payment has been verified. Your Buhata Booking
+    <p>Your subscription payment has been verified. Your Paglambo Booking
     <strong>{business.plan.title()}</strong> plan is now active.</p>
     <p>Log in to your dashboard to continue using the platform.</p>
     """
-    _send(business.email, "Subscription activated — Buhata Booking", html)
+    _send(business.email, "Subscription activated — Paglambo Booking", html)
 
 
 def send_subscription_rejected(business, note: str | None = None) -> None:
@@ -204,11 +204,11 @@ def send_subscription_rejected(business, note: str | None = None) -> None:
     note_row = f"<p><strong>Reason:</strong> {note}</p>" if note else ""
     html = f"""
     <p>Hi {business.name},</p>
-    <p>Unfortunately we could not verify your subscription payment for Buhata Booking.</p>
+    <p>Unfortunately we could not verify your subscription payment for Paglambo Booking.</p>
     {note_row}
     <p>Please upload a new receipt from your dashboard or contact us if you believe this is an error.</p>
     """
-    _send(business.email, "Subscription payment not verified — Buhata Booking", html)
+    _send(business.email, "Subscription payment not verified — Paglambo Booking", html)
 
 
 def send_trial_expiry_reminder(business, days_left: int) -> None:
@@ -216,26 +216,26 @@ def send_trial_expiry_reminder(business, days_left: int) -> None:
     plural = "s" if days_left != 1 else ""
     html = f"""
     <p>Hi {business.name},</p>
-    <p>Your Buhata Booking trial expires in <strong>{days_left} day{plural}</strong>.</p>
+    <p>Your Paglambo Booking trial expires in <strong>{days_left} day{plural}</strong>.</p>
     <p>To keep your booking page active, log in and upload a subscription payment receipt.</p>
     """
-    _send(business.email, f"Your trial expires in {days_left} day{plural} — Buhata Booking", html)
+    _send(business.email, f"Your trial expires in {days_left} day{plural} — Paglambo Booking", html)
 
 
 def send_trial_expired(business) -> None:
     """Notify a business their trial has expired and their booking page is inactive."""
     html = f"""
     <p>Hi {business.name},</p>
-    <p>Your Buhata Booking trial has expired. Your booking page is currently inactive.</p>
+    <p>Your Paglambo Booking trial has expired. Your booking page is currently inactive.</p>
     <p>To reactivate, log in to your dashboard and upload a subscription payment receipt.</p>
     """
-    _send(business.email, "Trial expired — Buhata Booking", html)
+    _send(business.email, "Trial expired — Paglambo Booking", html)
 
 
 def send_contact_inquiry(name: str, email: str, message: str) -> None:
     """Forward a landing page contact form submission to the platform inbox."""
     html = f"""
-    <p>You have a new message from the Buhata Booking contact form.</p>
+    <p>You have a new message from the Paglambo Booking contact form.</p>
     <table cellpadding="6" cellspacing="0">
       <tr><td><strong>Name</strong></td><td>{name}</td></tr>
       <tr><td><strong>Email</strong></td><td>{email}</td></tr>

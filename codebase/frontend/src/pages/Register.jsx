@@ -52,7 +52,7 @@ export default function Register() {
     <PublicLayout altTo="/login" altLabel="Sign in">
       <div className="bg-cream dark:bg-navy rounded-xl shadow-sm border border-navy/10 dark:border-cream/10 w-full max-w-lg mx-auto p-8">
         <h1 className="text-2xl font-bold font-display text-navy dark:text-cream mb-1">Create your account</h1>
-        <p className="text-sm text-navy/50 dark:text-cream/50 mb-6">Get started with Buhata Booking</p>
+        <p className="text-sm text-navy/50 dark:text-cream/50 mb-6">Get started with Paglambo Booking</p>
 
         {error && (
           <div className="mb-4 px-4 py-3 rounded-lg bg-terracotta/10 border border-terracotta/30 text-sm text-terracotta">

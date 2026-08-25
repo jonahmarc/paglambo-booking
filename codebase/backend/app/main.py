@@ -6,7 +6,7 @@ from app.routers import addon, auth, booking, business, contact, discount, event
 from app.routers.public import meta_router as public_meta_router
 
 app = FastAPI(
-    title="Buhata Booking API",
+    title="Paglambo Booking API",
     version="0.1.0",
     docs_url="/docs" if settings.debug else None,
     redoc_url=None,

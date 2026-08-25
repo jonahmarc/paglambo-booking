@@ -36,7 +36,7 @@ def upgrade() -> None:
     op.execute("INSERT INTO platform_settings (key, value) VALUES ('require_approval', 'true')")
     op.execute("INSERT INTO platform_settings (key, value) VALUES ('trial_duration_days', '60')")
 
-    # Subscription payment receipts (businesses paying Buhata Booking)
+    # Subscription payment receipts (businesses paying Paglambo Booking)
     op.create_table(
         "subscription_payments",
         sa.Column("id", sa.Integer(), nullable=False),

@@ -119,7 +119,7 @@ export default function Subscription() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold font-display text-navy dark:text-cream">Subscription</h1>
-          <p className="text-sm text-navy/50 dark:text-cream/50 mt-1">Manage your Buhata Booking plan.</p>
+          <p className="text-sm text-navy/50 dark:text-cream/50 mt-1">Manage your Paglambo Booking plan.</p>
         </div>
         <div className="flex items-center gap-2">
           <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${

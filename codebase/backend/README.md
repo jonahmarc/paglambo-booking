@@ -1,6 +1,6 @@
 # Backend
 
-FastAPI application serving the Buhata Booking API.
+FastAPI application serving the Paglambo Booking API.
 
 ## Stack
 

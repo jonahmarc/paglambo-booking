@@ -42,6 +42,11 @@ class PublicPackageOut(BaseModel):
     pool_sessions: list[PublicSessionOut]
 
 
+class PublicPhotoOut(BaseModel):
+    id: int
+    sort_order: int
+
+
 class PublicEventTypeOut(BaseModel):
     id: int
     name: str
@@ -52,3 +57,4 @@ class PublicEventTypeOut(BaseModel):
     requires_payment: bool
     add_ons: list[PublicAddOnOut]
     package: PublicPackageOut | None
+    photos: list[PublicPhotoOut] = []

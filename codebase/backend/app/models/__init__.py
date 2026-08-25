@@ -6,6 +6,7 @@ from app.models.business import Business
 from app.models.customer import Customer
 from app.models.discount import DiscountCode, DiscountType
 from app.models.event_type import EventType, EventTypeKind
+from app.models.event_type_photo import EventTypePhoto
 from app.models.package import Package, PackageDateMode
 from app.models.payment import Payment, PaymentMethod, PaymentStatus
 from app.models.platform_setting import PlatformSetting
@@ -19,6 +20,7 @@ __all__ = [
     "SuperAdmin",
     "EventType",
     "EventTypeKind",
+    "EventTypePhoto",
     "Session",
     "SessionStatus",
     "Package",

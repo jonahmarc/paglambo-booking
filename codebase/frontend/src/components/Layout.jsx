@@ -66,7 +66,7 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex bg-cream dark:bg-dark-base">
       <aside className="w-56 bg-navy dark:bg-dark-deep flex flex-col">
         <div className="px-5 py-5 border-b border-cream/10">
-          <p className="text-xs font-semibold text-amber uppercase tracking-widest">Buhata Booking</p>
+          <p className="text-xs font-semibold text-amber uppercase tracking-widest">Paglambo Booking</p>
           <p className="mt-1 text-sm font-medium text-cream/60 truncate">{business?.name}</p>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">

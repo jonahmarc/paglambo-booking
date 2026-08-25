@@ -28,7 +28,7 @@ export default function SuperAdminLogin() {
   return (
     <div className="min-h-screen bg-cream dark:bg-dark-base flex items-center justify-center p-4">
       <div className="bg-cream dark:bg-navy rounded-xl shadow-sm border border-navy/10 dark:border-cream/10 w-full max-w-sm p-8">
-        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream mb-1">Buhata Booking</h1>
+        <h1 className="text-2xl font-bold font-display text-navy dark:text-cream mb-1">Paglambo Booking</h1>
         <p className="text-xs font-semibold text-amber uppercase tracking-wide mb-1">Platform Admin</p>
         <p className="text-sm text-navy/50 dark:text-cream/50 mb-6">Sign in to your operator account</p>
 

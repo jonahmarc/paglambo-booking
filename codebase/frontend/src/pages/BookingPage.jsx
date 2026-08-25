@@ -116,6 +116,46 @@ function EventTypeCard({ et, onSelect }) {
   )
 }
 
+// ─── Photo carousel ──────────────────────────────────────────────────────────
+
+function PhotoCarousel({ photos, bookingKey, eventTypeId }) {
+  const [idx, setIdx] = useState(0)
+  if (!photos || photos.length === 0) return null
+  const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order)
+  const current = sorted[idx]
+  return (
+    <div className="relative rounded-xl overflow-hidden bg-navy/5 dark:bg-cream/5 mb-6" style={{ aspectRatio: '16/7' }}>
+      <img
+        key={current.id}
+        src={`/api/public/${bookingKey}/event-types/${eventTypeId}/photos/${current.id}`}
+        alt=""
+        className="w-full h-full object-cover"
+      />
+      {sorted.length > 1 && (
+        <>
+          <button
+            onClick={() => setIdx(i => (i - 1 + sorted.length) % sorted.length)}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center text-sm transition-colors"
+          >‹</button>
+          <button
+            onClick={() => setIdx(i => (i + 1) % sorted.length)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center text-sm transition-colors"
+          >›</button>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {sorted.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setIdx(i)}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${i === idx ? 'bg-white' : 'bg-white/40'}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 // ─── Session picker ───────────────────────────────────────────────────────────
 
 function SessionPicker({ eventType, partySize, sessions, selectedIds, onChange }) {
@@ -827,6 +867,14 @@ export default function BookingPage() {
         {phase === 'configure' && selectedEventType && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
+              {/* Photo carousel */}
+              {selectedEventType.photos?.length > 0 && (
+                <PhotoCarousel
+                  photos={selectedEventType.photos}
+                  bookingKey={business.booking_key}
+                  eventTypeId={selectedEventType.id}
+                />
+              )}
               {/* Party size */}
               <div className={CARD_CLS}>
                 <h3 className={SECTION_LABEL}>How many people?</h3>

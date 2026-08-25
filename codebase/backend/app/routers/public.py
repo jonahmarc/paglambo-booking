@@ -9,6 +9,7 @@ from app.models import Business, EventType
 from app.models.event_type import EventTypeKind
 from app.routers.deps import get_business_or_404
 from app.schemas.public import PublicBusinessOut, PublicEventTypeOut, PublicSessionOut
+from app.services.event_type_photo import get_photo
 from app.services.public import get_public_event_type, list_available_sessions, list_public_event_types
 
 # Slug-based lookup — must be registered in main.py BEFORE the booking_key router
@@ -92,6 +93,23 @@ def get_single_event_type(
     if et is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event type not found")
     return et
+
+
+@router.get("/event-types/{event_type_id}/photos/{photo_id}")
+def get_event_photo(
+    booking_key: str,
+    event_type_id: int,
+    photo_id: int,
+    db: DBSession = Depends(get_db),
+):
+    business = get_business_or_404(db, booking_key)
+    photo = get_photo(db, event_type_id, photo_id)
+    if photo is None or photo.event_type.business_id != business.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+    p = Path(photo.file_path)
+    if not p.exists():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo file not found")
+    return FileResponse(p)
 
 
 @router.get("/event-types/{event_type_id}/sessions", response_model=list[PublicSessionOut])

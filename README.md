@@ -1,4 +1,4 @@
-# Buhata Booking
+# Paglambo Booking
 
 *Every class. Every package. One booking flow.*
 
@@ -7,10 +7,10 @@ A booking and scheduling platform for small businesses. Businesses set up their 
 ## Directory structure
 
 ```
-Buhata Booking/
+Paglambo Booking/
 ├── artifacts/               Product spec and brand identity docs
 │   ├── booking-platform-spec.md
-│   └── buhata-booking-brand-identity.md
+│   └── paglambo-booking-brand-identity.md
 ├── codebase/
 │   ├── backend/             FastAPI backend API
 │   └── frontend/            React admin dashboard + embeddable booking widget

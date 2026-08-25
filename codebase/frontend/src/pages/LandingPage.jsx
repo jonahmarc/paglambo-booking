@@ -99,7 +99,7 @@ export default function LandingPage() {
       setContactStatus('success')
     } catch {
       setContactStatus('error')
-      setContactError('Something went wrong. Email us directly at hello@buhatabooking.com')
+      setContactError('Something went wrong. Email us directly at hello@paglamboBooking.com')
     }
   }
 
@@ -110,7 +110,7 @@ export default function LandingPage() {
       <header className="border-b border-navy/10 dark:border-cream/10 sticky top-0 bg-cream/95 dark:bg-dark-base/95 backdrop-blur-sm z-20">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <span className="text-xl font-bold font-display text-navy dark:text-cream">
-            Buhata Booking
+            Paglambo Booking
           </span>
           <div className="flex items-center gap-4">
             <button
@@ -325,14 +325,14 @@ export default function LandingPage() {
               Get in touch
             </h2>
             <p className="text-navy/60 dark:text-cream/60 leading-relaxed mb-8">
-              Have questions about Buhata Booking? Want to see a demo or learn
+              Have questions about Paglambo Booking? Want to see a demo or learn
               more about what we can do for your business? Drop us a message
               and we'll get back to you shortly.
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-sm text-navy/70 dark:text-cream/70">
                 <span className="text-amber text-base">✉</span>
-                hello@buhatabooking.com
+                hello@paglamboBooking.com
               </div>
               <div className="flex items-center gap-3 text-sm text-navy/70 dark:text-cream/70">
                 <span className="text-amber text-base">⏱</span>
@@ -416,10 +416,10 @@ export default function LandingPage() {
       <footer className="border-t border-navy/10 dark:border-cream/10">
         <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <span className="font-display font-semibold text-navy dark:text-cream">
-            Buhata Booking
+            Paglambo Booking
           </span>
           <p className="text-sm text-navy/35 dark:text-cream/35">
-            &copy; {new Date().getFullYear()} Buhata Booking. All rights reserved.
+            &copy; {new Date().getFullYear()} Paglambo Booking. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm">
             <Link

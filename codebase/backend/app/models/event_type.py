@@ -45,3 +45,6 @@ class EventType(Base):
     package: Mapped["Package | None"] = relationship(back_populates="event_type", uselist=False)
     add_ons: Mapped[list["AddOn"]] = relationship(back_populates="event_type")
     bookings: Mapped[list["Booking"]] = relationship(back_populates="event_type")
+    photos: Mapped[list["EventTypePhoto"]] = relationship(
+        back_populates="event_type", order_by="EventTypePhoto.sort_order", cascade="all, delete-orphan"
+    )

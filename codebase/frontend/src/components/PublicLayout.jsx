@@ -11,7 +11,7 @@ export default function PublicLayout({ children, altTo, altLabel }) {
       <header className="border-b border-navy/10 dark:border-cream/10 sticky top-0 bg-cream/95 dark:bg-dark-base/95 backdrop-blur-sm z-20">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="text-xl font-bold font-display text-navy dark:text-cream hover:opacity-80 transition-opacity">
-            Buhata Booking
+            Paglambo Booking
           </Link>
           <div className="flex items-center gap-4">
             <button
@@ -55,10 +55,10 @@ export default function PublicLayout({ children, altTo, altLabel }) {
       <footer className="border-t border-navy/10 dark:border-cream/10">
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <Link to="/" className="font-display font-semibold text-navy dark:text-cream hover:opacity-80 transition-opacity text-sm">
-            Buhata Booking
+            Paglambo Booking
           </Link>
           <p className="text-xs text-navy/35 dark:text-cream/35">
-            &copy; {new Date().getFullYear()} Buhata Booking. All rights reserved.
+            &copy; {new Date().getFullYear()} Paglambo Booking. All rights reserved.
           </p>
           <Link
             to="/"

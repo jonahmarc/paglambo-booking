@@ -1,4 +1,4 @@
-# Buhata Booking — Build Progress
+# Paglambo Booking — Build Progress
 
 ---
 
@@ -6,6 +6,7 @@
 
 | Task | Status | Notes |
 |---|---|---|
+| Platform rebrand — Buhata → Paglambo | ✅ Done | All code, docs, config, and memory updated 2026-08-26. VPS DB/directory rename still pending (manual step) |
 | DigitalOcean VPS | ✅ Have it | Upgrade to 2GB RAM when bookings go live |
 | SSH key pair for GitHub Actions | ✅ Done | Public key on VPS, private key in GitHub Secrets |
 | PostgreSQL on VPS | ✅ Done | `buhata_booking` DB and user created |
@@ -56,7 +57,7 @@
 
 ### Step 1b: Platform Subscription Model
 
-Business clients pay Buhata Booking a monthly subscription fee. Plans gate features. New registrations require superadmin approval before trial starts.
+Business clients pay Paglambo Booking a monthly subscription fee. Plans gate features. New registrations require superadmin approval before trial starts.
 
 **Plans:** Standard $49/mo · Pro $89/mo (both manual receipt upload to platform)
 **Standard includes:** All core booking features + discount codes
@@ -87,7 +88,7 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 | Business registration page | ✅ Done | `/register` route — name, email, password; calls existing `POST /api/auth/register` |
 | Superadmin login page | ✅ Done | `/superadmin/login` — separate login page; calls superadmin auth endpoint |
 | Superadmin dashboard | ✅ Done | Protected `/superadmin/*` area with its own layout; business list with activate/deactivate |
-| UI branding — "Buhata Booking" | ✅ Done | Renamed in `index.html`, `Login.jsx`, `Layout.jsx`, and new pages |
+| UI branding — "Paglambo Booking" | ✅ Done | Renamed in `index.html`, `Login.jsx`, `Layout.jsx`, and new pages |
 | Business settings page | ✅ Done | Name, PayPal/Wise usernames, booking key (read-only) |
 | Create / edit event types | ✅ Done | List, create modal, edit modal, activate/deactivate, link to sessions |
 | Sessions list / calendar | ✅ Done | Manual add + bulk generate; cancel; linked from event types |
@@ -120,7 +121,7 @@ Business clients pay Buhata Booking a monthly subscription fee. Plans gate featu
 
 ### Step 3b → now Step 3: Hosted Public Booking Page
 
-**The primary customer-facing booking experience.** Accessible at `app.buhatabooking.com/book/bamboo-cooking-school` — no WordPress, no embed complexity. Business owners share the URL directly (WhatsApp, email, Instagram bio). Uses the existing React + Tailwind stack so it shares components with the admin dashboard and is easy to maintain. WordPress plugin iframes this page.
+**The primary customer-facing booking experience.** Accessible at `app.paglamboBooking.com/book/bamboo-cooking-school` — no WordPress, no embed complexity. Business owners share the URL directly (WhatsApp, email, Instagram bio). Uses the existing React + Tailwind stack so it shares components with the admin dashboard and is easy to maintain. WordPress plugin iframes this page.
 
 ---
 
@@ -249,7 +250,7 @@ Event types can be **Public** (listed at `/book/{slug}`) or **Private** (hidden;
 
 #### Enhancement 4: Brand identity, dark mode & landing page
 
-Full design pass establishing the Buhata Booking visual identity. Dark mode is the default. Covers the admin dashboard, public booking page, and a new marketing landing page.
+Full design pass establishing the Paglambo Booking visual identity. Dark mode is the default. Covers the admin dashboard, public booking page, and a new marketing landing page.
 
 **Scope:**
 - Brand color palette — primary, accent, neutral, semantic (success/warning/error) tokens defined as CSS custom properties
@@ -305,10 +306,10 @@ Each event type has a photo gallery uploaded by the admin. Shown on the booking 
 
 | Task | Status | Notes |
 |---|---|---|
-| `EventTypePhoto` model | ⬜ Pending | `id`, `event_type_id` FK, `file_path`, `sort_order`; migration needed |
-| Admin UI — photo upload/delete/reorder | ⬜ Pending | Gallery management section in event type edit |
-| Photo serve endpoint | ⬜ Pending | `GET /api/public/{key}/event-types/{id}/photos/{photo_id}` |
-| Booking page — photo gallery on event cards | ⬜ Pending | Carousel/grid on event detail; shown before session picker |
+| `EventTypePhoto` model | ✅ Done | `id`, `event_type_id` FK (CASCADE), `file_path`, `sort_order`. Migration `i9d0e1f2g3h4`. Relationship on `EventType` ordered by `sort_order`. |
+| Admin UI — photo upload/delete/reorder | ✅ Done | `PhotoGallery` component in edit modal (`EventTypes.jsx`). Thumbnail grid with hover overlay. Upload, delete, left/right reorder. Photos served via public URL. |
+| Photo serve endpoint | ✅ Done | `GET /api/public/{key}/event-types/{id}/photos/{photo_id}`. Admin CRUD: `GET/POST /api/event-types/{id}/photos`, `DELETE /api/event-types/{id}/photos/{photo_id}`, `PATCH /api/event-types/{id}/photos/{photo_id}`. |
+| Booking page — photo gallery on event cards | ✅ Done | `PhotoCarousel` component shown above party size picker in configure phase. Prev/next arrows, dot indicators. Only shown when event type has photos. |
 
 ---
 
@@ -334,7 +335,7 @@ Covers the public booking page and landing page.
 | Task | Status | Notes |
 |---|---|---|
 | PHP plugin scaffold | ⬜ Pending | |
-| Embed via shortcode (iframe) | ⬜ Pending | `[buhata_booking slug="bamboo-cooking-school"]` — renders `<iframe src="https://app.buhatabooking.com/book/bamboo-cooking-school" ...>`. Simple wrapper around the hosted booking page. |
+| Embed via shortcode (iframe) | ⬜ Pending | `[paglambo_booking slug="bamboo-cooking-school"]` — renders `<iframe src="https://app.paglamboBooking.com/book/bamboo-cooking-school" ...>`. Simple wrapper around the hosted booking page. |
 | Plugin settings page in WP admin | ⬜ Pending | Enter platform URL and business slug |
 
 ---

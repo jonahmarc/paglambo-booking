@@ -11,6 +11,7 @@ from app.schemas.public import (
     PublicAddOnOut,
     PublicEventTypeOut,
     PublicPackageOut,
+    PublicPhotoOut,
     PublicSessionOut,
 )
 
@@ -93,6 +94,8 @@ def _build_event_type_out(db: DBSession, et: EventType) -> PublicEventTypeOut:
             pool_sessions=pool_sessions,
         )
 
+    photos = [PublicPhotoOut(id=p.id, sort_order=p.sort_order) for p in et.photos]
+
     return PublicEventTypeOut(
         id=et.id,
         name=et.name,
@@ -103,6 +106,7 @@ def _build_event_type_out(db: DBSession, et: EventType) -> PublicEventTypeOut:
         requires_payment=et.requires_payment,
         add_ons=add_ons,
         package=package_out,
+        photos=photos,
     )
 
 

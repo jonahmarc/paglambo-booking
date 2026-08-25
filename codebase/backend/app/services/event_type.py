@@ -1,7 +1,10 @@
+from pathlib import Path
+
 from sqlalchemy import delete as sa_delete
 from sqlalchemy.orm import Session as DBSession
 
 from app.models import AddOn, Booking, EventType, package_session_pool
+from app.models.event_type_photo import EventTypePhoto
 from app.models.session import Session as SessionModel, SessionStatus
 from app.schemas.event_type import EventTypeCreate, EventTypeUpdate
 
@@ -71,6 +74,12 @@ def delete_event_type_hard(db: DBSession, event_type: EventType) -> None:
         db.flush()
 
     db.query(AddOn).filter(AddOn.event_type_id == event_type.id).delete(synchronize_session="fetch")
+    db.flush()
+
+    photos = db.query(EventTypePhoto).filter(EventTypePhoto.event_type_id == event_type.id).all()
+    for photo in photos:
+        Path(photo.file_path).unlink(missing_ok=True)
+    db.query(EventTypePhoto).filter(EventTypePhoto.event_type_id == event_type.id).delete(synchronize_session="fetch")
     db.flush()
 
     if event_type.package:

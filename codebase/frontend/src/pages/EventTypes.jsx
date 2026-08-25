@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -142,6 +142,117 @@ function EventTypeForm({ onSave, defaultValues }) {
   )
 }
 
+function PhotoGallery({ eventTypeId, bookingKey }) {
+  const [photos, setPhotos] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+  const fileRef = useRef()
+
+  function loadPhotos() {
+    api.get(`/api/event-types/${eventTypeId}/photos`).then(setPhotos).catch(() => setPhotos([]))
+  }
+  useEffect(loadPhotos, [eventTypeId])
+
+  async function handleUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true); setError('')
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      await api.postForm(`/api/event-types/${eventTypeId}/photos`, fd)
+      loadPhotos()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  async function handleDelete(photoId) {
+    try {
+      await api.delete(`/api/event-types/${eventTypeId}/photos/${photoId}`)
+      loadPhotos()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  async function handleMove(photo, direction) {
+    const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order)
+    const idx = sorted.findIndex(p => p.id === photo.id)
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1
+    if (swapIdx < 0 || swapIdx >= sorted.length) return
+    const swap = sorted[swapIdx]
+    await api.patch(`/api/event-types/${eventTypeId}/photos/${photo.id}`, { sort_order: swap.sort_order })
+    await api.patch(`/api/event-types/${eventTypeId}/photos/${swap.id}`, { sort_order: photo.sort_order })
+    loadPhotos()
+  }
+
+  if (photos === null) return <Spinner />
+
+  const sorted = [...photos].sort((a, b) => a.sort_order - b.sort_order)
+
+  return (
+    <div className="border-t border-navy/10 dark:border-cream/10 pt-5 mt-2">
+      <p className="text-sm font-medium text-navy/80 dark:text-cream/80 mb-3">Photos</p>
+
+      {sorted.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {sorted.map((photo, idx) => (
+            <div key={photo.id} className="relative group rounded-lg overflow-hidden border border-navy/10 dark:border-cream/10 aspect-video bg-navy/5 dark:bg-cream/5">
+              <img
+                src={`/api/public/${bookingKey}/event-types/${eventTypeId}/photos/${photo.id}`}
+                alt={`Photo ${idx + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleMove(photo, 'up')}
+                  disabled={idx === 0}
+                  className="p-1 rounded bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white text-xs"
+                  title="Move left"
+                >←</button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(photo.id)}
+                  className="p-1 rounded bg-terracotta/80 hover:bg-terracotta text-white text-xs"
+                  title="Delete"
+                >✕</button>
+                <button
+                  type="button"
+                  onClick={() => handleMove(photo, 'down')}
+                  disabled={idx === sorted.length - 1}
+                  className="p-1 rounded bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white text-xs"
+                  title="Move right"
+                >→</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center gap-3">
+        <label className={`cursor-pointer inline-flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-lg border transition-colors ${uploading ? 'opacity-50 cursor-not-allowed border-navy/10 dark:border-cream/10 text-navy/40 dark:text-cream/40' : 'border-navy/20 dark:border-cream/20 text-navy dark:text-cream hover:border-amber hover:text-amber'}`}>
+          {uploading ? 'Uploading…' : '+ Add photo'}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            disabled={uploading}
+            onChange={handleUpload}
+          />
+        </label>
+        <span className="text-xs text-navy/40 dark:text-cream/40">JPEG, PNG or WEBP · max 10 MB</span>
+      </div>
+      {error && <p className="text-xs text-terracotta mt-2">{error}</p>}
+    </div>
+  )
+}
+
 export default function EventTypes() {
   const navigate = useNavigate()
   const { business } = useAuth()
@@ -281,6 +392,9 @@ export default function EventTypes() {
       {modal?.edit && (
         <Modal title="Edit event type" onClose={() => setModal(null)}>
           <EventTypeForm onSave={(data, spb) => handleEdit(modal.edit, data, spb)} defaultValues={modal.edit} />
+          {business?.booking_key && (
+            <PhotoGallery eventTypeId={modal.edit.id} bookingKey={business.booking_key} />
+          )}
         </Modal>
       )}
     </div>

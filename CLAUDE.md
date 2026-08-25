@@ -1,10 +1,10 @@
-# CLAUDE.md — Buhata Booking
+# CLAUDE.md — Paglambo Booking
 
 Project context and decisions for AI-assisted development.
 
 ## What this project is
 
-Buhata Booking is a booking and class management platform built for small businesses — starting with a cooking school and an event/travel package company. It runs as a FastAPI backend with a React admin dashboard and an embeddable public booking widget. The first delivery channel is WordPress.
+Paglambo Booking is a booking and class management platform built for small businesses — starting with a cooking school and an event/travel package company. It runs as a FastAPI backend with a React admin dashboard and an embeddable public booking widget. The first delivery channel is WordPress.
 
 ## Tech stack
 
@@ -44,7 +44,7 @@ Domain is NOT yet purchased — Cloudflare domain + verified email is planned af
 | DigitalOcean VPS | ✅ Provisioned | 1GB RAM for now, upgrade to 2GB when traffic starts |
 | PostgreSQL | Set up in Phase 0 | On the VPS |
 | Domain | Not yet | Will be Cloudflare |
-| GitHub repo | Not yet | User initializes Git in the root `/Buhata Booking/` folder |
+| GitHub repo | Not yet | User initializes Git in the root `/Paglambo Booking/` folder |
 | DO Spaces backups | Phase 0 | Nightly DB + file backups |
 
 ## Code layout
@@ -55,7 +55,7 @@ codebase/
 └── frontend/    React admin dashboard + embeddable booking widget
 ```
 
-All code lives under `/codebase/`. The root folder (`/Buhata Booking/`) holds docs, artifacts, CLAUDE.md, and PROGRESS.md only.
+All code lives under `/codebase/`. The root folder (`/Paglambo Booking/`) holds docs, artifacts, CLAUDE.md, and PROGRESS.md only.
 
 ## Build order
 

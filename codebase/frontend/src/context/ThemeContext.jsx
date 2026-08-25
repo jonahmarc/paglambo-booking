@@ -4,7 +4,7 @@ const ThemeContext = createContext(null)
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(
-    () => localStorage.getItem('buhata-theme') || 'dark'
+    () => localStorage.getItem('paglambo-theme') || 'dark'
   )
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export function ThemeProvider({ children }) {
     } else {
       root.classList.remove('dark')
     }
-    localStorage.setItem('buhata-theme', theme)
+    localStorage.setItem('paglambo-theme', theme)
   }, [theme])
 
   function toggle() {

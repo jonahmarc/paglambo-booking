@@ -1,6 +1,6 @@
 # Codebase
 
-All Buhata Booking application code lives here.
+All Paglambo Booking application code lives here.
 
 | Directory | What it is |
 |---|---|
