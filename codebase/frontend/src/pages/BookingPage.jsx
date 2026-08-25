@@ -742,7 +742,7 @@ export default function BookingPage() {
   useEffect(() => {
     if (!selectedEventType || !business) return
     const kind = selectedEventType.kind
-    if (kind === 'package') { setSessions([]); return }
+    if (kind === 'package') { setSessions([]); setSessionsLoading(false); return }
     setSessionsLoading(true)
     publicApi.get(`/api/public/${business.booking_key}/event-types/${selectedEventType.id}/sessions`)
       .then(setSessions)
